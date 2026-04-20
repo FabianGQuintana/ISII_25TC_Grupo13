@@ -18,7 +18,7 @@ El sistema utiliza una arquitectura **Cliente-Servidor** desacoplada, con un bac
 
 * **Capa de API:** Proporciona los servicios RESTful mediante **ASP.NET Core** y gestiona la seguridad con **JWT**.
 * **Capa de Negocio:** Contiene el motor de cálculo indexado, algoritmos de mora y las reglas de dominio.
-* **Capa de Datos:** Gestiona la persistencia en **SQL Server** utilizando consultas nativas optimizadas.
+* **Capa de Datos:** Gestiona la persistencia en **MySQL** utilizando consultas nativas optimizadas.
 * **Capa de Entidades:** Define los modelos de datos (como `Persona`, `Contrato`, `Cuota`) transversales a toda la solución.
 
 ## Stack Tecnológico
@@ -26,4 +26,4 @@ El sistema utiliza una arquitectura **Cliente-Servidor** desacoplada, con un bac
 * **Backend:** .NET 8 (C#).
 * **Frontend:** React 18 con TypeScript y Vite.
 * **UI Library:** Material UI (MUI).
-* **Base de Datos:** SQL Server.
+* **Base de Datos:** MySQL.

@@ -26,4 +26,4 @@ El sistema utiliza una arquitectura **Cliente-Servidor** desacoplada, con un bac
 * **Backend:** .NET 8 (C#).
 * **Frontend:** React 18 con TypeScript y Vite.
 * **UI Library:** Material UI (MUI).
-* **Base de Datos:** MySQL.
+* **Base de Datos:** SQL Server.

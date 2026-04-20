@@ -1,0 +1,5 @@
+C:\Users\Ivan\source\repos\ISII_25TC_Grupo13\CapaEntidades\obj\Debug\net8.0\CapaEntidades.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Ivan\source\repos\ISII_25TC_Grupo13\CapaEntidades\obj\Debug\net8.0\CapaEntidades.AssemblyInfoInputs.cache
+C:\Users\Ivan\source\repos\ISII_25TC_Grupo13\CapaEntidades\obj\Debug\net8.0\CapaEntidades.AssemblyInfo.cs
+C:\Users\Ivan\source\repos\ISII_25TC_Grupo13\CapaEntidades\obj\Debug\net8.0\CapaEntidades.csproj.CoreCompileInputs.cache
+C:\Users\Ivan\source\repos\ISII_25TC_Grupo13\CapaEntidades\obj\Debug\net8.0\CapaEntidades.sourcelink.json

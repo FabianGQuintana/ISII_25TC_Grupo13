@@ -23,40 +23,39 @@ namespace CapaNegocio
 
         /// <summary>
         /// Punto de entrada principal para el controller.
-        /// Devuelve el valor vigente del índice:
-        ///   1. Busca en caché (TTL según tipo: diario ICL, mensual IPC).
-        ///   2. Si no hay caché, obtiene el valor de la API externa.
-        ///   3. Guarda en DB y retorna.
+        /// Implementa la lógica de "Actualización Inteligente":
+        /// 1. Busca si ya consultamos a Argly el día de HOY (caché diaria).
+        /// 2. Si no hay registro de hoy, consulta la API externa.
+        /// 3. Guarda el valor para HOY (para no llamar a Argly de nuevo hasta mañana).
+        ///    Si el valor es distinto al último histórico (ej. el INDEC publicó a mitad de mes),
+        ///    el cambio se verá reflejado inmediatamente.
         /// </summary>
         public async Task<HistoricoIndice> ObtenerOActualizar(Guid idTipoIndice)
         {
             var tipo = ResolverTipo(idTipoIndice)
                 ?? throw new Exception("Tipo de índice no encontrado.");
 
-            // 1. Caché vigente
-            var cached = _capaDato.ObtenerActual(idTipoIndice, tipo.Nombre);
-            if (cached != null)
-                return cached;
+            // 1. ¿Ya consultamos HOY? (Caché diaria para no saturar Argly)
+            var hoy = _capaDato.ObtenerActual(idTipoIndice);
+            if (hoy != null)
+                return hoy;
 
-            // 2. Fetch externo
-            var valor = await FetchValorExterno(tipo.Nombre);
+            // 2. Caché miss de hoy: Traemos el valor de la API externa
+            var valorExterno = await FetchValorExterno(tipo.Nombre);
 
-            // 3. Guardar y retornar
+            // 3. Guardar el registro de hoy
             var nuevo = new HistoricoIndice
             {
                 IdHistoricoIndice = Guid.NewGuid(),
                 IdTipoIndice = idTipoIndice,
-                Valor = valor,
+                Valor = valorExterno,
                 FechaValidez = DateTime.Now
             };
 
-            _capaDato.InsertarHistorico(nuevo, tipo.Nombre);
+            _capaDato.InsertarHistorico(nuevo);
             return nuevo;
         }
 
-        /// <summary>
-        /// Guarda un valor manualmente (por compatibilidad con el endpoint POST).
-        /// </summary>
         public void GuardarHistorico(HistoricoIndice obj)
         {
             if (obj.Valor <= 0)
@@ -64,8 +63,7 @@ namespace CapaNegocio
             if (obj.IdTipoIndice == Guid.Empty)
                 throw new Exception("El tipo de índice es obligatorio.");
 
-            var nombre = ResolverTipo(obj.IdTipoIndice)?.Nombre ?? string.Empty;
-            _capaDato.InsertarHistorico(obj, nombre);
+            _capaDato.InsertarHistorico(obj);
         }
 
         // ── Privados ──────────────────────────────────────────────────────────

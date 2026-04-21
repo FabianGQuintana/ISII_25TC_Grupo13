@@ -10,3 +10,15 @@ C:\Users\Ivan\source\repos\ISII_25TC_Grupo13\CapaEntidades\obj\Debug\net8.0\Capa
 C:\Users\Ivan\source\repos\ISII_25TC_Grupo13\CapaEntidades\obj\Debug\net8.0\refint\CapaEntidades.dll
 C:\Users\Ivan\source\repos\ISII_25TC_Grupo13\CapaEntidades\obj\Debug\net8.0\CapaEntidades.pdb
 C:\Users\Ivan\source\repos\ISII_25TC_Grupo13\CapaEntidades\obj\Debug\net8.0\ref\CapaEntidades.dll
+C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\CapaEntidades\bin\Debug\net8.0\CapaEntidades.deps.json
+C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\CapaEntidades\bin\Debug\net8.0\CapaEntidades.dll
+C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\CapaEntidades\bin\Debug\net8.0\CapaEntidades.pdb
+C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\CapaEntidades\obj\Debug\net8.0\CapaEntidades.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\CapaEntidades\obj\Debug\net8.0\CapaEntidades.AssemblyInfoInputs.cache
+C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\CapaEntidades\obj\Debug\net8.0\CapaEntidades.AssemblyInfo.cs
+C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\CapaEntidades\obj\Debug\net8.0\CapaEntidades.csproj.CoreCompileInputs.cache
+C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\CapaEntidades\obj\Debug\net8.0\CapaEntidades.sourcelink.json
+C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\CapaEntidades\obj\Debug\net8.0\CapaEntidades.dll
+C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\CapaEntidades\obj\Debug\net8.0\refint\CapaEntidades.dll
+C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\CapaEntidades\obj\Debug\net8.0\CapaEntidades.pdb
+C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\CapaEntidades\obj\Debug\net8.0\ref\CapaEntidades.dll

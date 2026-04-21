@@ -2,10 +2,13 @@
 .vs/
 *.user
 *.suo
+*.userosscache
 
 # Build
 bin/
 obj/
+Debug/
+Release/
 
 # NuGet
 packages/
@@ -14,3 +17,18 @@ packages/
 # IDE
 .idea/
 .vscode/
+
+# Compiled
+*.dll
+*.pdb
+*.exe
+*.exe.config
+
+# MSBuild
+*.g.props
+*.g.targets
+*.cache
+*.assets
+
+# Runtime
+*.genruntimeconfig.cache

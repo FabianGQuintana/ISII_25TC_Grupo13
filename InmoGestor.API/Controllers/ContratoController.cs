@@ -63,7 +63,11 @@ namespace InmoGestor.API.Controllers
             });
         }
 
+<<<<<<< HEAD
         [HttpGet("{id}")]
+=======
+        [HttpGet("{id:guid}")]
+>>>>>>> main
         public IActionResult ObtenerPorId(Guid id)
         {
             var contrato = _cnContrato.ObtenerPorId(id);
@@ -95,7 +99,11 @@ namespace InmoGestor.API.Controllers
                     Inquilino = new
                     {
                         contrato.OInquilino?.IdPersona,
+<<<<<<< HEAD
                         contrato.OInquilino?.NombreCompleto
+=======
+                        nombreCompleto = contrato.OInquilino?.NombreCompleto
+>>>>>>> main
                     },
                     TipoIndice = new
                     {

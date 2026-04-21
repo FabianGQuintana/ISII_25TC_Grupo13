@@ -18,7 +18,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "super-secret-key-min-32-chars!!";
+var jwtKey = builder.Configuration["Jwt:Key"] ?? "ThisIsA32CharacterLongSecretKey!!";
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "InmoGestor";
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

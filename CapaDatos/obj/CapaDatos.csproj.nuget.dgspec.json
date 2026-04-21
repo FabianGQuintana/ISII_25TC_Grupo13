@@ -56,15 +56,15 @@
           "dependencies": {
             "BCrypt.Net-Next": {
               "target": "Package",
-              "version": "[4.0.2, )"
+              "version": "[4.1.0, )"
             },
             "Microsoft.Extensions.Configuration.Json": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[8.0.1, )"
             },
             "System.Data.SqlClient": {
               "target": "Package",
-              "version": "[4.8.6, )"
+              "version": "[4.9.1, )"
             }
           },
           "imports": [

@@ -11,6 +11,6 @@
     <ProjectReference Include="..\CapaDatos\CapaDatos.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="BCrypt.Net-Next" Version="4.0.2" />
+    <PackageReference Include="BCrypt.Net-Next" Version="4.1.0" />
   </ItemGroup>
 </Project>

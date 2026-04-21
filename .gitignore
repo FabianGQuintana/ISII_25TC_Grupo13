@@ -3,29 +3,32 @@
 *.user
 *.suo
 *.userosscache
-*.sln.doc user
+
+# Build
+bin/
+obj/
+Debug/
+Release/
 
 # NuGet
 packages/
 *.nupkg
 
-# Build results
-bin/
-obj/
-[Dd]ebug/
-[Rr]elease/
-x64/
-x86/
-[Bb]uild/
-
-# Web
-wwwroot/
-
 # IDE
 .idea/
 .vscode/
-*.swp
 
-# OS
-Thumbs.db
-.DS_Store
+# Compiled
+*.dll
+*.pdb
+*.exe
+*.exe.config
+
+# MSBuild
+*.g.props
+*.g.targets
+*.cache
+*.assets
+
+# Runtime
+*.genruntimeconfig.cache

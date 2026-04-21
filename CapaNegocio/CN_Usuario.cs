@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using CapaDatos;
 using CapaEntidades;
 
@@ -7,6 +8,11 @@ namespace CapaNegocio
     public class CN_Usuario
     {
         private readonly CD_Usuario _cdUsuario = new();
+
+        public List<RolUsuario> ListarRoles()
+        {
+            return _cdUsuario.ListarRoles();
+        }
         
         public (bool success, Usuario? usuario, string message) Login(string dni, string password)
         {
@@ -69,11 +75,6 @@ namespace CapaNegocio
             if (string.IsNullOrWhiteSpace(rolNombre))
             {
                 return (false, "El rol es requerido");
-            }
-
-            if (rolNombre != "Operador" && rolNombre != "Superior")
-            {
-                return (false, "El rol debe ser 'Operador' o 'Superior'");
             }
 
             var persona = new Persona

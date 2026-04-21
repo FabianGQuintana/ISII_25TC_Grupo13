@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using CapaEntidades;
@@ -12,6 +13,20 @@ namespace InmoGestor.API.Controllers
     public class IndiceController : ControllerBase
     {
         private CN_Indice _cnIndice = new CN_Indice();
+
+        [HttpGet("tipos")]
+        public IActionResult ListarTipos()
+        {
+            try
+            {
+                var lista = _cnIndice.ListarTipos();
+                return Ok(new { success = true, data = lista });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new { success = false, mensaje = ex.Message });
+            }
+        }
 
         [HttpGet("{id}")]
         public IActionResult ObtenerActual(Guid id)

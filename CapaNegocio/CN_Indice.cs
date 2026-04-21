@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using CapaDatos;
 using CapaEntidades;
 
@@ -8,7 +9,12 @@ namespace CapaNegocio
     {
         private CD_Indice objCapaDato = new CD_Indice();
 
-        public HistoricoIndice ObtenerActual(Guid idTipoIndice)
+        public List<TipoIndice> ListarTipos()
+        {
+            return objCapaDato.ListarTipos();
+        }
+
+        public HistoricoIndice? ObtenerActual(Guid idTipoIndice)
         {
             return objCapaDato.ObtenerActual(idTipoIndice);
         }

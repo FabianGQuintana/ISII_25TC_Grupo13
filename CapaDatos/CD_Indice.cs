@@ -12,46 +12,39 @@ namespace CapaDatos
         /// - ICL (BCRA): se actualiza diariamente → TTL = día actual.
         /// - IPC (INDEC): se actualiza mensualmente → TTL = mes y año actual.
         /// </summary>
-        public HistoricoIndice? ObtenerActual(Guid idTipoIndice, string nombreTipo)
+        public HistoricoIndice? ObtenerActual(Guid idTipoIndice)
         {
-            HistoricoIndice? obj = null;
-
-            // El IPC del INDEC se publica una vez por mes; el ICL del BCRA se publica cada día hábil.
-            bool esIPC = nombreTipo.Equals("IPC", StringComparison.OrdinalIgnoreCase);
-
-            string filtroFecha = esIPC
-                ? "MONTH(fecha_validez) = MONTH(GETDATE()) AND YEAR(fecha_validez) = YEAR(GETDATE())"
-                : "CAST(fecha_validez AS DATE) = CAST(GETDATE() AS DATE)";
-
-            string query = $@"
-                SELECT TOP 1 id_historico_indice, id_tipo_indice, valor, fecha_validez
-                FROM historico_indice
-                WHERE id_tipo_indice = @idTipoIndice
-                AND {filtroFecha}
-                ORDER BY fecha_validez DESC";
-
+            HistoricoIndice? objeto = null;
             using (var cn = new SqlConnection(Conexion.Cadena))
-            using (var cmd = new SqlCommand(query, cn))
             {
-                cmd.Parameters.AddWithValue("@idTipoIndice", idTipoIndice);
-                cn.Open();
+                // Filtro unificado: siempre buscamos si ya existe un registro del DÍA DE HOY.
+                string query = @"
+                    SELECT TOP 1 id_historico_indice, id_tipo_indice, valor, fecha_validez 
+                    FROM historico_indice 
+                    WHERE id_tipo_indice = @id 
+                      AND CAST(fecha_validez AS DATE) = CAST(GETDATE() AS DATE)
+                    ORDER BY fecha_validez DESC";
 
-                using (var dr = cmd.ExecuteReader())
+                using (var cmd = new SqlCommand(query, cn))
                 {
-                    if (dr.Read())
+                    cmd.Parameters.AddWithValue("@id", idTipoIndice);
+                    cn.Open();
+                    using (var dr = cmd.ExecuteReader())
                     {
-                        obj = new HistoricoIndice
+                        if (dr.Read())
                         {
-                            IdHistoricoIndice = Guid.Parse(dr["id_historico_indice"].ToString()!),
-                            IdTipoIndice = Guid.Parse(dr["id_tipo_indice"].ToString()!),
-                            Valor = Convert.ToDecimal(dr["valor"]),
-                            FechaValidez = Convert.ToDateTime(dr["fecha_validez"])
-                        };
+                            objeto = new HistoricoIndice
+                            {
+                                IdHistoricoIndice = Guid.Parse(dr["id_historico_indice"].ToString()!),
+                                IdTipoIndice = Guid.Parse(dr["id_tipo_indice"].ToString()!),
+                                Valor = Convert.ToDecimal(dr["valor"]),
+                                FechaValidez = Convert.ToDateTime(dr["fecha_validez"])
+                            };
+                        }
                     }
                 }
             }
-
-            return obj;
+            return objeto;
         }
 
         public List<TipoIndice> ListarTipos()
@@ -79,36 +72,25 @@ namespace CapaDatos
             return lista;
         }
 
-        /// <summary>
-        /// Inserta un nuevo valor de caché. Para IPC (mensual) verifica que no exista
-        /// ya un registro del mismo mes/año antes de insertar y evitar duplicados.
-        /// Para ICL (diario) verifica que no exista del mismo día.
         /// </summary>
-        public void InsertarHistorico(HistoricoIndice obj, string nombreTipo)
+        public void InsertarHistorico(HistoricoIndice obj)
         {
-            bool esIPC = nombreTipo.Equals("IPC", StringComparison.OrdinalIgnoreCase);
-
-            // Guardia anti-duplicados: si ya existe un valor vigente, no insertamos
-            var existente = ObtenerActual(obj.IdTipoIndice, nombreTipo);
-            if (existente != null)
-                return;
-
-            string query = @"
-                INSERT INTO historico_indice (id_historico_indice, id_tipo_indice, valor, fecha_validez)
-                VALUES (@id, @idTipo, @valor, @fecha)";
-
-            DateTime fechaValidez = obj.FechaValidez == DateTime.MinValue ? DateTime.Now : obj.FechaValidez;
-
             using (var cn = new SqlConnection(Conexion.Cadena))
-            using (var cmd = new SqlCommand(query, cn))
             {
-                cmd.Parameters.AddWithValue("@id", obj.IdHistoricoIndice == Guid.Empty ? Guid.NewGuid() : obj.IdHistoricoIndice);
-                cmd.Parameters.AddWithValue("@idTipo", obj.IdTipoIndice);
-                cmd.Parameters.AddWithValue("@valor", obj.Valor);
-                cmd.Parameters.AddWithValue("@fecha", fechaValidez);
+                string query = @"
+                    INSERT INTO historico_indice (id_historico_indice, id_tipo_indice, valor, fecha_validez) 
+                    VALUES (@idH, @idT, @val, @fecha)";
 
-                cn.Open();
-                cmd.ExecuteNonQuery();
+                using (var cmd = new SqlCommand(query, cn))
+                {
+                    cmd.Parameters.AddWithValue("@idH", obj.IdHistoricoIndice);
+                    cmd.Parameters.AddWithValue("@idT", obj.IdTipoIndice);
+                    cmd.Parameters.AddWithValue("@val", obj.Valor);
+                    cmd.Parameters.AddWithValue("@fecha", obj.FechaValidez);
+
+                    cn.Open();
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
     }

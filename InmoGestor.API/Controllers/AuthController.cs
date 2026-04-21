@@ -77,6 +77,7 @@ var claims = new[]
         }
 
         [HttpPost("register")]
+        [Authorize(Roles = "Superior")]
         public IActionResult Register([FromBody] RegisterRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Dni))

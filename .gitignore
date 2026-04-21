@@ -9,3 +9,7 @@
 .vs/
 *.csproj.user
 .DS_Store
+CLAUDE.md
+Scripts/inmogestor_new_db.sql
+Scripts/TrabajoCampo.drawio.xml
+Scripts/ISII_25TC_Grupo13.pdf

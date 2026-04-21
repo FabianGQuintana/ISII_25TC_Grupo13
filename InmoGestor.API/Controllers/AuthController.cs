@@ -137,6 +137,35 @@ var claims = new[]
             return Ok(new { success = true, mensaje = message });
         }
         
+        /// <summary>
+        /// Crea el primer usuario Superior si la base de datos está vacía.
+        /// Solo funciona una vez. Una vez que existe cualquier usuario, devuelve error.
+        /// Credenciales: DNI=00000000 / Password=Admin123!
+        /// </summary>
+        [HttpPost("seed")]
+        public IActionResult Seed()
+        {
+            var roles = _cnUsuario.ListarRoles();
+            if (roles.Count == 0)
+                return Ok(new { success = false, mensaje = "No hay roles en la base de datos. Ejecutá el script SQL primero." });
+
+            // Intentar loguear con el DNI seed — si tiene éxito, ya existe el usuario
+            var (loginOk, _, _) = _cnUsuario.Login("00000000", "Admin123!");
+            if (loginOk)
+                return Ok(new { success = false, mensaje = "El usuario seed ya existe. Usá DNI: 00000000 / Pass: Admin123!" });
+
+            var (success, message) = _cnUsuario.Registrar(
+                dni: "00000000",
+                password: "Admin123!",
+                nombre: "Admin",
+                apellido: "Sistema",
+                email: "admin@inmogestor.com",
+                rolNombre: "Superior"
+            );
+
+            return Ok(new { success, mensaje = success ? "Usuario seed creado. DNI: 00000000 / Pass: Admin123!" : message });
+        }
+
         [HttpGet("me")]
         [Authorize]
         public IActionResult GetCurrentUser()

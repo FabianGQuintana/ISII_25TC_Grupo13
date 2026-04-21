@@ -37,8 +37,13 @@ namespace CapaDatos
                     {
                         if (dr.Read())
                         {
-                            var estado = dr["estado"].ToString();
-                            var claveHash = dr["clave"].ToString();
+                            var estado = dr["estado"]?.ToString() ?? "Activo";
+                            var claveHash = dr["clave"]?.ToString();
+                            
+                            if (string.IsNullOrEmpty(claveHash))
+                            {
+                                return (null, "INVALID_PASSWORD");
+                            }
                             
                             if (estado != "Activo")
                             {
@@ -146,10 +151,16 @@ namespace CapaDatos
                 {
                     try
                     {
+                        if (string.IsNullOrWhiteSpace(persona.Dni))
+                        {
+                            transaction.Rollback();
+                            return (false, "El DNI es requerido");
+                        }
+                        
                         string checkDniQuery = "SELECT COUNT(*) FROM persona WHERE dni = @dni";
                         using (var cmdCheck = new SqlCommand(checkDniQuery, cn, transaction))
                         {
-                            cmdCheck.Parameters.AddWithValue("@dni", persona.Dni ?? (object)DBNull.Value);
+                            cmdCheck.Parameters.AddWithValue("@dni", persona.Dni);
                             var countDni = (int)cmdCheck.ExecuteScalar();
                             if (countDni > 0)
                             {

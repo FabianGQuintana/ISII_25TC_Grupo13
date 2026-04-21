@@ -1073,7 +1073,7 @@
   },
   "projectFileDependencyGroups": {
     "net8.0": [
-      "BCrypt.Net-Next >= 4.0.1",
+      "BCrypt.Net-Next >= 4.0.2",
       "CapaEntidades >= 1.0.0",
       "Microsoft.Extensions.Configuration.Json >= 8.0.0",
       "System.Data.SqlClient >= 4.8.6"
@@ -1135,7 +1135,7 @@
         "dependencies": {
           "BCrypt.Net-Next": {
             "target": "Package",
-            "version": "[4.0.1, )"
+            "version": "[4.0.2, )"
           },
           "Microsoft.Extensions.Configuration.Json": {
             "target": "Package",
@@ -1165,17 +1165,5 @@
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json"
       }
     }
-  },
-  "logs": [
-    {
-      "code": "NU1603",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "CapaDatos depende de BCrypt.Net-Next (>= 4.0.1), pero no se encontró BCrypt.Net-Next 4.0.1. BCrypt.Net-Next 4.0.2 se resolvió en su lugar.",
-      "libraryId": "BCrypt.Net-Next",
-      "targetGraphs": [
-        "net8.0"
-      ]
-    }
-  ]
+  }
 }

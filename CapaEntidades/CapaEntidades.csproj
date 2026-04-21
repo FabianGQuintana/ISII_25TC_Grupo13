@@ -4,5 +4,6 @@
     <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>CapaEntidades</RootNamespace>
     <AssemblyName>CapaEntidades</AssemblyName>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 </Project>

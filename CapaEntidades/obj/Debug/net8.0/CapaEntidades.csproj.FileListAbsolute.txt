@@ -3,3 +3,10 @@ C:\Users\Ivan\source\repos\ISII_25TC_Grupo13\CapaEntidades\obj\Debug\net8.0\Capa
 C:\Users\Ivan\source\repos\ISII_25TC_Grupo13\CapaEntidades\obj\Debug\net8.0\CapaEntidades.AssemblyInfo.cs
 C:\Users\Ivan\source\repos\ISII_25TC_Grupo13\CapaEntidades\obj\Debug\net8.0\CapaEntidades.csproj.CoreCompileInputs.cache
 C:\Users\Ivan\source\repos\ISII_25TC_Grupo13\CapaEntidades\obj\Debug\net8.0\CapaEntidades.sourcelink.json
+C:\Users\Ivan\source\repos\ISII_25TC_Grupo13\CapaEntidades\bin\Debug\net8.0\CapaEntidades.deps.json
+C:\Users\Ivan\source\repos\ISII_25TC_Grupo13\CapaEntidades\bin\Debug\net8.0\CapaEntidades.dll
+C:\Users\Ivan\source\repos\ISII_25TC_Grupo13\CapaEntidades\bin\Debug\net8.0\CapaEntidades.pdb
+C:\Users\Ivan\source\repos\ISII_25TC_Grupo13\CapaEntidades\obj\Debug\net8.0\CapaEntidades.dll
+C:\Users\Ivan\source\repos\ISII_25TC_Grupo13\CapaEntidades\obj\Debug\net8.0\refint\CapaEntidades.dll
+C:\Users\Ivan\source\repos\ISII_25TC_Grupo13\CapaEntidades\obj\Debug\net8.0\CapaEntidades.pdb
+C:\Users\Ivan\source\repos\ISII_25TC_Grupo13\CapaEntidades\obj\Debug\net8.0\ref\CapaEntidades.dll

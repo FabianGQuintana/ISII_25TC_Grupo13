@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "OpxBHRHP9sc=",
+  "dgSpecHash": "kI2Z2NNCudg=",
   "success": true,
   "projectFilePath": "C:\\Users\\Ivan\\source\\repos\\ISII_25TC_Grupo13\\InmoGestor.API\\InmoGestor.API.csproj",
   "expectedPackageFiles": [
@@ -39,18 +39,5 @@
     "C:\\Users\\Ivan\\.nuget\\packages\\system.text.encodings.web\\8.0.0\\system.text.encodings.web.8.0.0.nupkg.sha512",
     "C:\\Users\\Ivan\\.nuget\\packages\\system.text.json\\8.0.0\\system.text.json.8.0.0.nupkg.sha512"
   ],
-  "logs": [
-    {
-      "code": "NU1603",
-      "level": "Warning",
-      "message": "CapaDatos depende de BCrypt.Net-Next (>= 4.0.1), pero no se encontró BCrypt.Net-Next 4.0.1. BCrypt.Net-Next 4.0.2 se resolvió en su lugar.",
-      "projectPath": "C:\\Users\\Ivan\\source\\repos\\ISII_25TC_Grupo13\\InmoGestor.API\\InmoGestor.API.csproj",
-      "warningLevel": 1,
-      "filePath": "C:\\Users\\Ivan\\source\\repos\\ISII_25TC_Grupo13\\InmoGestor.API\\InmoGestor.API.csproj",
-      "libraryId": "BCrypt.Net-Next",
-      "targetGraphs": [
-        "net8.0"
-      ]
-    }
-  ]
+  "logs": []
 }

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "ezc13hJyqPw=",
+  "dgSpecHash": "o1XUm9RbvG4=",
   "success": true,
   "projectFilePath": "C:\\Users\\Ivan\\source\\repos\\ISII_25TC_Grupo13\\CapaNegocio\\CapaNegocio.csproj",
   "expectedPackageFiles": [
@@ -25,18 +25,5 @@
     "C:\\Users\\Ivan\\.nuget\\packages\\system.text.encodings.web\\8.0.0\\system.text.encodings.web.8.0.0.nupkg.sha512",
     "C:\\Users\\Ivan\\.nuget\\packages\\system.text.json\\8.0.0\\system.text.json.8.0.0.nupkg.sha512"
   ],
-  "logs": [
-    {
-      "code": "NU1603",
-      "level": "Warning",
-      "message": "CapaNegocio depende de BCrypt.Net-Next (>= 4.0.1), pero no se encontró BCrypt.Net-Next 4.0.1. BCrypt.Net-Next 4.0.2 se resolvió en su lugar.",
-      "projectPath": "C:\\Users\\Ivan\\source\\repos\\ISII_25TC_Grupo13\\CapaNegocio\\CapaNegocio.csproj",
-      "warningLevel": 1,
-      "filePath": "C:\\Users\\Ivan\\source\\repos\\ISII_25TC_Grupo13\\CapaNegocio\\CapaNegocio.csproj",
-      "libraryId": "BCrypt.Net-Next",
-      "targetGraphs": [
-        "net8.0"
-      ]
-    }
-  ]
+  "logs": []
 }

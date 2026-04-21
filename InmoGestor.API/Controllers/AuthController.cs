@@ -22,6 +22,21 @@ namespace InmoGestor.API.Controllers
             _cnUsuario = new CN_Usuario();
             _configuration = configuration;
         }
+
+        [HttpGet("roles")]
+        [Authorize(Roles = "Superior")]
+        public IActionResult GetRoles()
+        {
+            try
+            {
+                var roles = _cnUsuario.ListarRoles();
+                return Ok(new { success = true, data = roles });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new { success = false, mensaje = ex.Message });
+            }
+        }
         
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginRequest request)
@@ -77,6 +92,7 @@ var claims = new[]
         }
 
         [HttpPost("register")]
+        [Authorize(Roles = "Superior")]
         public IActionResult Register([FromBody] RegisterRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Dni))

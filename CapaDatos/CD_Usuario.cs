@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using CapaEntidades;
 
@@ -6,6 +7,31 @@ namespace CapaDatos
 {
     public class CD_Usuario
     {
+        public List<RolUsuario> ListarRoles()
+        {
+            List<RolUsuario> lista = new List<RolUsuario>();
+            using (var cn = new SqlConnection(Conexion.Cadena))
+            {
+                string query = "SELECT id_rol_usuario, nombre FROM rol_usuario";
+                using (var cmd = new SqlCommand(query, cn))
+                {
+                    cn.Open();
+                    using (var dr = cmd.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            lista.Add(new RolUsuario
+                            {
+                                IdRolUsuario = Guid.Parse(dr["id_rol_usuario"].ToString()!),
+                                Nombre = dr["nombre"].ToString()!
+                            });
+                        }
+                    }
+                }
+            }
+            return lista;
+        }
+
         public (Usuario? usuario, string? errorCode) ValidarUsuario(string dni, string password)
         {
             using (var cn = new SqlConnection(Conexion.Cadena))
@@ -37,8 +63,13 @@ namespace CapaDatos
                     {
                         if (dr.Read())
                         {
-                            var estado = dr["estado"].ToString();
-                            var claveHash = dr["clave"].ToString();
+                            var estado = dr["estado"]?.ToString() ?? "Activo";
+                            var claveHash = dr["clave"]?.ToString();
+                            
+                            if (string.IsNullOrEmpty(claveHash))
+                            {
+                                return (null, "INVALID_PASSWORD");
+                            }
                             
                             if (estado != "Activo")
                             {
@@ -146,10 +177,16 @@ namespace CapaDatos
                 {
                     try
                     {
+                        if (string.IsNullOrWhiteSpace(persona.Dni))
+                        {
+                            transaction.Rollback();
+                            return (false, "El DNI es requerido");
+                        }
+                        
                         string checkDniQuery = "SELECT COUNT(*) FROM persona WHERE dni = @dni";
                         using (var cmdCheck = new SqlCommand(checkDniQuery, cn, transaction))
                         {
-                            cmdCheck.Parameters.AddWithValue("@dni", persona.Dni ?? (object)DBNull.Value);
+                            cmdCheck.Parameters.AddWithValue("@dni", persona.Dni);
                             var countDni = (int)cmdCheck.ExecuteScalar();
                             if (countDni > 0)
                             {

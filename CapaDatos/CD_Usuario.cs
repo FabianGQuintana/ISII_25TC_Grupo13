@@ -34,79 +34,90 @@ namespace CapaDatos
 
         public (Usuario? usuario, string? errorCode) ValidarUsuario(string dni, string password)
         {
-            using (var cn = new SqlConnection(Conexion.Cadena))
+            try
             {
-                string query = @"
-                    SELECT 
-                        u.id_usuario, 
-                        u.clave, 
-                        u.estado,
-                        u.id_persona, 
-                        u.id_rol_usuario,
-                        p.dni,
-                        p.nombre, 
-                        p.apellido, 
-                        p.email,
-                        r.nombre AS rol_nombre
-                    FROM usuario u
-                    INNER JOIN persona p ON u.id_persona = p.id_persona
-                    INNER JOIN rol_usuario r ON u.id_rol_usuario = r.id_rol_usuario
-                    WHERE p.dni = @dni";
-
-                using (var cmd = new SqlCommand(query, cn))
+                using (var cn = new SqlConnection(Conexion.Cadena))
                 {
-                    cmd.Parameters.AddWithValue("@dni", dni);
-                    
-                    cn.Open();
-                    
-                    using (var dr = cmd.ExecuteReader())
+                    string query = @"
+                        SELECT 
+                            u.id_usuario, 
+                            u.clave, 
+                            u.estado,
+                            u.id_persona, 
+                            u.id_rol_usuario,
+                            p.dni,
+                            p.nombre, 
+                            p.apellido, 
+                            p.email,
+                            r.nombre AS rol_nombre
+                        FROM usuario u
+                        INNER JOIN persona p ON u.id_persona = p.id_persona
+                        INNER JOIN rol_usuario r ON u.id_rol_usuario = r.id_rol_usuario
+                        WHERE p.dni = @dni";
+
+                    using (var cmd = new SqlCommand(query, cn))
                     {
-                        if (dr.Read())
+                        cmd.Parameters.AddWithValue("@dni", dni);
+                        
+                        cn.Open();
+                        
+                        using (var dr = cmd.ExecuteReader())
                         {
-                            var estado = dr["estado"]?.ToString() ?? "Activo";
-                            var claveHash = dr["clave"]?.ToString();
-                            
-                            if (string.IsNullOrEmpty(claveHash))
+                            if (dr.Read())
                             {
-                                return (null, "INVALID_PASSWORD");
-                            }
-                            
-                            if (estado != "Activo")
-                            {
-                                return (null, "INACTIVE");
-                            }
-                            
-                            if (!BCrypt.Net.BCrypt.Verify(password, claveHash))
-                            {
-                                return (null, "INVALID_PASSWORD");
-                            }
-                            
-                            return (new Usuario
-                            {
-                                IdUsuario = Guid.Parse(dr["id_usuario"].ToString()!),
-                                Clave = claveHash!,
-                                Estado = estado,
-                                IdPersona = Guid.Parse(dr["id_persona"].ToString()!),
-                                IdRolUsuario = Guid.Parse(dr["id_rol_usuario"].ToString()!),
-                                OPersona = new Persona
+                                var estado = dr["estado"]?.ToString() ?? "Activo";
+                                var claveHash = dr["clave"]?.ToString();
+                                
+                                if (string.IsNullOrEmpty(claveHash))
                                 {
-                                    IdPersona = Guid.Parse(dr["id_persona"].ToString()!),
-                                    Dni = dr["dni"]?.ToString(),
-                                    Nombre = dr["nombre"].ToString()!,
-                                    Apellido = dr["apellido"].ToString()!,
-                                    Email = dr["email"].ToString()!
-                                },
-                                ORolUsuario = new RolUsuario
-                                {
-                                    IdRolUsuario = Guid.Parse(dr["id_rol_usuario"].ToString()!),
-                                    Nombre = dr["rol_nombre"].ToString()!
+                                    return (null, "INVALID_PASSWORD");
                                 }
-                            }, null);
+                                
+                                if (estado != "Activo")
+                                {
+                                    return (null, "INACTIVE");
+                                }
+                                
+                                if (!BCrypt.Net.BCrypt.Verify(password, claveHash))
+                                {
+                                    return (null, "INVALID_PASSWORD");
+                                }
+                                
+                                return (new Usuario
+                                {
+                                    IdUsuario = Guid.Parse(dr["id_usuario"].ToString()!),
+                                    Clave = claveHash!,
+                                    Estado = estado,
+                                    IdPersona = Guid.Parse(dr["id_persona"].ToString()!),
+                                    IdRolUsuario = Guid.Parse(dr["id_rol_usuario"].ToString()!),
+                                    OPersona = new Persona
+                                    {
+                                        IdPersona = Guid.Parse(dr["id_persona"].ToString()!),
+                                        Dni = dr["dni"]?.ToString(),
+                                        Nombre = dr["nombre"].ToString()!,
+                                        Apellido = dr["apellido"].ToString()!,
+                                        Email = dr["email"].ToString()!
+                                    },
+                                    ORolUsuario = new RolUsuario
+                                    {
+                                        IdRolUsuario = Guid.Parse(dr["id_rol_usuario"].ToString()!),
+                                        Nombre = dr["rol_nombre"].ToString()!
+                                    }
+                                }, null);
+                            }
                         }
                     }
                 }
+                return (null, "NOT_FOUND");
             }
-            return (null, "NOT_FOUND");
+            catch (SqlException)
+            {
+                return (null, "DB_OFFLINE");
+            }
+            catch (Exception)
+            {
+                return (null, "ERROR_CONEXION");
+            }
         }
         
         public Usuario? ObtenerPorId(Guid idUsuario)

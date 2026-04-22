@@ -5,6 +5,7 @@
 # Carpetas de compilación
 [Bb]in/
 [Oo]bj/
+Scripts/
 
 # Visual Studio y VS Code
 .vs/

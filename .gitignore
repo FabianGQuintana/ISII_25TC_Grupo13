@@ -1,15 +1,35 @@
-# Archivos de compilación y temporales
+################################################################################
+# InmoGestor - .gitignore definitivo
+################################################################################
+
+# Carpetas de compilación
 [Bb]in/
 [Oo]bj/
-*.user
+
+# Visual Studio y VS Code
+.vs/
+.vscode/
+.idea/
 *.suo
+*.user
 *.userosscache
 *.sln.docstates
-*.db
-.vs/
 *.csproj.user
 .DS_Store
 CLAUDE.md
 Scripts/inmogestor_new_db.sql
 Scripts/TrabajoCampo.drawio.xml
 Scripts/ISII_25TC_Grupo13.pdf
+*.sqlproj.user
+
+# Archivos de sistema y temporales
+.DS_Store
+*.db
+*.log
+*.tmp
+*.swp
+*~
+
+# Otros
+*.sublime-project
+*.sublime-workspace

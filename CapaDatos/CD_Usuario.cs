@@ -110,8 +110,9 @@ namespace CapaDatos
                 }
                 return (null, "NOT_FOUND");
             }
-            catch (SqlException)
+            catch (SqlException ex)
             {
+                Console.WriteLine($"[SQL Error]: {ex.Message}");
                 return (null, "DB_OFFLINE");
             }
             catch (Exception)

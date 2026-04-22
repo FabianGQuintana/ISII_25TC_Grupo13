@@ -1,0 +1,11 @@
+# Archivos de compilación y temporales
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.db
+.vs/
+*.csproj.user
+.DS_Store

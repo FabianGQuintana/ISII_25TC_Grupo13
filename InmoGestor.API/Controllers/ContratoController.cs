@@ -85,9 +85,6 @@ namespace InmoGestor.API.Controllers
                 return BadRequest(new { success = false, mensaje = "El precio de la cuota debe ser mayor a 0" });
             }
 
-            // Retirada la validación estricta para permitir auto-cálculo de FechaFin
-            // si el frontend envía el campo omitido.
-
             var (validSuccess, validMessage) = _cnContrato.ValidarInmuebleDisponible(inmuebleId);
             if (!validSuccess)
             {

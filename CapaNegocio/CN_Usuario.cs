@@ -33,6 +33,7 @@ namespace CapaNegocio
                 return errorCode switch
                 {
                     "INACTIVE" => (false, null, "Usuario inactivo. Contacte al administrador."),
+                    "DB_OFFLINE" => (false, null, "Sin conexión"),
                     _ => (false, null, "Credenciales inválidas")
                 };
             }

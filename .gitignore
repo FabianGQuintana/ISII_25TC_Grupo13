@@ -22,6 +22,8 @@ Scripts/inmogestor_new_db.sql
 Scripts/TrabajoCampo.drawio.xml
 Scripts/ISII_25TC_Grupo13.pdf
 *.sqlproj.user
+appsettings.json
+appsettings.Development.json
 
 # Archivos de sistema y temporales
 .DS_Store

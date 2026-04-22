@@ -5,7 +5,7 @@
 ## Funcionalidades Principales
 
 ### 1. Parametrización y Sincronización de Contratos
-* **Gestión de Índices:** Automatiza la creación de contratos vinculándose a APIs externas para obtener valores oficiales de **ICL, IPC o UVA**
+* **Gestión de Índices:** Automatiza la creación de contratos vinculándose a APIs externas para obtener valores oficiales de **ICL, IPC**
 * **Reglas de Ajuste:** Permite configurar frecuencias de actualización (trimestral, semestral, etc.) de forma dinámica
 
 ### 2. Gestión Financiera y Cobros

@@ -51,7 +51,6 @@ namespace InmoGestor.API.Controllers
             try
             {
                 _cnIndice.GuardarHistorico(obj);
-                // Retornamos también la entidad por si el front la necesita fresca
                 return Ok(new { success = true, data = obj, mensaje = "Índice cacheado exitosamente." });
             }
             catch (Exception ex)

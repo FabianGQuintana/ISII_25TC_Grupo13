@@ -24,7 +24,6 @@ namespace InmoGestor.API.Controllers
         }
 
         [HttpGet("roles")]
-        [Authorize(Roles = "Superior")]
         public IActionResult GetRoles()
         {
             try
@@ -52,7 +51,7 @@ namespace InmoGestor.API.Controllers
             var jwtIssuer = _configuration["Jwt:Issuer"] ?? "InmoGestor";
             var expirationMinutes = int.Parse(_configuration["Jwt:ExpirationMinutes"] ?? "60");
             
-var claims = new[]
+             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString()),
                 new Claim(ClaimTypes.Name, usuario.OPersona?.NombreCompleto ?? ""),
@@ -92,7 +91,6 @@ var claims = new[]
         }
 
         [HttpPost("register")]
-        [Authorize(Roles = "Superior")]
         public IActionResult Register([FromBody] RegisterRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Dni))

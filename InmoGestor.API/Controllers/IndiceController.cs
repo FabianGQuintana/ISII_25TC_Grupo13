@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using CapaEntidades;
@@ -12,7 +12,7 @@ namespace InmoGestor.API.Controllers
     [Authorize]
     public class IndiceController : ControllerBase
     {
-        private CN_Indice _cnIndice = new CN_Indice();
+        private readonly CN_Indice _cnIndice = new CN_Indice();
 
         [HttpGet("tipos")]
         public IActionResult ListarTipos()
@@ -28,15 +28,16 @@ namespace InmoGestor.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Devuelve el valor vigente del índice.
+        /// Toda la lógica (caché, fetch externo, guardado) vive en CN_Indice.
+        /// </summary>
         [HttpGet("{id}")]
-        public IActionResult ObtenerActual(Guid id)
+        public async Task<IActionResult> ObtenerActual(Guid id)
         {
             try
             {
-                var indice = _cnIndice.ObtenerActual(id);
-                if (indice == null)
-                    return Ok(new { success = false, mensaje = "No hay registro actual guardado para esta fecha." });
-
+                var indice = await _cnIndice.ObtenerOActualizar(id);
                 return Ok(new { success = true, data = indice });
             }
             catch (Exception ex)
@@ -45,6 +46,10 @@ namespace InmoGestor.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Escritura manual. Se mantiene por compatibilidad pero el flujo
+        /// normal ya no requiere que el front lo llame.
+        /// </summary>
         [HttpPost]
         public IActionResult Guardar([FromBody] HistoricoIndice obj)
         {

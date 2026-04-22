@@ -45,6 +45,28 @@ namespace InmoGestor.API.Controllers
             return Ok(new { success = true, data = response });
         }
 
+        [HttpPost]
+        public IActionResult Registrar([FromBody] Inmueble request)
+        {
+            var resultado = _cnInmueble.Registrar(request);
+            return Ok(new { success = resultado });
+        }
+
+        [HttpPut]
+        public IActionResult Editar([FromBody] Inmueble request)
+        {
+            var resultado = _cnInmueble.Editar(request);
+            return Ok(new { success = resultado });
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Eliminar(string id)
+        {
+            if (!Guid.TryParse(id, out var guidId)) return BadRequest();
+            var resultado = _cnInmueble.Eliminar(guidId);
+            return Ok(new { success = resultado });
+        }
+
         private List<InmuebleResponse> MapearInmuebles(List<Inmueble> inmuebles)
         {
             var response = new List<InmuebleResponse>();

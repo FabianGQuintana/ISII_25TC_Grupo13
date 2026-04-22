@@ -7,6 +7,68 @@ namespace CapaDatos
 {
     public class CD_Inmueble
     {
+        public bool Registrar(Inmueble obj)
+        {
+            using (var cn = new SqlConnection(Conexion.Cadena))
+            {
+                string query = @"INSERT INTO inmueble (id_inmueble, id_direccion, descripcion, estado, fecha_creacion, id_persona_propietario, disponibilidad, id_tipo_inmueble) 
+                         VALUES (@id, @idDireccion, @descripcion, 'Activo', GETDATE(), @idPropietario, @disponibilidad, @idTipo)";
+
+                using (var cmd = new SqlCommand(query, cn))
+                {
+                    cmd.Parameters.AddWithValue("@id", Guid.NewGuid());
+                    cmd.Parameters.AddWithValue("@idDireccion", obj.IdDireccion);
+                    cmd.Parameters.AddWithValue("@descripcion", (object)obj.Descripcion ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@idPropietario", obj.IdPersonaPropietario);
+                    cmd.Parameters.AddWithValue("@disponibilidad", obj.Disponibilidad);
+                    cmd.Parameters.AddWithValue("@idTipo", (object)(obj.IdTipoInmueble ?? (object)DBNull.Value));
+
+                    cn.Open();
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+            }
+        }
+
+        public bool Editar(Inmueble obj)
+        {
+            using (var cn = new SqlConnection(Conexion.Cadena))
+            {
+                string query = @"UPDATE inmueble SET id_direccion = @idDireccion, descripcion = @descripcion, 
+                         id_persona_propietario = @idPropietario, disponibilidad = @disponibilidad, id_tipo_inmueble = @idTipo
+                         WHERE id_inmueble = @id";
+
+                using (var cmd = new SqlCommand(query, cn))
+                {
+                    cmd.Parameters.AddWithValue("@id", obj.IdInmueble);
+                    cmd.Parameters.AddWithValue("@idDireccion", obj.IdDireccion);
+                    cmd.Parameters.AddWithValue("@descripcion", (object)obj.Descripcion ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@idPropietario", obj.IdPersonaPropietario);
+                    cmd.Parameters.AddWithValue("@disponibilidad", obj.Disponibilidad);
+                    cmd.Parameters.AddWithValue("@idTipo", (object)(obj.IdTipoInmueble ?? (object)DBNull.Value));
+
+                    cn.Open();
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+            }
+        }
+
+        public bool Eliminar(Guid id)
+        {
+            using (var cn = new SqlConnection(Conexion.Cadena))
+            {
+                string query = "UPDATE inmueble SET estado = 'Inactivo' WHERE id_inmueble = @id";
+                using (var cmd = new SqlCommand(query, cn))
+                {
+                    cmd.Parameters.AddWithValue("@id", id);
+                    cn.Open();
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+            }
+        }
+
+
+
+
         public List<Inmueble> Listar(bool soloDisponibles = false)
         {
             var lista = new List<Inmueble>();

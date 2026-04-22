@@ -18,5 +18,8 @@ namespace CapaNegocio
         {
             return _cdInmueble.ObtenerPorId(id);
         }
+        public bool Registrar(Inmueble obj) => _cdInmueble.Registrar(obj);
+        public bool Editar(Inmueble obj) => _cdInmueble.Editar(obj);
+        public bool Eliminar(Guid id) => _cdInmueble.Eliminar(id);
     }
 }

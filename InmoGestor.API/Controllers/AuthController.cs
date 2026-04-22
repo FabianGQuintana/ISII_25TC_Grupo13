@@ -195,6 +195,12 @@ namespace InmoGestor.API.Controllers
                 }
             });
         }
+
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            return Ok(new { success = true, mensaje = "Sesión cerrada correctamente" });
+        }
     }
     
     public class LoginRequest

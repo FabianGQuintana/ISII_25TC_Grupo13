@@ -17,6 +17,8 @@ Scripts/
 *.sln.docstates
 *.csproj.user
 *.sqlproj.user
+appsettings.json
+appsettings.Development.json
 
 # Archivos de sistema y temporales
 .DS_Store

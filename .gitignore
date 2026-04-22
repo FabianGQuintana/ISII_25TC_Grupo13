@@ -1,12 +1,19 @@
-# Archivos de compilación y temporales
+################################################################################
+# InmoGestor - .gitignore definitivo
+################################################################################
+
+# Carpetas de compilación
 [Bb]in/
 [Oo]bj/
-*.user
+
+# Visual Studio y VS Code
+.vs/
+.vscode/
+.idea/
 *.suo
+*.user
 *.userosscache
 *.sln.docstates
-*.db
-.vs/
 *.csproj.user
 .DS_Store
 ################################################################################
@@ -30,6 +37,7 @@ Scripts/
 *.sqlproj.user
 appsettings.json
 appsettings.Development.json
+*.sqlproj.user
 
 # Archivos de sistema y temporales
 .DS_Store
@@ -44,3 +52,4 @@ appsettings.Development.json
 *.sublime-workspace
 /.claude
 /CLAUDE.md
+*.sublime-workspace

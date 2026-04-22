@@ -39,6 +39,8 @@ Scripts/
 appsettings.json
 appsettings.Development.json
 *.sqlproj.user
+appsettings.json
+appsettings.Development.json
 
 # Archivos de sistema y temporales
 .DS_Store

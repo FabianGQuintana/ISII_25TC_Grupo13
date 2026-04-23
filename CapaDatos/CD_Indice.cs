@@ -73,7 +73,7 @@ namespace CapaDatos
         }
 
         /// </summary>
-        public void InsertarHistorico(HistoricoIndice obj)
+        public bool InsertarHistorico(HistoricoIndice obj)
         {
             using (var cn = new SqlConnection(Conexion.Cadena))
             {
@@ -92,6 +92,7 @@ namespace CapaDatos
                     cmd.ExecuteNonQuery();
                 }
             }
+            return true;
         }
     }
 }

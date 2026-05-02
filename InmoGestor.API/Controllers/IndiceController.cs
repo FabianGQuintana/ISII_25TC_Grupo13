@@ -12,7 +12,12 @@ namespace InmoGestor.API.Controllers
     [Authorize]
     public class IndiceController : ControllerBase
     {
-        private readonly CN_Indice _cnIndice = new CN_Indice();
+        private readonly CN_Indice _cnIndice;
+
+        public IndiceController(CN_Indice cnIndice)
+        {
+            _cnIndice = cnIndice;
+        }
 
         [HttpGet("tipos")]
         public IActionResult ListarTipos()

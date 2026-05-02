@@ -12,7 +12,12 @@ namespace InmoGestor.API.Controllers
     [Authorize]
     public class PagoController : ControllerBase
     {
-        private readonly CN_Pago _cnPago = new();
+        private readonly CN_Pago _cnPago;
+
+        public PagoController(CN_Pago cnPago)
+        {
+            _cnPago = cnPago;
+        }
 
         [HttpPost]
         public IActionResult Registrar([FromBody] RegistrarPagoRequest request)

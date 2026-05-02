@@ -14,9 +14,9 @@ namespace InmoGestor.API.Controllers
     {
         private readonly CN_Inmueble _cnInmueble;
 
-        public InmuebleController()
+        public InmuebleController(CN_Inmueble cnInmueble)
         {
-            _cnInmueble = new CN_Inmueble();
+            _cnInmueble = cnInmueble;
         }
 
         [HttpGet]

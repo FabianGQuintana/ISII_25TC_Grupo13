@@ -32,3 +32,4 @@ appsettings.Development.json
 *.sublime-project
 *.sublime-workspace
 /.claude
+/CLAUDE.md

@@ -1,7 +1,9 @@
 using System;
 using System.Text;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.DependencyInjection;
@@ -50,6 +52,23 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        context.Response.ContentType = "application/json";
+
+        var feature = context.Features.Get<IExceptionHandlerFeature>();
+        if (feature?.Error != null)
+        {
+            var isDev = app.Environment.EnvironmentName == "Development";
+            var mensaje = isDev ? feature.Error.Message : "Ocurrió un error interno del servidor.";
+            await context.Response.WriteAsJsonAsync(new { success = false, mensaje });
+        }
+    });
+});
 
 if (app.Environment.EnvironmentName == "Development")
 {

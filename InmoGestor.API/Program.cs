@@ -18,7 +18,8 @@ builder.Services.AddCors(options =>
     });
 });
 
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "ThisIsA32CharacterLongSecretKey!!";
+var jwtKey = builder.Configuration["Jwt:Key"]
+    ?? throw new InvalidOperationException("La configuración 'Jwt:Key' es requerida. Definila en appsettings.json o como variable de entorno.");
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "InmoGestor";
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -38,6 +39,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
+
+builder.Services.AddScoped<CapaNegocio.CN_Usuario>();
+builder.Services.AddScoped<CapaNegocio.CN_Contrato>();
+builder.Services.AddScoped<CapaNegocio.CN_Inquilino>();
+builder.Services.AddScoped<CapaNegocio.CN_Inmueble>();
+builder.Services.AddScoped<CapaNegocio.CN_Indice>();
+builder.Services.AddScoped<CapaNegocio.CN_Pago>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

@@ -17,10 +17,10 @@ namespace InmoGestor.API.Controllers
         private readonly CN_Usuario _cnUsuario;
         private readonly IConfiguration _configuration;
         
-        public AuthController(IConfiguration configuration)
+        public AuthController(IConfiguration configuration, CN_Usuario cnUsuario)
         {
-            _cnUsuario = new CN_Usuario();
             _configuration = configuration;
+            _cnUsuario = cnUsuario;
         }
 
         [HttpGet("roles")]

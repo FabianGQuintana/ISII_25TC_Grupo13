@@ -17,10 +17,10 @@ namespace InmoGestor.API.Controllers
         private readonly CN_Contrato _cnContrato;
         private readonly CN_Inquilino _cnInquilino;
 
-        public ContratoController()
+        public ContratoController(CN_Contrato cnContrato, CN_Inquilino cnInquilino)
         {
-            _cnContrato = new CN_Contrato();
-            _cnInquilino = new CN_Inquilino();
+            _cnContrato = cnContrato;
+            _cnInquilino = cnInquilino;
         }
 
         [HttpGet]
@@ -150,7 +150,7 @@ namespace InmoGestor.API.Controllers
             return Ok(new { success = true, mensaje = message, data = new { contratoId } });
         }
 
-        [HttpPut("{id}/anular")]
+        [HttpPut("rescindir/{id}")]
         [Authorize(Roles = "Superior")]
         public IActionResult Rescindir(string id)
         {

@@ -26,15 +26,8 @@ namespace InmoGestor.API.Controllers
         [HttpGet("roles")]
         public IActionResult GetRoles()
         {
-            try
-            {
-                var roles = _cnUsuario.ListarRoles();
-                return Ok(new { success = true, data = roles });
-            }
-            catch (Exception ex)
-            {
-                return Ok(new { success = false, mensaje = ex.Message });
-            }
+            var roles = _cnUsuario.ListarRoles();
+            return Ok(new { success = true, data = roles });
         }
         
         [HttpPost("login")]

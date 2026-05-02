@@ -16,28 +16,6 @@ Scripts/
 *.userosscache
 *.sln.docstates
 *.csproj.user
-.DS_Store
-################################################################################
-# InmoGestor - .gitignore definitivo
-################################################################################
-
-# Carpetas de compilación
-[Bb]in/
-[Oo]bj/
-Scripts/
-
-# Visual Studio y VS Code
-.vs/
-.vscode/
-.idea/
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
-*.csproj.user
-*.sqlproj.user
-appsettings.json
-appsettings.Development.json
 *.sqlproj.user
 appsettings.json
 appsettings.Development.json
@@ -55,4 +33,3 @@ appsettings.Development.json
 *.sublime-workspace
 /.claude
 /CLAUDE.md
-*.sublime-workspace

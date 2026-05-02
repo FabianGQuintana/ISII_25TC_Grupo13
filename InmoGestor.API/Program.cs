@@ -18,7 +18,8 @@ builder.Services.AddCors(options =>
     });
 });
 
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "ThisIsA32CharacterLongSecretKey!!";
+var jwtKey = builder.Configuration["Jwt:Key"]
+    ?? throw new InvalidOperationException("La configuración 'Jwt:Key' es requerida. Definila en appsettings.json o como variable de entorno.");
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "InmoGestor";
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

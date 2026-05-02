@@ -1,4 +1,4 @@
-﻿using CapaEntidades;
+using CapaEntidades;
 using CapaNegocio;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +23,7 @@ namespace InmoGestor.API.Controllers
         public IActionResult Registrar([FromBody] RegistrarPagoRequest request)
         {
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? Guid.Empty.ToString());
-            bool esSuperior = User.IsInRole("SUPERIOR"); //aca esta verificando el rol del usuario para saber si es superior o no
+            bool esSuperior = User.IsInRole("SUPERIOR");
 
             var pago = new Pago
             {
@@ -42,21 +42,13 @@ namespace InmoGestor.API.Controllers
         [Authorize(Roles = "SUPERIOR")]
         public IActionResult Aprobar(string id)
         {
-            
             if (!Guid.TryParse(id, out var guidId))
-            {
                 return BadRequest(new { success = false, mensaje = "ID inválido" });
-            }
 
-           
             var pago = _cnPago.ObtenerPorId(guidId);
-
             if (pago == null)
-            {
                 return NotFound(new { success = false, mensaje = "Pago no encontrado" });
-            }
 
-            
             var result = _cnPago.AprobarPago(pago.IdPago, pago.IdCuota);
 
             return Ok(new { success = result, mensaje = result ? "Pago aprobado correctamente" : "Error al aprobar" });
@@ -65,140 +57,87 @@ namespace InmoGestor.API.Controllers
         [HttpGet]
         public IActionResult Listar([FromQuery] int? estado)
         {
-            try
-            {
-                Console.WriteLine("=== INICIO LISTAR PAGOS ===");
-                var pagos = _cnPago.Listar(estado);
-                Console.WriteLine($"=== PAGOS ENCONTRADOS: {pagos?.Count ?? 0} ===");
-                return Ok(new { success = true, data = pagos });
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"=== ERROR: {ex.Message} ===");
-                Console.WriteLine($"=== STACK: {ex.StackTrace} ===");
-                if (ex.InnerException != null)
-                    Console.WriteLine($"=== INNER: {ex.InnerException.Message} ===");
-
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = ex.Message,
-                    inner = ex.InnerException?.Message
-                });
-            }
+            var pagos = _cnPago.Listar(estado);
+            return Ok(new { success = true, data = pagos });
         }
 
         [HttpGet("{id}")]
         public IActionResult ObtenerPorId(string id)
         {
-            try
-            {
-                if (!Guid.TryParse(id, out var guidId))
-                    return BadRequest(new { success = false, message = "ID inválido" });
+            if (!Guid.TryParse(id, out var guidId))
+                return BadRequest(new { success = false, message = "ID inválido" });
 
-                var pago = _cnPago.ObtenerPorId(guidId);
-                if (pago == null)
-                    return NotFound(new { success = false, message = "Pago no encontrado" });
+            var pago = _cnPago.ObtenerPorId(guidId);
+            if (pago == null)
+                return NotFound(new { success = false, message = "Pago no encontrado" });
 
-                return Ok(new { success = true, data = pago });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, message = ex.Message });
-            }
+            return Ok(new { success = true, data = pago });
         }
 
         [HttpGet("contrato/{contratoId}")]
         public IActionResult ObtenerPorContrato(string contratoId)
         {
-            try
-            {
-                if (!Guid.TryParse(contratoId, out var guidContratoId))
-                    return BadRequest(new { success = false, message = "ID de contrato inválido" });
+            if (!Guid.TryParse(contratoId, out var guidContratoId))
+                return BadRequest(new { success = false, message = "ID de contrato inválido" });
 
-                var pagos = _cnPago.ListarPorContrato(guidContratoId);
-                return Ok(new { success = true, data = pagos });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, message = ex.Message });
-            }
+            var pagos = _cnPago.ListarPorContrato(guidContratoId);
+            return Ok(new { success = true, data = pagos });
         }
 
         [HttpPatch("{id}/confirmar")]
         [Authorize(Roles = "SUPERIOR")]
         public IActionResult Confirmar(string id)
         {
-            try
-            {
-                if (!Guid.TryParse(id, out var guidId))
-                    return BadRequest(new { success = false, message = "ID inválido" });
+            if (!Guid.TryParse(id, out var guidId))
+                return BadRequest(new { success = false, message = "ID inválido" });
 
-                var pago = _cnPago.ObtenerPorId(guidId);
-                if (pago == null)
-                    return NotFound(new { success = false, message = "Pago no encontrado" });
+            var pago = _cnPago.ObtenerPorId(guidId);
+            if (pago == null)
+                return NotFound(new { success = false, message = "Pago no encontrado" });
 
-                var resultado = _cnPago.AprobarPago(pago.IdPago, pago.IdCuota);
-                if (!resultado)
-                    return BadRequest(new { success = false, message = "No se pudo confirmar el pago" });
+            var resultado = _cnPago.AprobarPago(pago.IdPago, pago.IdCuota);
+            if (!resultado)
+                return BadRequest(new { success = false, message = "No se pudo confirmar el pago" });
 
-                return Ok(new { success = true, message = "Pago confirmado exitosamente" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, message = ex.Message });
-            }
+            return Ok(new { success = true, message = "Pago confirmado exitosamente" });
         }
 
         [HttpPatch("{id}/rechazar")]
         [Authorize(Roles = "SUPERIOR")]
         public IActionResult Rechazar(string id, [FromBody] MotivoRechazoDto dto)
         {
-            try
-            {
-                if (!Guid.TryParse(id, out var guidId))
-                    return BadRequest(new { success = false, message = "ID inválido" });
+            if (!Guid.TryParse(id, out var guidId))
+                return BadRequest(new { success = false, message = "ID inválido" });
 
-                var resultado = _cnPago.Rechazar(guidId, dto?.Motivo);
-                if (!resultado)
-                    return BadRequest(new { success = false, message = "No se pudo rechazar el pago" });
+            var resultado = _cnPago.Rechazar(guidId, dto?.Motivo);
+            if (!resultado)
+                return BadRequest(new { success = false, message = "No se pudo rechazar el pago" });
 
-                return Ok(new { success = true, message = "Pago rechazado exitosamente" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, message = ex.Message });
-            }
+            return Ok(new { success = true, message = "Pago rechazado exitosamente" });
         }
 
         [HttpPatch("{id}/anular")]
         [Authorize(Roles = "SUPERIOR")]
         public IActionResult Anular(string id)
         {
-            try
-            {
-                if (!Guid.TryParse(id, out var guidId))
-                    return BadRequest(new { success = false, message = "ID inválido" });
+            if (!Guid.TryParse(id, out var guidId))
+                return BadRequest(new { success = false, message = "ID inválido" });
 
-                var resultado = _cnPago.Anular(guidId);
-                if (!resultado)
-                    return BadRequest(new { success = false, message = "No se pudo anular el pago" });
+            var resultado = _cnPago.Anular(guidId);
+            if (!resultado)
+                return BadRequest(new { success = false, message = "No se pudo anular el pago" });
 
-                return Ok(new { success = true, message = "Pago anulado exitosamente" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, message = ex.Message });
-            }
+            return Ok(new { success = true, message = "Pago anulado exitosamente" });
         }
 
         public class RegistrarPagoRequest
         {
-        public string IdCuota { get; set; } = "";
-        public string IdMetodoPago { get; set; } = "";
-        public decimal Monto { get; set; }
-        public string Periodo { get; set; } = "";
+            public string IdCuota { get; set; } = "";
+            public string IdMetodoPago { get; set; } = "";
+            public decimal Monto { get; set; }
+            public string Periodo { get; set; } = "";
         }
+
         public class MotivoRechazoDto
         {
             public string? Motivo { get; set; }

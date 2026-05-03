@@ -19,7 +19,7 @@ namespace CapaNegocio
             return _cdContrato.ObtenerPorId(id);
         }
 
-        public (bool success, string message, Guid? contratoId) Insertar(ContratoAlquiler contrato)
+        public (bool success, string message, Guid? contratoId) CrearContrato(ContratoAlquiler contrato)
         {
             if (contrato.IdInmueble == Guid.Empty)
             {
@@ -44,6 +44,11 @@ namespace CapaNegocio
             if (contrato.FechaFin == default)
             {
                 return (false, "La fecha de fin es requerida", null);
+            }
+
+            if (contrato.FechaFin <= contrato.FechaInicio)
+            {
+                return (false, "La fecha de fin debe ser posterior a la fecha de inicio", null);
             }
 
             return _cdContrato.Insertar(contrato);

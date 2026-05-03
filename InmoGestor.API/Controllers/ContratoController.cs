@@ -98,14 +98,14 @@ namespace InmoGestor.API.Controllers
                 Guid.TryParse(request.RolInquilinoId, out rolInquilinoId);
             }
 
-            DateTime fechaInicioParseada = DateTime.Now;
+            DateTime fechaInicioParseada = DateTime.Today;
             if (!string.IsNullOrWhiteSpace(request.FechaInicio))
             {
                 if (!DateTime.TryParse(request.FechaInicio, out var tempInicio))
                 {
                     return BadRequest(new { success = false, mensaje = "El formato de Fecha Inicio es inválido" });
                 }
-                fechaInicioParseada = tempInicio;
+                fechaInicioParseada = tempInicio.Date;
             }
 
             DateTime fechaFinParseada;
@@ -116,6 +116,10 @@ namespace InmoGestor.API.Controllers
             else if (!DateTime.TryParse(request.FechaFin, out fechaFinParseada))
             {
                 return BadRequest(new { success = false, mensaje = "El formato de Fecha Fin es inválido" });
+            }
+            else
+            {
+                fechaFinParseada = fechaFinParseada.Date;
             }
 
             Guid? idTipoIndice = null;

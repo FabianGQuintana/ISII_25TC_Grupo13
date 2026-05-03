@@ -9,7 +9,7 @@ namespace CapaEntidades
         public string? Condiciones { get; set; }
         public int CantidadCuotas { get; set; }
         public decimal PrecioCuota { get; set; }
-        public DateTime FechaCreacion { get; set; }
+        public DateTime FechaInicio { get; set; }
         public Guid IdInmueble { get; set; }
         public Guid IdPersonaInquilino { get; set; }
         public Guid IdRolClienteInquilino { get; set; }
@@ -19,6 +19,9 @@ namespace CapaEntidades
         public string? FrecuenciaAjuste { get; set; }
         public Guid? IdTipoIndice { get; set; }
         public decimal? ValorIndiceInicio { get; set; }
+
+        public decimal MoraDiaria => TasaMoraMensual / 30m;
+        public decimal MoraDiariaMonto => PrecioCuota * MoraDiaria / 100m;
 
         public Persona? OInquilino { get; set; }
         public Inmueble? OInmueble { get; set; }

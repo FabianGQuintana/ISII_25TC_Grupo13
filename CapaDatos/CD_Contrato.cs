@@ -66,12 +66,12 @@ namespace CapaDatos
                                 Condiciones = dr["condiciones"]?.ToString(),
                                 CantidadCuotas = int.Parse(dr["cantidad_cuotas"].ToString()!),
                                 PrecioCuota = decimal.Parse(dr["precio_cuota"].ToString()!),
-                                FechaCreacion = DateTime.Parse(dr["fecha_creacion"].ToString()!),
+                                FechaInicio = DateTime.Parse(dr["fecha_creacion"].ToString()!),
                                 IdInmueble = Guid.Parse(dr["id_inmueble"].ToString()!),
                                 IdPersonaInquilino = Guid.Parse(dr["id_persona_inquilino"].ToString()!),
                                 IdRolClienteInquilino = Guid.Parse(dr["id_rol_cliente_inquilino"].ToString()!),
-                                TasaMoraMensual = dr["tasa_mora_mensual"] != DBNull.Value 
-                                    ? decimal.Parse(dr["tasa_mora_mensual"].ToString()!) 
+                                TasaMoraMensual = dr["tasa_mora_mensual"] != DBNull.Value
+                                    ? decimal.Parse(dr["tasa_mora_mensual"].ToString()!)
                                     : 0m,
                                 Estado = dr["estado"]?.ToString() ?? "Activo",
                                 IdUsuarioCreador = Guid.Parse(dr["id_usuario_creador"].ToString()!),
@@ -155,7 +155,7 @@ namespace CapaDatos
                                 Condiciones = dr["condiciones"]?.ToString(),
                                 CantidadCuotas = int.Parse(dr["cantidad_cuotas"].ToString()!),
                                 PrecioCuota = decimal.Parse(dr["precio_cuota"].ToString()!),
-                                FechaCreacion = DateTime.Parse(dr["fecha_creacion"].ToString()!),
+                                FechaInicio = DateTime.Parse(dr["fecha_creacion"].ToString()!),
                                 IdInmueble = Guid.Parse(dr["id_inmueble"].ToString()!),
                                 IdPersonaInquilino = Guid.Parse(dr["id_persona_inquilino"].ToString()!),
                                 IdRolClienteInquilino = Guid.Parse(dr["id_rol_cliente_inquilino"].ToString()!),
@@ -231,17 +231,18 @@ namespace CapaDatos
                         }
 
                         string queryContrato = @"
-                            INSERT INTO contrato_alquiler 
-                            (id_contrato_alquiler, fecha_fin, condiciones, cantidad_cuotas, precio_cuota, 
-                             fecha_creacion, id_inmueble, id_persona_inquilino, id_rol_cliente_inquilino, 
+                            INSERT INTO contrato_alquiler
+                            (id_contrato_alquiler, fecha_fin, condiciones, cantidad_cuotas, precio_cuota,
+                             fecha_creacion, id_inmueble, id_persona_inquilino, id_rol_cliente_inquilino,
                              tasa_mora_mensual, estado, id_usuario_creador, frecuencia_ajuste, id_tipo_indice, valor_indice_inicio)
-                            VALUES (@id, @fechaFin, @condiciones, @cantidadCuotas, @precioCuota, 
-                                    GETDATE(), @idInmueble, @idPersonaInquilino, @idRolClienteInquilino, 
+                            VALUES (@id, @fechaFin, @condiciones, @cantidadCuotas, @precioCuota,
+                                    @fechaInicio, @idInmueble, @idPersonaInquilino, @idRolClienteInquilino,
                                     @tasaMoraMensual, 'Activo', @idUsuarioCreador, @frecuenciaAjuste, @idTipoIndice, @valorIndiceInicio)";
 
                         using (var cmdContrato = new SqlCommand(queryContrato, cn, transaction))
                         {
                             cmdContrato.Parameters.AddWithValue("@id", idContrato);
+                            cmdContrato.Parameters.AddWithValue("@fechaInicio", contrato.FechaInicio);
                             cmdContrato.Parameters.AddWithValue("@fechaFin", contrato.FechaFin);
                             cmdContrato.Parameters.AddWithValue("@condiciones", (object?)contrato.Condiciones ?? DBNull.Value);
                             cmdContrato.Parameters.AddWithValue("@cantidadCuotas", contrato.CantidadCuotas);
@@ -258,7 +259,7 @@ namespace CapaDatos
                             cmdContrato.ExecuteNonQuery();
                         }
 
-                        var fechaVencimiento = contrato.FechaCreacion;
+                        var fechaVencimiento = contrato.FechaInicio;
                         for (int i = 1; i <= contrato.CantidadCuotas; i++)
                         {
                             fechaVencimiento = fechaVencimiento.AddMonths(1);
@@ -389,7 +390,7 @@ namespace CapaDatos
                     }
 
                     cn.Open();
-                    var count = (int)cmd.ExecuteScalar();
+                    var count = cmd.ExecuteScalar() is int n ? n : 0;
                     if (count > 0)
                     {
                         return (false, "El inmueble ya tiene un contrato activo");

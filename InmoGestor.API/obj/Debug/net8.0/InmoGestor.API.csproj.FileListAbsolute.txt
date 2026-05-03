@@ -78,8 +78,6 @@ C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\InmoGestor.API\bin\Debug\net8.0\Sy
 C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\InmoGestor.API\bin\Debug\net8.0\runtimes\win-arm64\native\sni.dll
 C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\InmoGestor.API\bin\Debug\net8.0\runtimes\win-x64\native\sni.dll
 C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\InmoGestor.API\bin\Debug\net8.0\runtimes\win-x86\native\sni.dll
-C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\InmoGestor.API\bin\Debug\net8.0\runtimes\unix\lib\netcoreapp2.1\System.Data.SqlClient.dll
-C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\InmoGestor.API\bin\Debug\net8.0\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll
 C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\InmoGestor.API\bin\Debug\net8.0\CapaDatos.dll
 C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\InmoGestor.API\bin\Debug\net8.0\CapaEntidades.dll
 C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\InmoGestor.API\bin\Debug\net8.0\CapaNegocio.dll
@@ -110,3 +108,7 @@ C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\InmoGestor.API\obj\Debug\net8.0\re
 C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\InmoGestor.API\obj\Debug\net8.0\InmoGestor.API.pdb
 C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\InmoGestor.API\obj\Debug\net8.0\InmoGestor.API.genruntimeconfig.cache
 C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\InmoGestor.API\obj\Debug\net8.0\ref\InmoGestor.API.dll
+C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\InmoGestor.API\bin\Debug\net8.0\Microsoft.Extensions.Configuration.FileExtensions.dll
+C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\InmoGestor.API\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Json.dll
+C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\InmoGestor.API\bin\Debug\net8.0\runtimes\unix\lib\net8.0\System.Data.SqlClient.dll
+C:\Users\Fabian\OneDrive\Escritorio\ISI2_CODE\InmoGestor.API\bin\Debug\net8.0\runtimes\win\lib\net8.0\System.Data.SqlClient.dll

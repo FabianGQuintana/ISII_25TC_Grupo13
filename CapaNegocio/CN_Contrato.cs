@@ -51,11 +51,8 @@ namespace CapaNegocio
                 return (false, null, "El inmueble no está disponible en el periodo seleccionado");
             }
 
-<<<<<<< HEAD
             var indiceActual = _cdContrato.ObtenerValorIndiceActual(idTipoIndice);
 
-=======
->>>>>>> main
             var contrato = new ContratoAlquiler
             {
                 IdContrato = Guid.NewGuid(),

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("InmoGestor.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f4dba33abdb3d6b933b97ddb0de4e2dd3116a916")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+792cb7cbf2dbabf82a83fd7557209c50bb512674")]
 [assembly: System.Reflection.AssemblyProductAttribute("InmoGestor.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("InmoGestor.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

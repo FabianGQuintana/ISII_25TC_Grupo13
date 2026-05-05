@@ -37,7 +37,7 @@ namespace CapaNegocio
 
         public List<ContratoAlquiler> ListarActivosPorInquilino(Guid idInquilino)
         {
-            return _cdContrato.ListarActivosPorInquilino(idInquilino);
+            return _cdPago.ListarActivosPorInquilino(idInquilino);
         }
 
         public bool Rechazar(Guid idPago, string? motivo)

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Security.Claims;
+using InmoGestor.API.Mappers;
 
 namespace InmoGestor.API.Controllers
 {

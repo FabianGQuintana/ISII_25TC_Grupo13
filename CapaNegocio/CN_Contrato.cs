@@ -19,10 +19,7 @@ namespace CapaNegocio
             return _cdContrato.ObtenerPorId(id);
         }
 
-        public List<ContratoAlquiler> ListarActivosPorInquilino(Guid idInquilino)
-        {
-            return _cdContrato.ListarActivosPorInquilino(idInquilino);
-        }
+     
 
         public (bool success, string message, Guid? contratoId) CrearContrato(ContratoAlquiler contrato)
         {

@@ -36,3 +36,4 @@ appsettings.Development.json
 # Otros
 *.sublime-project
 *.sublime-workspace
+/CLAUDE.md

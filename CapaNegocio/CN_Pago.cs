@@ -35,6 +35,11 @@ namespace CapaNegocio
             return _cdPago.ListarPorContrato(contratoId);
         }
 
+        public List<ContratoAlquiler> ListarActivosPorInquilino(Guid idInquilino)
+        {
+            return _cdContrato.ListarActivosPorInquilino(idInquilino);
+        }
+
         public bool Rechazar(Guid idPago, string? motivo)
         {
             return _cdPago.Rechazar(idPago, motivo);

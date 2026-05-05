@@ -54,6 +54,15 @@ namespace InmoGestor.API.Controllers
             return Ok(new { success = result, mensaje = result ? "Pago aprobado correctamente" : "Error al aprobar" });
         }
 
+
+        [HttpGet("activos-por-inquilino")]
+        public IActionResult ListarActivosPorInquilino([FromQuery] Guid idInquilino)
+        {
+            var contratos = _cnPago.ListarActivosPorInquilino(idInquilino);
+            var response = ContratoMapper.ToResponseList(contratos);
+            return Ok(new { success = true, data = response });
+        }
+
         [HttpGet]
         public IActionResult Listar([FromQuery] int? estado)
         {

@@ -12,7 +12,7 @@ namespace InmoGestor.API.DTOs
         public string Inmueble { get; set; } = "";
         public decimal PrecioCuota { get; set; }
         public int CantCuotas { get; set; }
-        public string FechaInicio { get; set; } = "";
+        public string FechaCreacion { get; set; } = "";
         public string FechaFin { get; set; } = "";
         public decimal MoraMensual { get; set; }
         public decimal MoraDiaria { get; set; }
@@ -22,7 +22,7 @@ namespace InmoGestor.API.DTOs
 
     public class CrearContratoRequest
     {
-        public DateTime? FechaInicio { get; set; }
+        public DateTime? FechaCreacion { get; set; }
         public DateTime? FechaFin { get; set; }
         public int CantidadCuotas { get; set; }
         public decimal PrecioCuota { get; set; }

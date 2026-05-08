@@ -38,7 +38,7 @@ namespace CapaNegocio
             if (contrato.FechaFin == default)
                 return (false, "La fecha de fin es requerida", null);
 
-            if (contrato.FechaFin <= contrato.FechaInicio)
+            if (contrato.FechaFin <= contrato.FechaCreacion)
                 return (false, "La fecha de fin debe ser posterior a la fecha de inicio", null);
 
             var (disponible, mensajeDisponible) = _cdContrato.ValidarInmuebleDisponible(contrato.IdInmueble);

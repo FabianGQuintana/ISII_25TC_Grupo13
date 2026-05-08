@@ -66,7 +66,7 @@ namespace CapaDatos
                                 Condiciones = dr["condiciones"]?.ToString(),
                                 CantidadCuotas = int.Parse(dr["cantidad_cuotas"].ToString()!),
                                 PrecioCuota = decimal.Parse(dr["precio_cuota"].ToString()!),
-                                FechaInicio = DateTime.Parse(dr["fecha_creacion"].ToString()!),
+                                FechaCreacion = DateTime.Parse(dr["fecha_creacion"].ToString()!),
                                 IdInmueble = Guid.Parse(dr["id_inmueble"].ToString()!),
                                 IdPersonaInquilino = Guid.Parse(dr["id_persona_inquilino"].ToString()!),
                                 IdRolClienteInquilino = Guid.Parse(dr["id_rol_cliente_inquilino"].ToString()!),
@@ -158,7 +158,7 @@ namespace CapaDatos
                                 Condiciones = dr["condiciones"]?.ToString(),
                                 CantidadCuotas = int.Parse(dr["cantidad_cuotas"].ToString()!),
                                 PrecioCuota = decimal.Parse(dr["precio_cuota"].ToString()!),
-                                FechaInicio = DateTime.Parse(dr["fecha_creacion"].ToString()!),
+                                FechaCreacion = DateTime.Parse(dr["fecha_creacion"].ToString()!),
                                 IdInmueble = Guid.Parse(dr["id_inmueble"].ToString()!),
                                 IdPersonaInquilino = Guid.Parse(dr["id_persona_inquilino"].ToString()!),
                                 IdRolClienteInquilino = Guid.Parse(dr["id_rol_cliente_inquilino"].ToString()!),
@@ -245,7 +245,7 @@ namespace CapaDatos
                         using (var cmdContrato = new SqlCommand(queryContrato, cn, transaction))
                         {
                             cmdContrato.Parameters.AddWithValue("@id", idContrato);
-                            cmdContrato.Parameters.AddWithValue("@fechaInicio", contrato.FechaInicio);
+                            cmdContrato.Parameters.AddWithValue("@fechaInicio", contrato.FechaCreacion);
                             cmdContrato.Parameters.AddWithValue("@fechaFin", contrato.FechaFin);
                             cmdContrato.Parameters.AddWithValue("@condiciones", (object?)contrato.Condiciones ?? DBNull.Value);
                             cmdContrato.Parameters.AddWithValue("@cantidadCuotas", contrato.CantidadCuotas);
@@ -262,7 +262,7 @@ namespace CapaDatos
                             cmdContrato.ExecuteNonQuery();
                         }
 
-                        var fechaVencimiento = contrato.FechaInicio;
+                        var fechaVencimiento = contrato.FechaCreacion;
                         for (int i = 1; i <= contrato.CantidadCuotas; i++)
                         {
                             fechaVencimiento = fechaVencimiento.AddMonths(1);

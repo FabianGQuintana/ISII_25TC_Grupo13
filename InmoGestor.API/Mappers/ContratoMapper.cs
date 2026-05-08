@@ -20,7 +20,7 @@ namespace InmoGestor.API.Mappers
                 Inmueble = c.OInmueble?.Descripcion ?? "",
                 PrecioCuota = c.PrecioCuota,
                 CantCuotas = c.CantidadCuotas,
-                FechaInicio = c.FechaInicio.ToString("yyyy-MM-dd"),
+                FechaCreacion = c.FechaCreacion.ToString("yyyy-MM-dd"),
                 FechaFin = c.FechaFin.ToString("yyyy-MM-dd"),
                 MoraMensual = c.TasaMoraMensual,
                 MoraDiaria = c.MoraDiaria,
@@ -34,11 +34,11 @@ namespace InmoGestor.API.Mappers
 
         public static ContratoAlquiler ToEntity(CrearContratoRequest request, Persona inquilino, Guid userId)
         {
-            var fechaInicio = request.FechaInicio?.Date ?? DateTime.Today;
-            var fechaFin = request.FechaFin?.Date ?? fechaInicio.AddMonths(request.CantidadCuotas);
+            var fechaCreacion = request.FechaCreacion?.Date ?? DateTime.Today;
+            var fechaFin = request.FechaFin?.Date ?? fechaCreacion.AddMonths(request.CantidadCuotas);
             return new ContratoAlquiler
             {
-                FechaInicio = fechaInicio,
+                FechaCreacion = fechaCreacion,
                 FechaFin = fechaFin,
                 CantidadCuotas = request.CantidadCuotas,
                 PrecioCuota = request.PrecioCuota,

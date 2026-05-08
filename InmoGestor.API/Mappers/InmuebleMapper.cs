@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using CapaEntidades;
 using InmoGestor.API.DTOs;
 
@@ -15,17 +16,12 @@ namespace InmoGestor.API.Mappers
                 Descripcion = i.Descripcion ?? "",
                 Disponibilidad = i.Disponibilidad ? 1 : 0,
                 DisponibilidadNombre = i.Disponibilidad ? "Disponible" : "No disponible",
-                PropietarioNombreCompleto = i.OPropietario != null ? $"{i.OPropietario.Nombre} {i.OPropietario.Apellido}" : "",
+                PropietarioNombreCompleto = i.OPropietario?.NombreCompleto ?? "",
                 TipoNombre = ""
             };
         }
 
         public static List<InmuebleResponse> ToResponseList(List<Inmueble> inmuebles)
-        {
-            var response = new List<InmuebleResponse>();
-            foreach (var i in inmuebles)
-                response.Add(ToResponse(i));
-            return response;
-        }
+            => inmuebles.Select(ToResponse).ToList();
     }
 }

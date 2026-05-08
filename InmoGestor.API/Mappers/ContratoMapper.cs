@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using CapaEntidades;
 using InmoGestor.API.DTOs;
 
@@ -29,12 +30,7 @@ namespace InmoGestor.API.Mappers
         }
 
         public static List<ContratoResponse> ToResponseList(List<ContratoAlquiler> contratos)
-        {
-            var response = new List<ContratoResponse>();
-            foreach (var c in contratos)
-                response.Add(ToResponse(c));
-            return response;
-        }
+            => contratos.Select(ToResponse).ToList();
 
         public static ContratoAlquiler ToEntity(CrearContratoRequest request, Persona inquilino, Guid userId)
         {

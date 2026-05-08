@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using CapaEntidades;
 using InmoGestor.API.DTOs;
 
@@ -18,11 +19,6 @@ namespace InmoGestor.API.Mappers
         }
 
         public static List<InquilinoResponse> ToResponseList(List<Persona> inquilinos)
-        {
-            var response = new List<InquilinoResponse>();
-            foreach (var i in inquilinos)
-                response.Add(ToResponse(i));
-            return response;
-        }
+            => inquilinos.Select(ToResponse).ToList();
     }
 }

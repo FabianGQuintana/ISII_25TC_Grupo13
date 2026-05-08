@@ -40,7 +40,6 @@ namespace CapaNegocio
             return _cdPago.ListarActivosPorInquilino(idInquilino);
         }
 
-
         public bool Rechazar(Guid idPago, string? motivo)
         {
             return _cdPago.Rechazar(idPago, motivo);

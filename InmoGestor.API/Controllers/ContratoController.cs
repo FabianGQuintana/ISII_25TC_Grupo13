@@ -157,16 +157,11 @@ namespace InmoGestor.API.Controllers
             return Ok(new { success = true, mensaje = message, data = new { contratoId } });
         }
 
-        [HttpPut("rescindir/{id}")]
+        [HttpPut("rescindir/{idContrato}")]
         [Authorize(Roles = "Superior")]
-        public IActionResult Rescindir(string id)
+        public IActionResult Rescindir(Guid idContrato)
         {
-            if (!Guid.TryParse(id, out var guidId))
-            {
-                return BadRequest(new { success = false, mensaje = "ID inválido" });
-            }
-
-            var (success, message) = _cnContrato.Rescindir(guidId);
+            var (success, message) = _cnContrato.Rescindir(idContrato);
 
             if (!success)
             {

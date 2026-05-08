@@ -26,10 +26,6 @@ namespace InmoGestor.API.Controllers
             return Ok(new { success = true, data = lista });
         }
 
-        /// <summary>
-        /// Devuelve el valor vigente del índice.
-        /// Toda la lógica (caché, fetch externo, guardado) vive en CN_Indice.
-        /// </summary>
         [HttpGet("{id}")]
         public async Task<IActionResult> ObtenerActual(Guid id)
         {
@@ -37,10 +33,6 @@ namespace InmoGestor.API.Controllers
             return Ok(new { success = true, data = indice });
         }
 
-        /// <summary>
-        /// Escritura manual. Se mantiene por compatibilidad pero el flujo
-        /// normal ya no requiere que el front lo llame.
-        /// </summary>
         [HttpPost]
         public IActionResult Guardar([FromBody] HistoricoIndice obj)
         {

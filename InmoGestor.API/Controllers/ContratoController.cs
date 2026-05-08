@@ -53,106 +53,43 @@ namespace InmoGestor.API.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         public IActionResult CrearContrato([FromBody] CrearContratoRequest request)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
-            {
                 return Unauthorized(new { success = false, mensaje = "Token inválido" });
-            }
-
-            if (string.IsNullOrWhiteSpace(request.InmuebleId) || !Guid.TryParse(request.InmuebleId, out var inmuebleId))
-            {
-                return BadRequest(new { success = false, mensaje = "El inmueble es requerido" });
-            }
 
             if (string.IsNullOrWhiteSpace(request.DniInquilino))
-            {
                 return BadRequest(new { success = false, mensaje = "El DNI del inquilino es requerido" });
-            }
 
             var inquilino = _cnInquilino.ObtenerPorDni(request.DniInquilino!);
             if (inquilino == null)
-            {
                 return BadRequest(new { success = false, mensaje = "No se encontró un inquilino con ese DNI" });
-            }
 
-            if (request.CantidadCuotas <= 0)
-            {
-                return BadRequest(new { success = false, mensaje = "La cantidad de cuotas debe ser mayor a 0" });
-            }
-
-            if (request.PrecioCuota <= 0)
-            {
-                return BadRequest(new { success = false, mensaje = "El precio de la cuota debe ser mayor a 0" });
-            }
-
-            var (validSuccess, validMessage) = _cnContrato.ValidarInmuebleDisponible(inmuebleId);
-            if (!validSuccess)
-            {
-                return BadRequest(new { success = false, mensaje = validMessage });
-            }
-
-            Guid rolInquilinoId = Guid.Empty;
-            if (!string.IsNullOrWhiteSpace(request.RolInquilinoId))
-            {
-                Guid.TryParse(request.RolInquilinoId, out rolInquilinoId);
-            }
-
-            DateTime fechaInicioParseada = DateTime.Today;
-            if (!string.IsNullOrWhiteSpace(request.FechaInicio))
-            {
-                if (!DateTime.TryParse(request.FechaInicio, out var tempInicio))
-                {
-                    return BadRequest(new { success = false, mensaje = "El formato de Fecha Inicio es inválido" });
-                }
-                fechaInicioParseada = tempInicio.Date;
-            }
-
-            DateTime fechaFinParseada;
-            if (string.IsNullOrWhiteSpace(request.FechaFin))
-            {
-                fechaFinParseada = fechaInicioParseada.AddMonths(request.CantidadCuotas);
-            }
-            else if (!DateTime.TryParse(request.FechaFin, out fechaFinParseada))
-            {
-                return BadRequest(new { success = false, mensaje = "El formato de Fecha Fin es inválido" });
-            }
-            else
-            {
-                fechaFinParseada = fechaFinParseada.Date;
-            }
-
-            Guid? idTipoIndice = null;
-            if (!string.IsNullOrWhiteSpace(request.IdTipoIndice) && Guid.TryParse(request.IdTipoIndice, out var tempIdIndice))
-            {
-                idTipoIndice = tempIdIndice;
-            }
+            var fechaInicio = request.FechaInicio?.Date ?? DateTime.Today;
+            var fechaFin = request.FechaFin?.Date ?? fechaInicio.AddMonths(request.CantidadCuotas);
 
             var contrato = new ContratoAlquiler
             {
-                FechaInicio = fechaInicioParseada,
-                FechaFin = fechaFinParseada,
+                FechaInicio = fechaInicio,
+                FechaFin = fechaFin,
                 CantidadCuotas = request.CantidadCuotas,
                 PrecioCuota = request.PrecioCuota,
                 TasaMoraMensual = request.TasaMoraMensual,
                 Condiciones = request.Condiciones,
-                IdInmueble = inmuebleId,
+                IdInmueble = request.InmuebleId,
                 IdPersonaInquilino = inquilino.IdPersona,
-                IdRolClienteInquilino = rolInquilinoId,
+                IdRolClienteInquilino = request.RolInquilinoId ?? Guid.Empty,
                 IdUsuarioCreador = userId,
                 FrecuenciaAjuste = request.FrecuenciaAjuste,
-                IdTipoIndice = idTipoIndice,
+                IdTipoIndice = request.IdTipoIndice,
                 ValorIndiceInicio = request.ValorIndiceInicio
             };
 
             var (success, message, contratoId) = _cnContrato.CrearContrato(contrato);
 
             if (!success)
-            {
                 return BadRequest(new { success = false, mensaje = message });
-            }
 
             return Ok(new { success = true, mensaje = message, data = new { contratoId } });
         }

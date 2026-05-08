@@ -9,3 +9,38 @@
 .vs/
 *.csproj.user
 .DS_Store
+################################################################################
+# InmoGestor - .gitignore definitivo
+################################################################################
+
+# Carpetas de compilación
+[Bb]in/
+[Oo]bj/
+Scripts/
+
+# Visual Studio y VS Code
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.csproj.user
+*.sqlproj.user
+appsettings.json
+appsettings.Development.json
+
+# Archivos de sistema y temporales
+.DS_Store
+*.db
+*.log
+*.tmp
+*.swp
+*~
+
+# Otros
+*.sublime-project
+*.sublime-workspace
+/.claude
+/CLAUDE.md

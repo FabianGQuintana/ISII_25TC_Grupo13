@@ -12,20 +12,18 @@ namespace InmoGestor.API.Controllers
     [Authorize]
     public class IndiceController : ControllerBase
     {
-        private readonly CN_Indice _cnIndice = new CN_Indice();
+        private readonly CN_Indice _cnIndice;
+
+        public IndiceController(CN_Indice cnIndice)
+        {
+            _cnIndice = cnIndice;
+        }
 
         [HttpGet("tipos")]
         public IActionResult ListarTipos()
         {
-            try
-            {
-                var lista = _cnIndice.ListarTipos();
-                return Ok(new { success = true, data = lista });
-            }
-            catch (Exception ex)
-            {
-                return Ok(new { success = false, mensaje = ex.Message });
-            }
+            var lista = _cnIndice.ListarTipos();
+            return Ok(new { success = true, data = lista });
         }
 
         /// <summary>
@@ -35,15 +33,8 @@ namespace InmoGestor.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> ObtenerActual(Guid id)
         {
-            try
-            {
-                var indice = await _cnIndice.ObtenerOActualizar(id);
-                return Ok(new { success = true, data = indice });
-            }
-            catch (Exception ex)
-            {
-                return Ok(new { success = false, mensaje = ex.Message });
-            }
+            var indice = await _cnIndice.ObtenerOActualizar(id);
+            return Ok(new { success = true, data = indice });
         }
 
         /// <summary>
@@ -53,15 +44,8 @@ namespace InmoGestor.API.Controllers
         [HttpPost]
         public IActionResult Guardar([FromBody] HistoricoIndice obj)
         {
-            try
-            {
-                _cnIndice.GuardarHistorico(obj);
-                return Ok(new { success = true, data = obj, mensaje = "Índice guardado exitosamente." });
-            }
-            catch (Exception ex)
-            {
-                return Ok(new { success = false, mensaje = ex.Message });
-            }
+            _cnIndice.GuardarHistorico(obj);
+            return Ok(new { success = true, data = obj, mensaje = "Índice cacheado exitosamente." });
         }
     }
 }

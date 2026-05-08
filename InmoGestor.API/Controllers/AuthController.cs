@@ -17,24 +17,17 @@ namespace InmoGestor.API.Controllers
         private readonly CN_Usuario _cnUsuario;
         private readonly IConfiguration _configuration;
         
-        public AuthController(IConfiguration configuration)
+        public AuthController(IConfiguration configuration, CN_Usuario cnUsuario)
         {
-            _cnUsuario = new CN_Usuario();
             _configuration = configuration;
+            _cnUsuario = cnUsuario;
         }
 
         [HttpGet("roles")]
         public IActionResult GetRoles()
         {
-            try
-            {
-                var roles = _cnUsuario.ListarRoles();
-                return Ok(new { success = true, data = roles });
-            }
-            catch (Exception ex)
-            {
-                return Ok(new { success = false, mensaje = ex.Message });
-            }
+            var roles = _cnUsuario.ListarRoles();
+            return Ok(new { success = true, data = roles });
         }
         
         [HttpPost("login")]
@@ -47,9 +40,10 @@ namespace InmoGestor.API.Controllers
                 return Unauthorized(new { success = false, mensaje = message });
             }
             
-            var jwtKey = _configuration["Jwt:Key"] ?? "ThisIsA32CharacterLongSecretKey!!";
+            var jwtKey = _configuration["Jwt:Key"]
+                ?? throw new InvalidOperationException("La configuración 'Jwt:Key' es requerida.");
             var jwtIssuer = _configuration["Jwt:Issuer"] ?? "InmoGestor";
-            var expirationMinutes = int.Parse(_configuration["Jwt:ExpirationMinutes"] ?? "60");
+            var expirationMinutes = int.TryParse(_configuration["Jwt:ExpirationMinutes"], out var exp) ? exp : 60;
             
              var claims = new[]
             {
@@ -135,22 +129,15 @@ namespace InmoGestor.API.Controllers
             return Ok(new { success = true, mensaje = message });
         }
         
-        /// <summary>
-        /// Crea el primer usuario Superior si la base de datos está vacía.
-        /// Solo funciona una vez. Una vez que existe cualquier usuario, devuelve error.
-        /// Credenciales: DNI=00000000 / Password=Admin123!
-        /// </summary>
         [HttpPost("seed")]
         public IActionResult Seed()
         {
             var roles = _cnUsuario.ListarRoles();
             if (roles.Count == 0)
-                return Ok(new { success = false, mensaje = "No hay roles en la base de datos. Ejecutá el script SQL primero." });
+                return BadRequest(new { success = false, mensaje = "No hay roles en la base de datos. Ejecutá el script SQL primero." });
 
-            // Intentar loguear con el DNI seed — si tiene éxito, ya existe el usuario
-            var (loginOk, _, _) = _cnUsuario.Login("00000000", "Admin123!");
-            if (loginOk)
-                return Ok(new { success = false, mensaje = "El usuario seed ya existe. Usá DNI: 00000000 / Pass: Admin123!" });
+            if (_cnUsuario.TieneUsuarios())
+                return Conflict(new { success = false, mensaje = "El sistema ya tiene usuarios registrados." });
 
             var (success, message) = _cnUsuario.Registrar(
                 dni: "00000000",
@@ -161,7 +148,10 @@ namespace InmoGestor.API.Controllers
                 rolNombre: "Superior"
             );
 
-            return Ok(new { success, mensaje = success ? "Usuario seed creado. DNI: 00000000 / Pass: Admin123!" : message });
+            if (!success)
+                return BadRequest(new { success = false, mensaje = message });
+
+            return Ok(new { success = true, mensaje = "Usuario administrador creado correctamente." });
         }
 
         [HttpGet("me")]

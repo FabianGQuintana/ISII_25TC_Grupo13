@@ -1,4 +1,4 @@
-﻿using CapaDatos;
+using CapaDatos;
 using CapaEntidades;
 using System;
 using System.Collections.Generic;
@@ -35,6 +35,12 @@ namespace CapaNegocio
             return _cdPago.ListarPorContrato(contratoId);
         }
 
+        public List<ContratoAlquiler> ListarActivosPorInquilino(Guid idInquilino)
+        {
+            return _cdPago.ListarActivosPorInquilino(idInquilino);
+        }
+
+
         public bool Rechazar(Guid idPago, string? motivo)
         {
             return _cdPago.Rechazar(idPago, motivo);
@@ -44,7 +50,7 @@ namespace CapaNegocio
         {
             return _cdPago.Anular(idPago);
         }
-        public Pago ObtenerPorId(Guid id)
+        public Pago? ObtenerPorId(Guid id)
         {
             
             return _cdPago.ObtenerPorId(id);

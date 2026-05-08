@@ -13,6 +13,11 @@ namespace CapaNegocio
         {
             return _cdUsuario.ListarRoles();
         }
+
+        public bool TieneUsuarios()
+        {
+            return _cdUsuario.TieneUsuarios();
+        }
         
         public (bool success, Usuario? usuario, string message) Login(string dni, string password)
         {

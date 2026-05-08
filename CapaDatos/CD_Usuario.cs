@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using CapaEntidades;
 
 namespace CapaDatos
@@ -30,6 +30,22 @@ namespace CapaDatos
                 }
             }
             return lista;
+        }
+
+        public bool TieneUsuarios()
+        {
+            try
+            {
+                using (var cn = new SqlConnection(Conexion.Cadena))
+                {
+                    string query = "SELECT COUNT(*) FROM usuario";
+                    using (var cmd = new SqlCommand(query, cn))
+                    {
+                        cn.Open();
+                        return (int)cmd.ExecuteScalar() > 0;
+                    }
+                }
+            }
         }
 
         public (Usuario? usuario, string? errorCode) ValidarUsuario(string dni, string password)

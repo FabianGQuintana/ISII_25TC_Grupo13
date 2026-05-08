@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using CapaEntidades;
 
 namespace CapaDatos
@@ -18,7 +18,7 @@ namespace CapaDatos
                 {
                     cmd.Parameters.AddWithValue("@id", Guid.NewGuid());
                     cmd.Parameters.AddWithValue("@idDireccion", obj.IdDireccion);
-                    cmd.Parameters.AddWithValue("@descripcion", (object)obj.Descripcion ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@descripcion", (object?)obj.Descripcion ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@idPropietario", obj.IdPersonaPropietario);
                     cmd.Parameters.AddWithValue("@disponibilidad", obj.Disponibilidad);
                     cmd.Parameters.AddWithValue("@idTipo", (object)(obj.IdTipoInmueble ?? (object)DBNull.Value));
@@ -33,7 +33,7 @@ namespace CapaDatos
         {
             using (var cn = new SqlConnection(Conexion.Cadena))
             {
-                string query = @"UPDATE inmueble SET id_direccion = @idDireccion, descripcion = @descripcion, 
+                string query = @"UPDATE inmueble SET id_direccion = @idDireccion, descripcion = @descripcion,
                          id_persona_propietario = @idPropietario, disponibilidad = @disponibilidad, id_tipo_inmueble = @idTipo
                          WHERE id_inmueble = @id";
 
@@ -41,7 +41,7 @@ namespace CapaDatos
                 {
                     cmd.Parameters.AddWithValue("@id", obj.IdInmueble);
                     cmd.Parameters.AddWithValue("@idDireccion", obj.IdDireccion);
-                    cmd.Parameters.AddWithValue("@descripcion", (object)obj.Descripcion ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@descripcion", (object?)obj.Descripcion ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@idPropietario", obj.IdPersonaPropietario);
                     cmd.Parameters.AddWithValue("@disponibilidad", obj.Disponibilidad);
                     cmd.Parameters.AddWithValue("@idTipo", (object)(obj.IdTipoInmueble ?? (object)DBNull.Value));

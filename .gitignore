@@ -16,11 +16,6 @@ Scripts/
 *.userosscache
 *.sln.docstates
 *.csproj.user
-.DS_Store
-CLAUDE.md
-Scripts/inmogestor_new_db.sql
-Scripts/TrabajoCampo.drawio.xml
-Scripts/ISII_25TC_Grupo13.pdf
 *.sqlproj.user
 appsettings.json
 appsettings.Development.json
@@ -36,4 +31,5 @@ appsettings.Development.json
 # Otros
 *.sublime-project
 *.sublime-workspace
+/.claude
 /CLAUDE.md

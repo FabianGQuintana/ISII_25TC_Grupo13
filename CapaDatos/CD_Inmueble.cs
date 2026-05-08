@@ -18,7 +18,7 @@ namespace CapaDatos
                 {
                     cmd.Parameters.AddWithValue("@id", Guid.NewGuid());
                     cmd.Parameters.AddWithValue("@idDireccion", obj.IdDireccion);
-                    cmd.Parameters.AddWithValue("@descripcion", (object)obj.Descripcion ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@descripcion", (object?)obj.Descripcion ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@idPropietario", obj.IdPersonaPropietario);
                     cmd.Parameters.AddWithValue("@disponibilidad", obj.Disponibilidad);
                     cmd.Parameters.AddWithValue("@idTipo", (object)(obj.IdTipoInmueble ?? (object)DBNull.Value));
@@ -41,7 +41,7 @@ namespace CapaDatos
                 {
                     cmd.Parameters.AddWithValue("@id", obj.IdInmueble);
                     cmd.Parameters.AddWithValue("@idDireccion", obj.IdDireccion);
-                    cmd.Parameters.AddWithValue("@descripcion", (object)obj.Descripcion ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@descripcion", (object?)obj.Descripcion ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@idPropietario", obj.IdPersonaPropietario);
                     cmd.Parameters.AddWithValue("@disponibilidad", obj.Disponibilidad);
                     cmd.Parameters.AddWithValue("@idTipo", (object)(obj.IdTipoInmueble ?? (object)DBNull.Value));

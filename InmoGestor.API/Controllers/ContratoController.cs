@@ -54,7 +54,7 @@ namespace InmoGestor.API.Controllers
 
         [HttpPost]
         [Authorize]
-        public IActionResult Crear([FromBody] CrearContratoRequest request)
+        public IActionResult CrearContrato([FromBody] CrearContratoRequest request)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))

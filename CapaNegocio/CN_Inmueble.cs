@@ -9,9 +9,9 @@ namespace CapaNegocio
     {
         private readonly CD_Inmueble _cdInmueble = new();
 
-        public List<Inmueble> Listar(bool soloDisponibles = false)
+        public List<Inmueble> ListarInmuebles(bool soloDisponibles = false)
         {
-            return _cdInmueble.Listar(soloDisponibles);
+            return _cdInmueble.ListarInmuebles(soloDisponibles);
         }
 
         public Inmueble? ObtenerPorId(Guid id)

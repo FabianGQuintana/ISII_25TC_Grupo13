@@ -56,14 +56,14 @@ namespace CapaNegocio
             return _cdContrato.Insertar(contrato);
         }
 
-        public (bool success, string message) Rescindir(Guid id)
+        public (bool success, string message) Rescindir(Guid idContrato)
         {
-            if (id == Guid.Empty)
+            if (idContrato == Guid.Empty)
             {
                 return (false, "El ID del contrato es requerido");
             }
 
-            return _cdContrato.Rescindir(id);
+            return _cdContrato.Rescindir(idContrato);
         }
 
         public (bool success, string message) ValidarInmuebleDisponible(Guid idInmueble, Guid? idContratoExcluir = null)

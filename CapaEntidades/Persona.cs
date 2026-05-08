@@ -4,7 +4,6 @@ namespace CapaEntidades
 {
     public class Persona
     {
-        public Guid IdPersona { get; set; }
         public string? Dni { get; set; }
         public string Nombre { get; set; } = string.Empty;
         public string Apellido { get; set; } = string.Empty;
@@ -14,5 +13,7 @@ namespace CapaEntidades
         public DateTime? FechaNacimiento { get; set; }
         
         public string NombreCompleto => $"{Nombre} {Apellido}";
+
+        public Guid IdPersona { get; set; } = Guid.NewGuid();
     }
 }

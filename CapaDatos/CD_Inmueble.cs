@@ -69,7 +69,7 @@ namespace CapaDatos
 
 
 
-        public List<Inmueble> Listar(bool soloDisponibles = false)
+        public List<Inmueble> ListarInmuebles(bool soloDisponibles = false)
         {
             var lista = new List<Inmueble>();
 

@@ -8,6 +8,5 @@ namespace InmoGestor.API.DTOs
         public int Disponibilidad { get; set; }
         public string DisponibilidadNombre { get; set; } = "";
         public string PropietarioNombreCompleto { get; set; } = "";
-        public string TipoNombre { get; set; } = "";
     }
 }

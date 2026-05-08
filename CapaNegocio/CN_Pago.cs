@@ -1,4 +1,4 @@
-﻿using CapaDatos;
+using CapaDatos;
 using CapaEntidades;
 using System;
 using System.Collections.Generic;
@@ -49,7 +49,7 @@ namespace CapaNegocio
         {
             return _cdPago.Anular(idPago);
         }
-        public Pago ObtenerPorId(Guid id)
+        public Pago? ObtenerPorId(Guid id)
         {
             
             return _cdPago.ObtenerPorId(id);

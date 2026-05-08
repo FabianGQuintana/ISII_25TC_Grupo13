@@ -46,6 +46,10 @@ namespace CapaDatos
                     }
                 }
             }
+            catch
+            {
+                return false;
+            }
         }
 
         public (Usuario? usuario, string? errorCode) ValidarUsuario(string dni, string password)

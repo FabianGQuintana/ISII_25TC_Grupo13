@@ -1,4 +1,5 @@
 #nullable enable
+using System;
 using System.Collections.Generic;
 using CapaEntidades;
 using InmoGestor.API.DTOs;
@@ -33,6 +34,28 @@ namespace InmoGestor.API.Mappers
             foreach (var c in contratos)
                 response.Add(ToResponse(c));
             return response;
+        }
+
+        public static ContratoAlquiler ToEntity(CrearContratoRequest request, Persona inquilino, Guid userId)
+        {
+            var fechaInicio = request.FechaInicio?.Date ?? DateTime.Today;
+            var fechaFin = request.FechaFin?.Date ?? fechaInicio.AddMonths(request.CantidadCuotas);
+            return new ContratoAlquiler
+            {
+                FechaInicio = fechaInicio,
+                FechaFin = fechaFin,
+                CantidadCuotas = request.CantidadCuotas,
+                PrecioCuota = request.PrecioCuota,
+                TasaMoraMensual = request.TasaMoraMensual,
+                Condiciones = request.Condiciones,
+                IdInmueble = request.InmuebleId,
+                IdPersonaInquilino = inquilino.IdPersona,
+                IdRolClienteInquilino = request.RolInquilinoId ?? Guid.Empty,
+                IdUsuarioCreador = userId,
+                FrecuenciaAjuste = request.FrecuenciaAjuste,
+                IdTipoIndice = request.IdTipoIndice,
+                ValorIndiceInicio = request.ValorIndiceInicio
+            };
         }
     }
 }

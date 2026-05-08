@@ -4,7 +4,6 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using CapaNegocio;
-using CapaEntidades;
 using InmoGestor.API.DTOs;
 using InmoGestor.API.Mappers;
 
@@ -66,26 +65,7 @@ namespace InmoGestor.API.Controllers
             if (inquilino == null)
                 return BadRequest(new { success = false, mensaje = "No se encontró un inquilino con ese DNI" });
 
-            var fechaInicio = request.FechaInicio?.Date ?? DateTime.Today;
-            var fechaFin = request.FechaFin?.Date ?? fechaInicio.AddMonths(request.CantidadCuotas);
-
-            var contrato = new ContratoAlquiler
-            {
-                FechaInicio = fechaInicio,
-                FechaFin = fechaFin,
-                CantidadCuotas = request.CantidadCuotas,
-                PrecioCuota = request.PrecioCuota,
-                TasaMoraMensual = request.TasaMoraMensual,
-                Condiciones = request.Condiciones,
-                IdInmueble = request.InmuebleId,
-                IdPersonaInquilino = inquilino.IdPersona,
-                IdRolClienteInquilino = request.RolInquilinoId ?? Guid.Empty,
-                IdUsuarioCreador = userId,
-                FrecuenciaAjuste = request.FrecuenciaAjuste,
-                IdTipoIndice = request.IdTipoIndice,
-                ValorIndiceInicio = request.ValorIndiceInicio
-            };
-
+            var contrato = ContratoMapper.ToEntity(request, inquilino, userId);
             var (success, message, contratoId) = _cnContrato.CrearContrato(contrato);
 
             if (!success)

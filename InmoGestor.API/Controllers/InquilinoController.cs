@@ -20,9 +20,9 @@ namespace InmoGestor.API.Controllers
         }
 
         [HttpGet]
-        public IActionResult Listar()
+        public IActionResult ListarInquilinos()
         {
-            var inquilinos = _cnInquilino.Listar();
+            var inquilinos = _cnInquilino.ListarInquilinos();
             var response = MapearInquilinos(inquilinos);
             return Ok(new { success = true, data = response });
         }

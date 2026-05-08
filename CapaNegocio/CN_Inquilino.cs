@@ -9,9 +9,9 @@ namespace CapaNegocio
     {
         private readonly CD_Inquilino _cdInquilino = new();
 
-        public List<Persona> Listar()
+        public List<Persona> ListarInquilinos()
         {
-            return _cdInquilino.Listar();
+            return _cdInquilino.ListarInquilinos();
         }
 
         public List<Persona> ListarConContratosActivos()

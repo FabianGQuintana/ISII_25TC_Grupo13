@@ -7,7 +7,7 @@ namespace CapaDatos
 {
     public class CD_Inquilino
     {
-        public List<Persona> Listar()
+        public List<Persona> ListarInquilinos()
         {
             var lista = new List<Persona>();
 

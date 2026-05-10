@@ -6,13 +6,13 @@ using Microsoft.Data.SqlClient;
 
 public class CD_Pago
 {
-    // 1. Insertar el pago (Estado depende del rol)
     public void Insertar(Pago pago)
     {
         using (var cn = new SqlConnection(Conexion.Cadena))
         {
-            string query = @"INSERT INTO pago (id_pago, id_cuota, id_metodo_pago, id_usuario_creador, monto_total, estado, fecha_creacion)
-                             VALUES (@id, @idCuota, @idMetodo, @idUser, @monto, @estado, GETDATE())";
+            string query = @"
+            INSERT INTO pago (id_pago, id_cuota, id_metodo_pago, id_usuario_creador, monto_total, estado, fecha_pago, periodo, mora_cobrada)
+            VALUES (@id, @idCuota, @idMetodo, @idUser, @monto, @estado, GETDATE(), @periodo, @mora)";
 
             using (var cmd = new SqlCommand(query, cn))
             {
@@ -21,14 +21,18 @@ public class CD_Pago
                 cmd.Parameters.AddWithValue("@idMetodo", pago.IdMetodoPago);
                 cmd.Parameters.AddWithValue("@idUser", pago.IdUsuarioCreador);
                 cmd.Parameters.AddWithValue("@monto", pago.MontoTotal);
-                cmd.Parameters.AddWithValue("@estado", pago.Estado);
+                // CORRECCIÓN: Se envía el string directamente
+                cmd.Parameters.AddWithValue("@estado", pago.Estado ?? "Pendiente");
+
+                cmd.Parameters.AddWithValue("@periodo", (object)pago.Periodo ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@mora", pago.MoraCobrada);
+
                 cn.Open();
                 cmd.ExecuteNonQuery();
             }
         }
     }
 
-   
     public bool AprobarPago(Guid idPago, Guid idCuota)
     {
         using (var cn = new SqlConnection(Conexion.Cadena))
@@ -38,14 +42,17 @@ public class CD_Pago
             {
                 try
                 {
-                    // Cambiar estado a Aprobado
+                    // CORRECCIÓN: Query usa valor literal string o parámetro string
                     string q1 = "UPDATE pago SET estado = 'Aprobado' WHERE id_pago = @id";
-                    // Crear Recibo
                     string q2 = "INSERT INTO recibo (id_recibo, id_pago, fecha_emision, nro_comprobante) VALUES (NEWID(), @id, GETDATE(), 'REC-' + CAST(NEXT VALUE FOR SecuenciaRecibo AS VARCHAR))";
-                    // Marcar Cuota como Pagada
                     string q3 = "UPDATE cuota SET estado = 'Pagada' WHERE id_cuota = @idCuota";
 
-                    new SqlCommand(q1, cn, transaction) { Parameters = { new SqlParameter("@id", idPago) } }.ExecuteNonQuery();
+                    using (var cmd1 = new SqlCommand(q1, cn, transaction))
+                    {
+                        cmd1.Parameters.AddWithValue("@id", idPago);
+                        cmd1.ExecuteNonQuery();
+                    }
+
                     new SqlCommand(q2, cn, transaction) { Parameters = { new SqlParameter("@id", idPago) } }.ExecuteNonQuery();
                     new SqlCommand(q3, cn, transaction) { Parameters = { new SqlParameter("@idCuota", idCuota) } }.ExecuteNonQuery();
 
@@ -57,41 +64,27 @@ public class CD_Pago
         }
     }
 
-    public List<Pago> Listar(int? estado)
+    public List<Pago> Listar(string? estado) // CORRECCIÓN: Parámetro string
     {
         var lista = new List<Pago>();
         using (var cn = new SqlConnection(Conexion.Cadena))
         {
-            string query = @"SELECT id_pago, id_cuota, id_metodo_pago, id_usuario_creador, 
-                         monto_total, periodo, estado, fecha_pago, mora_cobrada
-                         FROM pago";
+            string query = "SELECT id_pago, id_cuota, id_metodo_pago, id_usuario_creador, monto_total, periodo, estado, fecha_pago, mora_cobrada FROM pago";
 
-            if (estado.HasValue)
-            {
+            if (!string.IsNullOrEmpty(estado))
                 query += " WHERE estado = @estado";
-            }
 
             using (var cmd = new SqlCommand(query, cn))
             {
-                if (estado.HasValue)
-                    cmd.Parameters.AddWithValue("@estado", estado.Value);
+                if (!string.IsNullOrEmpty(estado))
+                    cmd.Parameters.AddWithValue("@estado", estado);
 
                 cn.Open();
                 using (var dr = cmd.ExecuteReader())
                 {
                     while (dr.Read())
                     {
-                        lista.Add(new Pago
-                        {
-                            IdPago = Guid.Parse(dr["id_pago"].ToString()!),
-                            IdCuota = Guid.Parse(dr["id_cuota"].ToString()!),
-                            IdMetodoPago = Guid.Parse(dr["id_metodo_pago"].ToString()!),
-                            IdUsuarioCreador = Guid.Parse(dr["id_usuario_creador"].ToString()!),
-                            MontoTotal = decimal.Parse(dr["monto_total"].ToString()!),
-                            Periodo = dr["periodo"]?.ToString() ?? "",
-                            Estado = dr["estado"].ToString()!, 
-                            FechaPago = DateTime.Parse(dr["fecha_pago"].ToString()!)
-                        });
+                        lista.Add(MapFromReader(dr));
                     }
                 }
             }
@@ -99,12 +92,55 @@ public class CD_Pago
         return lista;
     }
 
+    // Helper para centralizar el mapeo y evitar errores de lectura
+    private Pago MapFromReader(SqlDataReader dr)
+    {
+        return new Pago
+        {
+            IdPago = (Guid)dr["id_pago"],
+            IdCuota = (Guid)dr["id_cuota"],
+            IdMetodoPago = (Guid)dr["id_metodo_pago"],
+            IdUsuarioCreador = (Guid)dr["id_usuario_creador"],
+            MontoTotal = (decimal)dr["monto_total"],
+            Periodo = dr["periodo"]?.ToString() ?? "",
+            // CORRECCIÓN: Lectura directa como string con fallback
+            Estado = dr["estado"]?.ToString() ?? "Pendiente",
+            FechaPago = (DateTime)dr["fecha_pago"],
+            MoraCobrada = (decimal)dr["mora_cobrada"]
+        };
+    }
+
+    public Pago? ObtenerPorId(Guid id)
+    {
+        using (var cn = new SqlConnection(Conexion.Cadena))
+        {
+            string query = @"SELECT id_pago, id_cuota, id_metodo_pago, id_usuario_creador,
+                         monto_total, periodo, estado, fecha_pago, mora_cobrada
+                         FROM pago WHERE id_pago = @id";
+
+            using (var cmd = new SqlCommand(query, cn))
+            {
+                cmd.Parameters.AddWithValue("@id", id);
+                cn.Open();
+
+                using (var dr = cmd.ExecuteReader())
+                {
+                    if (dr.Read())
+                    {
+                        return MapFromReader(dr);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     public List<Pago> ListarPorContrato(Guid contratoId)
     {
         var lista = new List<Pago>();
         using (var cn = new SqlConnection(Conexion.Cadena))
         {
-            string query = @"SELECT p.id_pago, p.id_cuota, p.id_metodo_pago, p.id_usuario_creador, 
+            string query = @"SELECT p.id_pago, p.id_cuota, p.id_metodo_pago, p.id_usuario_creador,
                          p.monto_total, p.periodo, p.estado, p.fecha_pago, p.mora_cobrada
                          FROM pago p
                          INNER JOIN cuota c ON p.id_cuota = c.id_cuota
@@ -118,17 +154,7 @@ public class CD_Pago
                 {
                     while (dr.Read())
                     {
-                        lista.Add(new Pago
-                        {
-                            IdPago = Guid.Parse(dr["id_pago"].ToString()!),
-                            IdCuota = Guid.Parse(dr["id_cuota"].ToString()!),
-                            IdMetodoPago = Guid.Parse(dr["id_metodo_pago"].ToString()!),
-                            IdUsuarioCreador = Guid.Parse(dr["id_usuario_creador"].ToString()!),
-                            MontoTotal = decimal.Parse(dr["monto_total"].ToString()!),
-                            Periodo = dr["periodo"]?.ToString() ?? "",
-                            Estado = dr["estado"].ToString()!,
-                            FechaPago = DateTime.Parse(dr["fecha_pago"].ToString()!)
-                        });
+                        lista.Add(MapFromReader(dr));
                     }
                 }
             }
@@ -257,41 +283,4 @@ public class CD_Pago
             }
         }
     }
-    public Pago? ObtenerPorId(Guid id)
-    {
-        using (var cn = new SqlConnection(Conexion.Cadena))
-        {
-            string query = @"SELECT id_pago, id_cuota, id_metodo_pago, id_usuario_creador, 
-                         monto_total, periodo, estado, fecha_pago, mora_cobrada
-                         FROM pago WHERE id_pago = @id";
-
-            using (var cmd = new SqlCommand(query, cn))
-            {
-                cmd.Parameters.AddWithValue("@id", id);
-                cn.Open();
-
-                using (var dr = cmd.ExecuteReader())
-                {
-                    if (dr.Read())
-                    {
-                        return new Pago
-                        {
-                            IdPago = Guid.Parse(dr["id_pago"].ToString()!),
-                            IdCuota = Guid.Parse(dr["id_cuota"].ToString()!),
-                            IdMetodoPago = Guid.Parse(dr["id_metodo_pago"].ToString()!),
-                            IdUsuarioCreador = Guid.Parse(dr["id_usuario_creador"].ToString()!),
-                            MontoTotal = decimal.Parse(dr["monto_total"].ToString()!),
-                            Periodo = dr["periodo"]?.ToString() ?? "",
-                            Estado = dr["estado"].ToString()!,
-                            FechaPago = DateTime.Parse(dr["fecha_pago"].ToString()!)
-                        };
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-
-
 }

@@ -27,7 +27,8 @@ namespace CapaNegocio
 
         public List<Pago> Listar(int? estado)
         {
-            return _cdPago.Listar(estado);
+            // Convertir el filtro opcional a string para la capa de datos
+            return _cdPago.Listar(estado.HasValue ? estado.Value.ToString() : null);
         }
 
         public List<Pago> ListarPorContrato(Guid contratoId)

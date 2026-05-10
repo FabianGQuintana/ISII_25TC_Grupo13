@@ -50,6 +50,7 @@ builder.Services.AddScoped<CapaNegocio.CN_Inquilino>();
 builder.Services.AddScoped<CapaNegocio.CN_Inmueble>();
 builder.Services.AddScoped<CapaNegocio.CN_Indice>();
 builder.Services.AddScoped<CapaNegocio.CN_Pago>();
+builder.Services.AddScoped<CapaNegocio.CN_Cuota>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

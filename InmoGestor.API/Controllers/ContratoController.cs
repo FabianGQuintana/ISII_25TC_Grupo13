@@ -32,6 +32,14 @@ namespace InmoGestor.API.Controllers
             return Ok(new { success = true, data = response });
         }
 
+        [HttpGet("activos-por-inquilino")]
+        public IActionResult ListarActivosPorInquilino([FromQuery] Guid idInquilino)
+        {
+            var contratos = _cnContrato.ListarActivosPorInquilino(idInquilino);
+            var response = ContratoMapper.ToResponseList(contratos);
+            return Ok(new { success = true, data = response });
+        }
+
 
 
         [HttpGet("{id}")]

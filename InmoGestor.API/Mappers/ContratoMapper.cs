@@ -12,6 +12,7 @@ namespace InmoGestor.API.Mappers
             return new ContratoResponse
             {
                 Id = c.IdContratoAlquiler.ToString(),
+                IdPersonaInquilino = c.IdPersonaInquilino.ToString(),
                 Inquilino = c.OInquilino != null ? c.OInquilino.NombreCompleto : "",
                 DniInquilino = c.OInquilino?.Dni ?? "",
                 Direccion = c.OInmueble?.ODireccion?.Calle ?? "",

@@ -4,6 +4,7 @@ namespace InmoGestor.API.DTOs
     public class ContratoResponse
     {
         public string Id { get; set; } = "";
+        public string IdPersonaInquilino { get; set; } = "";
         public string Inquilino { get; set; } = "";
         public string DniInquilino { get; set; } = "";
         public string Direccion { get; set; } = "";

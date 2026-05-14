@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace CapaEntidades
 {
@@ -19,5 +19,12 @@ namespace CapaEntidades
         public Guid IdUsuarioCreador { get; set; }
 
         public string Estado { get; set; } = "Pendiente";
+
+        // Propiedades adicionales para el Frontend
+        public string Inquilino { get; set; } = "";
+        public string Inmueble { get; set; } = "";
+        public int NroCuota { get; set; }
+        public DateTime? FechaVencimiento { get; set; }
+        public Guid IdContrato { get; set; }
     }
 }

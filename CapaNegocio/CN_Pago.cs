@@ -25,10 +25,9 @@ namespace CapaNegocio
             return (true, "Pago registrado, esperando aprobación de un superior.");
         }
 
-        public List<Pago> Listar(int? estado)
+        public List<Pago> Listar(string? estado)
         {
-            // Convertir el filtro opcional a string para la capa de datos
-            return _cdPago.Listar(estado.HasValue ? estado.Value.ToString() : null);
+            return _cdPago.Listar(estado);
         }
 
         public List<Pago> ListarPorContrato(Guid contratoId)
@@ -46,9 +45,9 @@ namespace CapaNegocio
             return _cdPago.Rechazar(idPago, motivo);
         }
 
-        public bool Anular(Guid idPago)
+        public bool Anular(Pago pago, Guid idUsuario, string? motivo)
         {
-            return _cdPago.Anular(idPago);
+            return _cdPago.Anular(pago, idUsuario, motivo);
         }
         public Pago? ObtenerPorId(Guid id)
         {

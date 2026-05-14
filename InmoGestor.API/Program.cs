@@ -40,15 +40,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 builder.Services.AddScoped<CN_Usuario>();
+builder.Services.AddScoped<CN_Contrato>();
+builder.Services.AddScoped<CN_Inquilino>();
+builder.Services.AddScoped<CN_Inmueble>();
+builder.Services.AddScoped<CN_Pago>();
+builder.Services.AddScoped<CN_Persona>();
+builder.Services.AddScoped<CN_Indice>();
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
-
-builder.Services.AddScoped<CapaNegocio.CN_Usuario>();
-builder.Services.AddScoped<CapaNegocio.CN_Contrato>();
-builder.Services.AddScoped<CapaNegocio.CN_Inquilino>();
-builder.Services.AddScoped<CapaNegocio.CN_Inmueble>();
-builder.Services.AddScoped<CapaNegocio.CN_Indice>();
-builder.Services.AddScoped<CapaNegocio.CN_Pago>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

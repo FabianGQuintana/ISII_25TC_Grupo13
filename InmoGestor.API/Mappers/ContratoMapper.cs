@@ -1,5 +1,7 @@
 #nullable enable
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using CapaEntidades;
 using InmoGestor.API.DTOs;
 
@@ -18,7 +20,7 @@ namespace InmoGestor.API.Mappers
                 Inmueble = c.OInmueble?.Descripcion ?? "",
                 PrecioCuota = c.PrecioCuota,
                 CantCuotas = c.CantidadCuotas,
-                FechaInicio = c.FechaInicio.ToString("yyyy-MM-dd"),
+                FechaCreacion = c.FechaCreacion.ToString("yyyy-MM-dd"),
                 FechaFin = c.FechaFin.ToString("yyyy-MM-dd"),
                 MoraMensual = c.TasaMoraMensual,
                 MoraDiaria = c.MoraDiaria,
@@ -28,11 +30,28 @@ namespace InmoGestor.API.Mappers
         }
 
         public static List<ContratoResponse> ToResponseList(List<ContratoAlquiler> contratos)
+            => contratos.Select(ToResponse).ToList();
+
+        public static ContratoAlquiler ToEntity(CrearContratoRequest request, Persona inquilino, Guid userId)
         {
-            var response = new List<ContratoResponse>();
-            foreach (var c in contratos)
-                response.Add(ToResponse(c));
-            return response;
+            var fechaCreacion = request.FechaCreacion?.Date ?? DateTime.Today;
+            var fechaFin = request.FechaFin?.Date ?? fechaCreacion.AddMonths(request.CantidadCuotas);
+            return new ContratoAlquiler
+            {
+                FechaCreacion = fechaCreacion,
+                FechaFin = fechaFin,
+                CantidadCuotas = request.CantidadCuotas,
+                PrecioCuota = request.PrecioCuota,
+                TasaMoraMensual = request.TasaMoraMensual,
+                Condiciones = request.Condiciones,
+                IdInmueble = request.InmuebleId,
+                IdPersonaInquilino = inquilino.IdPersona,
+                IdRolClienteInquilino = request.RolInquilinoId ?? Guid.Empty,
+                IdUsuarioCreador = userId,
+                FrecuenciaAjuste = request.FrecuenciaAjuste,
+                IdTipoIndice = request.IdTipoIndice,
+                ValorIndiceInicio = request.ValorIndiceInicio
+            };
         }
     }
 }

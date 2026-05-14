@@ -24,34 +24,26 @@ namespace CapaNegocio
         public (bool success, string message, Guid? contratoId) CrearContrato(ContratoAlquiler contrato)
         {
             if (contrato.IdInmueble == Guid.Empty)
-            {
                 return (false, "El inmueble es requerido", null);
-            }
 
             if (contrato.IdPersonaInquilino == Guid.Empty)
-            {
                 return (false, "El inquilino es requerido", null);
-            }
 
             if (contrato.CantidadCuotas <= 0)
-            {
                 return (false, "La cantidad de cuotas debe ser mayor a 0", null);
-            }
 
             if (contrato.PrecioCuota <= 0)
-            {
                 return (false, "El precio de la cuota debe ser mayor a 0", null);
-            }
 
             if (contrato.FechaFin == default)
-            {
                 return (false, "La fecha de fin es requerida", null);
-            }
 
-            if (contrato.FechaFin <= contrato.FechaInicio)
-            {
+            if (contrato.FechaFin <= contrato.FechaCreacion)
                 return (false, "La fecha de fin debe ser posterior a la fecha de inicio", null);
-            }
+
+            var (disponible, mensajeDisponible) = _cdContrato.ValidarInmuebleDisponible(contrato.IdInmueble);
+            if (!disponible)
+                return (false, mensajeDisponible, null);
 
             return _cdContrato.Insertar(contrato);
         }

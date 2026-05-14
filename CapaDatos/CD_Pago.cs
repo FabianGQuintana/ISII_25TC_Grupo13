@@ -189,7 +189,7 @@ public class CD_Pago
                             Condiciones = dr["condiciones"]?.ToString(),
                             CantidadCuotas = int.Parse(dr["cantidad_cuotas"].ToString()!),
                             PrecioCuota = decimal.Parse(dr["precio_cuota"].ToString()!),
-                            FechaInicio = DateTime.Parse(dr["fecha_creacion"].ToString()!),
+                            FechaCreacion = DateTime.Parse(dr["fecha_creacion"].ToString()!),
                             IdInmueble = Guid.Parse(dr["id_inmueble"].ToString()!),
                             IdPersonaInquilino = Guid.Parse(dr["id_persona_inquilino"].ToString()!),
                             IdRolClienteInquilino = Guid.Parse(dr["id_rol_cliente_inquilino"].ToString()!),

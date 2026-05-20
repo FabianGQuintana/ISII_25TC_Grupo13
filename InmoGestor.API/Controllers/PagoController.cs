@@ -24,7 +24,7 @@ namespace InmoGestor.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult Registrar([FromBody] RegistrarPagoRequest request)
+        public IActionResult Registrar([FromBody] RegistrarPagoRequest pago)
         {
             var userId =
                 Guid.Parse(
@@ -36,8 +36,8 @@ namespace InmoGestor.API.Controllers
                 || User.IsInRole("SUPERIOR");
 
             var resultado = _cnPago.RegistrarPago(
-                Guid.Parse(request.IdCuota),
-                Guid.Parse(request.IdMetodoPago),
+                Guid.Parse(pago.IdCuota),
+                Guid.Parse(pago.IdMetodoPago),
                 userId,
                 esSuperior);
 

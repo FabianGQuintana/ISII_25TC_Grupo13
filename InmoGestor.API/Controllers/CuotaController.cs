@@ -26,37 +26,33 @@ namespace InmoGestor.API.Controllers
         public IActionResult Pendientes(string contratoId)
         {
             if (!Guid.TryParse(contratoId, out var id))
-                return BadRequest(new { success = false, mensaje = "ID inválido" });
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    mensaje = "ID inválido"
+                });
+            }
 
             var contrato = _cnContrato.ObtenerPorId(id);
+
             if (contrato == null)
-                return NotFound(new { success = false, mensaje = "Contrato no encontrado" });
-
-            var cuotas = _cnCuota.ListarPendientesPorContrato(id);
-
-            var result = cuotas.Select(c => {
-                var diasAtraso = c.FechaVencimiento < DateTime.Today ? (DateTime.Today - c.FechaVencimiento).Days : 0;
-                var moraCalculada = diasAtraso > 0 ? (contrato.MoraDiariaMonto * diasAtraso) : 0;
-                var importeActualizado = c.ImporteBase * (c.ValorIndiceAplicado > 0 ? c.ValorIndiceAplicado : 1m);
-                var totalFinal = importeActualizado + moraCalculada;
-
-                return new CuotaPendienteDto
+            {
+                return NotFound(new
                 {
-                    IdCuota = c.IdCuota.ToString(),
-                    NroCuota = c.NroCuota,
-                    Periodo = c.Periodo,
-                    FechaVencimiento = c.FechaVencimiento,
-                    ImporteBase = c.ImporteBase,
-                    ValorIndiceAplicado = c.ValorIndiceAplicado > 0 ? c.ValorIndiceAplicado : 1m,
-                    ImporteActualizado = importeActualizado,
-                    DiasAtraso = diasAtraso,
-                    MoraCalculada = moraCalculada,
-                    TotalFinal = totalFinal,
-                    Estado = diasAtraso > 0 ? "Vencida" : c.Estado
-                };
-            }).ToList();
+                    success = false,
+                    mensaje = "Contrato no encontrado"
+                });
+            }
 
-            return Ok(new { success = true, data = result });
+            var cuotas =
+                _cnCuota.ObtenerCuotasCalculadas(id, contrato);
+
+            return Ok(new
+            {
+                success = true,
+                data = cuotas
+            });
         }
     }
 }

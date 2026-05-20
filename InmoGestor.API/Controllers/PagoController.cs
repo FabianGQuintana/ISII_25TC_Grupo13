@@ -26,21 +26,32 @@ namespace InmoGestor.API.Controllers
         [HttpPost]
         public IActionResult Registrar([FromBody] RegistrarPagoRequest request)
         {
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? Guid.Empty.ToString());
-            bool esSuperior = User.IsInRole("Superior") || User.IsInRole("SUPERIOR");
+            var userId =
+                Guid.Parse(
+                    User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                    ?? Guid.Empty.ToString());
 
-            var pago = new Pago
-            {
-                IdPago = Guid.NewGuid(),
-                IdCuota = Guid.Parse(request.IdCuota),
-                IdUsuarioCreador = userId,
-                MontoTotal = request.Monto,
-                IdMetodoPago = Guid.Parse(request.IdMetodoPago)
-            };
+            bool esSuperior =
+                User.IsInRole("Superior")
+                || User.IsInRole("SUPERIOR");
 
-            var (success, message) = _cnPago.RegistrarPago(pago, esSuperior);
+            var resultado = _cnPago.RegistrarPago(
+                Guid.Parse(request.IdCuota),
+                Guid.Parse(request.IdMetodoPago),
+                userId,
+                esSuperior);
 
-            return success ? Ok(new { success, message }) : BadRequest(new { success, message });
+            return resultado.success
+                ? Ok(new
+                {
+                    success = true,
+                    message = resultado.message
+                })
+                : BadRequest(new
+                {
+                    success = false,
+                    message = resultado.message
+                });
         }
 
         [HttpPost("{id}/aprobar")]
@@ -69,7 +80,7 @@ namespace InmoGestor.API.Controllers
         }
 
         [HttpGet]
-        public IActionResult Listar([FromQuery] string? estado)
+        public IActionResult Listar([FromQuery] int? estado)
         {
             var pagos = _cnPago.Listar(estado);
             var response = pagos.Select(MapToDto).ToList();
@@ -177,8 +188,11 @@ namespace InmoGestor.API.Controllers
         public class RegistrarPagoRequest
         {
             public string IdCuota { get; set; } = "";
+
             public string IdMetodoPago { get; set; } = "";
+
             public decimal Monto { get; set; }
+
             public string Periodo { get; set; } = "";
         }
 

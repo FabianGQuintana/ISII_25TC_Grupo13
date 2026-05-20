@@ -62,7 +62,7 @@ namespace InmoGestor.API.Controllers
 
         [HttpPost]
         [Authorize]
-        public IActionResult Crear([FromBody] CrearContratoRequest request)
+        public IActionResult Crear([FromBody] CrearContratoRequest contrato)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
@@ -70,28 +70,28 @@ namespace InmoGestor.API.Controllers
                 return Unauthorized(new { success = false, mensaje = "Token inválido" });
             }
 
-            if (string.IsNullOrWhiteSpace(request.InmuebleId) || !Guid.TryParse(request.InmuebleId, out var inmuebleId))
+            if (string.IsNullOrWhiteSpace(contrato.InmuebleId) || !Guid.TryParse(contrato.InmuebleId, out var inmuebleId))
             {
                 return BadRequest(new { success = false, mensaje = "El inmueble es requerido" });
             }
 
-            if (string.IsNullOrWhiteSpace(request.DniInquilino))
+            if (string.IsNullOrWhiteSpace(contrato.DniInquilino))
             {
                 return BadRequest(new { success = false, mensaje = "El DNI del inquilino es requerido" });
             }
 
-            var inquilino = _cnInquilino.ObtenerPorDni(request.DniInquilino!);
+            var inquilino = _cnInquilino.ObtenerPorDni(contrato.DniInquilino!);
             if (inquilino == null)
             {
                 return BadRequest(new { success = false, mensaje = "No se encontró un inquilino con ese DNI" });
             }
 
-            if (request.CantidadCuotas <= 0)
+            if (contrato.CantidadCuotas <= 0)
             {
                 return BadRequest(new { success = false, mensaje = "La cantidad de cuotas debe ser mayor a 0" });
             }
 
-            if (request.PrecioCuota <= 0)
+            if (contrato.PrecioCuota <= 0)
             {
                 return BadRequest(new { success = false, mensaje = "El precio de la cuota debe ser mayor a 0" });
             }
@@ -103,15 +103,15 @@ namespace InmoGestor.API.Controllers
             }
 
             Guid rolInquilinoId = Guid.Empty;
-            if (!string.IsNullOrWhiteSpace(request.RolInquilinoId))
+            if (!string.IsNullOrWhiteSpace(contrato.RolInquilinoId))
             {
-                Guid.TryParse(request.RolInquilinoId, out rolInquilinoId);
+                Guid.TryParse(contrato.RolInquilinoId, out rolInquilinoId);
             }
 
             DateTime fechaInicioParseada = DateTime.Today;
-            if (!string.IsNullOrWhiteSpace(request.FechaInicio))
+            if (!string.IsNullOrWhiteSpace(contrato.FechaInicio))
             {
-                if (!DateTime.TryParse(request.FechaInicio, out var tempInicio))
+                if (!DateTime.TryParse(contrato.FechaInicio, out var tempInicio))
                 {
                     return BadRequest(new { success = false, mensaje = "El formato de Fecha Inicio es inválido" });
                 }
@@ -119,11 +119,11 @@ namespace InmoGestor.API.Controllers
             }
 
             DateTime fechaFinParseada;
-            if (string.IsNullOrWhiteSpace(request.FechaFin))
+            if (string.IsNullOrWhiteSpace(contrato.FechaFin))
             {
-                fechaFinParseada = fechaInicioParseada.AddMonths(request.CantidadCuotas);
+                fechaFinParseada = fechaInicioParseada.AddMonths(contrato.CantidadCuotas);
             }
-            else if (!DateTime.TryParse(request.FechaFin, out fechaFinParseada))
+            else if (!DateTime.TryParse(contrato.FechaFin, out fechaFinParseada))
             {
                 return BadRequest(new { success = false, mensaje = "El formato de Fecha Fin es inválido" });
             }
@@ -133,29 +133,29 @@ namespace InmoGestor.API.Controllers
             }
 
             Guid? idTipoIndice = null;
-            if (!string.IsNullOrWhiteSpace(request.IdTipoIndice) && Guid.TryParse(request.IdTipoIndice, out var tempIdIndice))
+            if (!string.IsNullOrWhiteSpace(contrato.IdTipoIndice) && Guid.TryParse(contrato.IdTipoIndice, out var tempIdIndice))
             {
                 idTipoIndice = tempIdIndice;
             }
 
-            var contrato = new ContratoAlquiler
+            var nuevoContrato = new ContratoAlquiler
             {
                 FechaInicio = fechaInicioParseada,
                 FechaFin = fechaFinParseada,
-                CantidadCuotas = request.CantidadCuotas,
-                PrecioCuota = request.PrecioCuota,
-                TasaMoraMensual = request.TasaMoraMensual,
-                Condiciones = request.Condiciones,
+                CantidadCuotas = contrato.CantidadCuotas,
+                PrecioCuota = contrato.PrecioCuota,
+                TasaMoraMensual = contrato.TasaMoraMensual,
+                Condiciones = contrato.Condiciones,
                 IdInmueble = inmuebleId,
                 IdPersonaInquilino = inquilino.IdPersona,
                 IdRolClienteInquilino = rolInquilinoId,
                 IdUsuarioCreador = userId,
-                FrecuenciaAjuste = request.FrecuenciaAjuste,
+                FrecuenciaAjuste = contrato.FrecuenciaAjuste,
                 IdTipoIndice = idTipoIndice,
-                ValorIndiceInicio = request.ValorIndiceInicio
+                ValorIndiceInicio = contrato.ValorIndiceInicio
             };
 
-            var (success, message, contratoId) = _cnContrato.CrearContrato(contrato);
+            var (success, message, contratoId) = _cnContrato.CrearContrato(nuevoContrato);
 
             if (!success)
             {

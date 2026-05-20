@@ -9,7 +9,6 @@ namespace CapaEntidades
         public int NroCuota { get; set; }
         public string Periodo { get; set; } = "";
         public DateTime FechaVencimiento { get; set; }
-        public decimal ImporteBase { get; set; }
         public string Estado { get; set; } = "";
         public decimal ValorMoraAplicada { get; set; }
         public decimal DescuentoAdicionalTotal { get; set; }

@@ -44,6 +44,8 @@ builder.Services.AddScoped<CN_Inmueble>();
 builder.Services.AddScoped<CN_Pago>();
 builder.Services.AddScoped<CN_Persona>();
 builder.Services.AddScoped<CN_Indice>();
+builder.Services.AddScoped<CN_Provincia>();
+builder.Services.AddScoped<CN_Localidad>();
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 

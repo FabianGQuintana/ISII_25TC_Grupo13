@@ -5,7 +5,7 @@ namespace CapaEntidades
     public class Inmueble
     {
         public Guid IdInmueble { get; set; }
-        public Guid IdDireccion { get; set; }
+        public Guid? IdDireccion { get; set; }
         public string? Descripcion { get; set; }
         public string Estado { get; set; } = "Activo";
         public DateTime FechaCreacion { get; set; }

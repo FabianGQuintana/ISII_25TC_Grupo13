@@ -11,6 +11,7 @@ namespace InmoGestor.API.Mappers
         {
             return new InquilinoResponse
             {
+                Id = i.IdPersona.ToString(),
                 Dni = i.Dni ?? "",
                 NombreCompleto = i.NombreCompleto,
                 Nombre = i.Nombre,

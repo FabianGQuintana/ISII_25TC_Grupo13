@@ -24,7 +24,7 @@ namespace InmoGestor.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult Registrar([FromBody] RegistrarPagoRequest pago)
+        public IActionResult RegistrarPago([FromBody] RegistrarPagoRequest pago)
         {
             var userId =
                 Guid.Parse(

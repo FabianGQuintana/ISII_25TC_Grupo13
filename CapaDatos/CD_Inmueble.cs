@@ -86,10 +86,14 @@ namespace CapaDatos
                         d.calle + ' ' + d.altura AS direccion,
                         p.nombre AS propietario_nombre,
                         p.apellido AS propietario_apellido,
+                        i.id_persona_propietario,
+                        i.id_rol_cliente_propietario,
+                        rc.nombre AS propietario_rol_nombre,
                         ti.descripcion AS tipo_descripcion
                     FROM inmueble i
                     INNER JOIN direccion d ON i.id_direccion = d.id_direccion
                     INNER JOIN persona p ON i.id_persona_propietario = p.id_persona
+                    INNER JOIN rol_cliente rc ON i.id_rol_cliente_propietario = rc.id_rol_cliente
                     LEFT JOIN tipo_inmueble ti ON i.id_tipo_inmueble = ti.id_tipo_inmueble
                     WHERE i.estado = 'Activo'";
 
@@ -123,10 +127,20 @@ namespace CapaDatos
                                 {
                                     Calle = dr["direccion"]?.ToString() ?? ""
                                 },
-                                OPropietario = new Persona
+                                OPropietario = new PersonaRolCliente
                                 {
-                                    Nombre = dr["propietario_nombre"]?.ToString() ?? "",
-                                    Apellido = dr["propietario_apellido"]?.ToString() ?? ""
+                                    IdPersona = Guid.Parse(dr["id_persona_propietario"].ToString()!),
+                                    IdRolCliente = Guid.Parse(dr["id_rol_cliente_propietario"].ToString()!),
+                                    OPersona = new Persona
+                                    {
+                                        Nombre = dr["propietario_nombre"]?.ToString() ?? "",
+                                        Apellido = dr["propietario_apellido"]?.ToString() ?? ""
+                                    },
+                                    ORolCliente = new RolCliente
+                                    {
+                                        IdRolCliente = Guid.Parse(dr["id_rol_cliente_propietario"].ToString()!),
+                                        Nombre = dr["propietario_rol_nombre"]?.ToString() ?? ""
+                                    }
                                 }
                             });
                         }
@@ -153,10 +167,14 @@ namespace CapaDatos
                         d.calle + ' ' + d.altura AS direccion,
                         p.nombre AS propietario_nombre,
                         p.apellido AS propietario_apellido,
+                        i.id_persona_propietario,
+                        i.id_rol_cliente_propietario,
+                        rc.nombre AS propietario_rol_nombre,
                         ti.descripcion AS tipo_descripcion
                     FROM inmueble i
                     INNER JOIN direccion d ON i.id_direccion = d.id_direccion
                     INNER JOIN persona p ON i.id_persona_propietario = p.id_persona
+                    INNER JOIN rol_cliente rc ON i.id_rol_cliente_propietario = rc.id_rol_cliente
                     LEFT JOIN tipo_inmueble ti ON i.id_tipo_inmueble = ti.id_tipo_inmueble
                     WHERE i.id_inmueble = @id AND i.estado = 'Activo'";
 
@@ -183,10 +201,20 @@ namespace CapaDatos
                                 {
                                     Calle = dr["direccion"]?.ToString() ?? ""
                                 },
-                                OPropietario = new Persona
+                                OPropietario = new PersonaRolCliente
                                 {
-                                    Nombre = dr["propietario_nombre"]?.ToString() ?? "",
-                                    Apellido = dr["propietario_apellido"]?.ToString() ?? ""
+                                    IdPersona = Guid.Parse(dr["id_persona_propietario"].ToString()!),
+                                    IdRolCliente = Guid.Parse(dr["id_rol_cliente_propietario"].ToString()!),
+                                    OPersona = new Persona
+                                    {
+                                        Nombre = dr["propietario_nombre"]?.ToString() ?? "",
+                                        Apellido = dr["propietario_apellido"]?.ToString() ?? ""
+                                    },
+                                    ORolCliente = new RolCliente
+                                    {
+                                        IdRolCliente = Guid.Parse(dr["id_rol_cliente_propietario"].ToString()!),
+                                        Nombre = dr["propietario_rol_nombre"]?.ToString() ?? ""
+                                    }
                                 }
                             };
                         }

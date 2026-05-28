@@ -16,6 +16,6 @@ namespace CapaEntidades
         public Guid? IdTipoInmueble { get; set; }
 
         public Direccion? ODireccion { get; set; }
-        public Persona? OPropietario { get; set; }
+        public PersonaRolCliente? OPropietario { get; set; }
     }
 }

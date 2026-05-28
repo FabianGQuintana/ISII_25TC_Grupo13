@@ -85,6 +85,75 @@ namespace CapaDatos
         }
 
 
+        public Cuota? ObtenerUltimaPendientePorContrato(Guid contratoId)
+        {
+            Cuota? cuota = null;
+
+            using (var cn = new SqlConnection(Conexion.Cadena))
+            {
+                string query = @"
+                    SELECT TOP 1
+                        c.id_cuota,
+                        c.id_contrato_alquiler,
+                        c.nro_cuota,
+                        c.periodo,
+                        c.fecha_vencimiento,
+                        c.estado,
+                        c.descuento_adicional_total
+                    FROM cuota c
+                    WHERE c.id_contrato_alquiler = @idContrato
+                      AND c.estado IN ('Pendiente', 'Vencida')
+                    ORDER BY c.nro_cuota ASC";
+
+                using (var cmd = new SqlCommand(query, cn))
+                {
+                    cmd.Parameters.AddWithValue("@idContrato", contratoId);
+
+                    cn.Open();
+
+                    using (var dr = cmd.ExecuteReader())
+                    {
+                        if (dr.Read())
+                        {
+                            cuota = new Cuota
+                            {
+                                IdCuota = Guid.Parse(dr["id_cuota"].ToString()!),
+                                IdContratoAlquiler = Guid.Parse(dr["id_contrato_alquiler"].ToString()!),
+                                NroCuota = Convert.ToInt32(dr["nro_cuota"]),
+                                Periodo = dr["periodo"].ToString()!,
+                                FechaVencimiento = Convert.ToDateTime(dr["fecha_vencimiento"]),
+                                Estado = dr["estado"].ToString()!,
+                                DescuentoAdicionalTotal = dr["descuento_adicional_total"] != DBNull.Value
+                                    ? Convert.ToDecimal(dr["descuento_adicional_total"])
+                                    : 0m
+                            };
+                        }
+                    }
+                }
+            }
+
+            return cuota;
+        }
+
+        public int AnularPendientesPorContrato(Guid idContrato)
+        {
+            using (var cn = new SqlConnection(Conexion.Cadena))
+            {
+                string query = @"
+                    UPDATE cuota 
+                    SET estado = 'Cancelada' 
+                    WHERE id_contrato_alquiler = @idContrato 
+                      AND estado IN ('Pendiente', 'Vencida')";
+
+                using (var cmd = new SqlCommand(query, cn))
+                {
+                    cmd.Parameters.AddWithValue("@idContrato", idContrato);
+                    cn.Open();
+                    return cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
         public Cuota? ObtenerPorId(Guid idCuota)
         {
             Cuota? cuota = null;

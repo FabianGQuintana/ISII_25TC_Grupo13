@@ -135,6 +135,28 @@ namespace CapaDatos
             }
         }
 
+        public bool LiberarPorContrato(Guid idContrato)
+        {
+            using (var cn = new SqlConnection(Conexion.Cadena))
+            {
+                string query = @"
+                    UPDATE inmueble 
+                    SET disponibilidad = 1 
+                    WHERE id_inmueble = (
+                        SELECT TOP 1 id_inmueble 
+                        FROM contrato_alquiler 
+                        WHERE id_contrato_alquiler = @idContrato
+                    )";
+
+                using (var cmd = new SqlCommand(query, cn))
+                {
+                    cmd.Parameters.AddWithValue("@idContrato", idContrato);
+                    cn.Open();
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+            }
+        }
+
         public List<Inmueble> ListarInmuebles(bool soloDisponibles = false)
         {
             var lista = new List<Inmueble>();

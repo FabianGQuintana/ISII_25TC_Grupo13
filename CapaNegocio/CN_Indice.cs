@@ -46,6 +46,22 @@ namespace CapaNegocio
             return nuevo;
         }
 
+        public async Task<decimal> ObtenerIndice(Guid idCuota)
+        {
+            var cuota = new CD_Cuota().ObtenerPorId(idCuota)
+                ?? throw new Exception("Cuota no encontrada");
+
+            var contrato = new CD_Contrato().ObtenerPorId(cuota.IdContratoAlquiler)
+                ?? throw new Exception("Contrato no encontrado");
+
+            if (contrato.IdTipoIndice == null)
+                throw new Exception("El contrato no tiene un tipo de índice configurado");
+
+            var historico = await ObtenerOActualizar(contrato.IdTipoIndice.Value);
+
+            return historico.Valor;
+        }
+
         public void GuardarHistorico(HistoricoIndice obj)
         {
             if (obj.Valor <= 0)

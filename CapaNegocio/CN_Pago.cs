@@ -1,4 +1,4 @@
-    using CapaDatos;
+using CapaDatos;
 using CapaEntidades;
 using System;
 using System.Collections.Generic;
@@ -16,8 +16,15 @@ namespace CapaNegocio
              Guid idUsuario,
              bool esSuperior)
         {
+            var cuota = new CD_Cuota().ObtenerPorId(idCuota);
+
+            if (cuota == null)
+            {
+                return (false, "No se encontró la cuota");
+            }
+
             var cuotaCalculada =
-                _cnCuota.ObtenerCuotaCalculada(idCuota);
+                _cnCuota.ObtenerCuotaCalculada(cuota.IdContratoAlquiler);
 
             if (cuotaCalculada == null)
             {
@@ -52,11 +59,11 @@ namespace CapaNegocio
                 return _cdPago.AprobarPago(
                     pago.IdPago,
                     pago.IdCuota)
-                    ? (true, "Pago aprobado y registrado")
+                    ? (true, "Pago registrado correctamente")
                     : (false, "Error al procesar");
             }
 
-            return (true, "Pago registrado, esperando aprobación.");
+            return (true, "Pago registrado correctamente");
         }
 
         public List<Pago> Listar(int? estado)
@@ -70,9 +77,16 @@ namespace CapaNegocio
             return _cdPago.ListarPorContrato(contratoId);
         }
 
-        public List<ContratoAlquiler> ListarActivosPorInquilino(Guid idInquilino)
+        public (CuotaCalculadaDto? detalle, List<MetodoPago> metodosPago) MostrarDetallePago(Guid idContrato)
         {
-            return _cdPago.ListarActivosPorInquilino(idInquilino);
+            var detalle = _cnCuota.ObtenerCuotaCalculada(idContrato);
+            var metodos = _cdPago.ListarMetodosPagos();
+            return (detalle, metodos);
+        }
+
+        public List<MetodoPago> ListarMetodosPagos()
+        {
+            return _cdPago.ListarMetodosPagos();
         }
 
         public bool Rechazar(Guid idPago, string? motivo)

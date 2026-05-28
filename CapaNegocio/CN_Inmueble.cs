@@ -21,5 +21,11 @@ namespace CapaNegocio
         public bool Registrar(Inmueble obj) => _cdInmueble.Registrar(obj);
         public bool Editar(Inmueble obj) => _cdInmueble.Editar(obj);
         public bool Eliminar(Guid id) => _cdInmueble.Eliminar(id);
+
+        public string LiberarInmueble(Guid idContrato)
+        {
+            _cdInmueble.LiberarPorContrato(idContrato);
+            return "Inmueble liberado";
+        }
     }
 }

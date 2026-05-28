@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using CapaDatos;
 using CapaEntidades;
 
@@ -12,94 +10,29 @@ namespace CapaNegocio
 
         private readonly CD_CuotaAdicional _cdCuotaAdicional = new();
 
-        public List<Cuota> ListarPendientesPorContrato(Guid idContrato)
+        private readonly CN_Indice _cnIndice = new();
+
+        public Cuota? ObtenerCuotaPorContrato(Guid contratoId)
         {
-            return _cdCuota.ListarPendientesPorContrato(idContrato);
+            if (contratoId == Guid.Empty)
+                throw new ArgumentException("El ID del contrato es requerido");
+            return _cdCuota.ObtenerUltimaPendientePorContrato(contratoId);
         }
 
-        public List<CuotaCalculadaDto> ObtenerCuotasCalculadas(
-            Guid idContrato,
-            ContratoAlquiler contrato)
+        public string CambiarEstadoCuotas(Guid idContrato)
         {
-            var cuotas = _cdCuota.ListarPendientesPorContrato(idContrato);
-
-            var lista = cuotas.Select(c =>
-            {
-                var diasAtraso =
-                    c.FechaVencimiento < DateTime.Today
-                    ? (DateTime.Today - c.FechaVencimiento).Days
-                    : 0;
-
-                var mora =
-                    diasAtraso > 0
-                    ? contrato.MoraDiariaMonto * diasAtraso
-                    : 0;
-
-                var indice =
-                    c.ValorIndiceAplicado > 0
-                    ? c.ValorIndiceAplicado
-                    : 1m;
-
-                var precioBase = contrato.PrecioCuota;
-
-                var importeActualizado =
-                    precioBase * indice;
-
-                var adicionales =
-                    _cdCuotaAdicional.ObtenerTotalAdicionales(c.IdCuota);
-
-                var totalFinal =
-                    importeActualizado
-                    + mora
-                    + adicionales
-                    - c.DescuentoAdicionalTotal;
-
-                return new CuotaCalculadaDto
-                {
-                    IdCuota = c.IdCuota.ToString(),
-
-                    NroCuota = c.NroCuota,
-
-                    Periodo = c.Periodo,
-
-                    FechaVencimiento = c.FechaVencimiento,
-
-                    PrecioCuota = precioBase,
-
-                    ValorIndiceAplicado = indice,
-
-                    ImporteActualizado = importeActualizado,
-
-                    TotalAdicionales = adicionales,
-
-                    TotalDescuentos = c.DescuentoAdicionalTotal,
-
-                    DiasAtraso = diasAtraso,
-
-                    MoraCalculada = mora,
-
-                    TotalFinal = totalFinal,
-
-                    Estado =
-                        diasAtraso > 0
-                        ? "Vencida"
-                        : c.Estado
-                };
-
-            }).ToList();
-
-            return lista;
+            _cdCuota.AnularPendientesPorContrato(idContrato);
+            return "Cuotas actualizadas correctamente";
         }
 
-        public CuotaCalculadaDto? ObtenerCuotaCalculada(Guid idCuota)
+        public CuotaCalculadaDto? ObtenerCuotaCalculada(Guid idContrato)
         {
-            var cuota = _cdCuota.ObtenerPorId(idCuota);
+            var cuota = _cdCuota.ObtenerUltimaPendientePorContrato(idContrato);
 
             if (cuota == null)
                 return null;
 
-            var contrato = new CD_Contrato()
-                .ObtenerPorId(cuota.IdContratoAlquiler);
+            var contrato = new CD_Contrato().ObtenerPorId(idContrato);
 
             if (contrato == null)
                 return null;
@@ -114,10 +47,7 @@ namespace CapaNegocio
                 ? contrato.MoraDiariaMonto * diasAtraso
                 : 0;
 
-            var indice =
-                cuota.ValorIndiceAplicado > 0
-                ? cuota.ValorIndiceAplicado
-                : 1m;
+            var indice = _cnIndice.ObtenerIndice(cuota.IdCuota).Result;
 
             var precioBase = contrato.PrecioCuota;
 

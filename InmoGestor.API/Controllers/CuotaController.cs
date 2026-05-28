@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using CapaNegocio;
@@ -14,16 +15,14 @@ namespace InmoGestor.API.Controllers
     public class CuotaController : ControllerBase
     {
         private readonly CN_Cuota _cnCuota;
-        private readonly CN_Contrato _cnContrato;
 
-        public CuotaController(CN_Cuota cnCuota, CN_Contrato cnContrato)
+        public CuotaController(CN_Cuota cnCuota)
         {
             _cnCuota = cnCuota;
-            _cnContrato = cnContrato;
         }
 
-        [HttpGet("pendientes/{contratoId}")]
-        public IActionResult Pendientes(string contratoId)
+        [HttpGet("por-contrato/{contratoId}")]
+        public IActionResult ObtenerPorContrato(string contratoId)
         {
             if (!Guid.TryParse(contratoId, out var id))
             {
@@ -34,24 +33,56 @@ namespace InmoGestor.API.Controllers
                 });
             }
 
-            var contrato = _cnContrato.ObtenerPorId(id);
+            var cuota = _cnCuota.ObtenerCuotaPorContrato(id);
 
-            if (contrato == null)
+            if (cuota == null)
             {
                 return NotFound(new
                 {
                     success = false,
-                    mensaje = "Contrato no encontrado"
+                    mensaje = "No hay cuotas pendientes para este contrato"
                 });
             }
 
-            var cuotas =
-                _cnCuota.ObtenerCuotasCalculadas(id, contrato);
+            var response = new CuotaPendienteDto
+            {
+                IdCuota = cuota.IdCuota.ToString(),
+                NroCuota = cuota.NroCuota,
+                Periodo = cuota.Periodo,
+                FechaVencimiento = cuota.FechaVencimiento,
+                Estado = cuota.Estado
+            };
+
+            return Ok(new { success = true, data = response });
+        }
+
+        [HttpGet("calcular/{idContrato}")]
+        public IActionResult Calcular(string idContrato)
+        {
+            if (!Guid.TryParse(idContrato, out var id))
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    mensaje = "ID inválido"
+                });
+            }
+
+            var cuota = _cnCuota.ObtenerCuotaCalculada(id);
+
+            if (cuota == null)
+            {
+                return NotFound(new
+                {
+                    success = false,
+                    mensaje = "No se pudo calcular la cuota"
+                });
+            }
 
             return Ok(new
             {
                 success = true,
-                data = cuotas
+                data = cuota
             });
         }
     }

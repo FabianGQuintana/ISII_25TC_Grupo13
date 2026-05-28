@@ -4,10 +4,10 @@ using CapaNegocio;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Security.Claims;
-using InmoGestor.API.Mappers;
-using InmoGestor.API.DTOs;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Security.Claims;
+using InmoGestor.API.DTOs;
 
 namespace InmoGestor.API.Controllers
 {
@@ -21,6 +21,46 @@ namespace InmoGestor.API.Controllers
         public PagoController(CN_Pago cnPago)
         {
             _cnPago = cnPago;
+        }
+
+        [HttpGet("calcular/{idContrato}")]
+        public IActionResult CalcularCuota(string idContrato)
+        {
+            if (!Guid.TryParse(idContrato, out var guidIdContrato))
+                return BadRequest(new { success = false, message = "ID de contrato inválido" });
+
+            var (detalle, metodos) = _cnPago.MostrarDetallePago(guidIdContrato);
+
+            if (detalle == null)
+                return NotFound(new { success = false, message = "No se encontró la cuota pendiente" });
+
+            var response = new DetallePagoResponse
+            {
+                Cuota = new DTOs.CuotaCalculadaDto
+                {
+                    IdCuota = detalle.IdCuota,
+                    NroCuota = detalle.NroCuota,
+                    Periodo = detalle.Periodo,
+                    FechaVencimiento = detalle.FechaVencimiento,
+                    PrecioCuota = detalle.PrecioCuota,
+                    ValorIndiceAplicado = detalle.ValorIndiceAplicado,
+                    ImporteActualizado = detalle.ImporteActualizado,
+                    TotalAdicionales = detalle.TotalAdicionales,
+                    TotalDescuentos = detalle.TotalDescuentos,
+                    DiasAtraso = detalle.DiasAtraso,
+                    MoraCalculada = detalle.MoraCalculada,
+                    TotalFinal = detalle.TotalFinal,
+                    Estado = detalle.Estado
+                },
+                MetodosPago = metodos.Select(m => new MetodoPagoDto
+                {
+                    Id = m.IdMetodoPago.ToString(),
+                    Nombre = m.Nombre,
+                    Descripcion = m.Descripcion
+                }).ToList()
+            };
+
+            return Ok(new { success = true, data = response });
         }
 
         [HttpPost]
@@ -68,14 +108,6 @@ namespace InmoGestor.API.Controllers
             var result = _cnPago.AprobarPago(pago.IdPago, pago.IdCuota);
 
             return Ok(new { success = result, mensaje = result ? "Pago aprobado correctamente" : "Error al aprobar" });
-        }
-
-        [HttpGet("activos-por-inquilino")]
-        public IActionResult ListarActivosPorInquilino([FromQuery] Guid idInquilino)
-        {
-            var contratos = _cnPago.ListarActivosPorInquilino(idInquilino);
-            var response = ContratoMapper.ToResponseList(contratos);
-            return Ok(new { success = true, data = response });
         }
 
         [HttpGet]

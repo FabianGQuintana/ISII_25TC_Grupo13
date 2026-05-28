@@ -296,12 +296,12 @@ namespace CapaDatos
                             var nroCuota = i;
 
                             string queryCuota = @"
-                                INSERT INTO cuota 
-                                (id_cuota, id_contrato_alquiler, nro_cuota, periodo, fecha_vencimiento, 
-                                 importe_base, estado, valor_mora_aplicada, descuento_adicional_total, 
+                                INSERT INTO cuota
+                                (id_cuota, id_contrato_alquiler, nro_cuota, periodo, fecha_vencimiento,
+                                 estado, valor_mora_aplicada, descuento_adicional_total,
                                  otros_adicionales_total, valor_indice_aplicado, importe_total_calculado)
-                                VALUES (@id, @idContrato, @nroCuota, @periodo, @fechaVencimiento, 
-                                        @importeBase, 'Pendiente', 0, 0, 0, 0, @importeTotal)";
+                                VALUES (@id, @idContrato, @nroCuota, @periodo, @fechaVencimiento,
+                                        'Pendiente', 0, 0, 0, 0, 0)";
 
                             using (var cmdCuota = new SqlCommand(queryCuota, cn, transaction))
                             {
@@ -310,8 +310,6 @@ namespace CapaDatos
                                 cmdCuota.Parameters.AddWithValue("@nroCuota", nroCuota);
                                 cmdCuota.Parameters.AddWithValue("@periodo", periodo);
                                 cmdCuota.Parameters.AddWithValue("@fechaVencimiento", fechaVencimiento);
-                                cmdCuota.Parameters.AddWithValue("@importeBase", contrato.PrecioCuota);
-                                cmdCuota.Parameters.AddWithValue("@importeTotal", contrato.PrecioCuota);
 
                                 cmdCuota.ExecuteNonQuery();
                             }

@@ -9,14 +9,22 @@ namespace InmoGestor.API.Mappers
     {
         public static InmuebleResponse ToResponse(Inmueble i)
         {
+            var dir = i.ODireccion;
+            var loc = dir?.OLocalidad;
+            var prov = loc?.OProvincia;
+
             return new InmuebleResponse
             {
                 Id = i.IdInmueble.ToString(),
-                Direccion = i.ODireccion?.Calle ?? "",
+                Direccion = dir != null ? $"{dir.Calle} {dir.Altura}".Trim() : "",
                 Descripcion = i.Descripcion ?? "",
                 Disponibilidad = i.Disponibilidad ? 1 : 0,
                 DisponibilidadNombre = i.Disponibilidad ? "Disponible" : "No disponible",
-                PropietarioNombreCompleto = i.OPropietario?.OPersona?.NombreCompleto ?? ""
+                PropietarioNombreCompleto = i.OPropietario?.OPersona?.NombreCompleto ?? "",
+                Localidad = loc?.Nombre,
+                Provincia = prov?.Nombre,
+                IdLocalidad = loc?.IdLocalidad.ToString(),
+                IdProvincia = prov?.IdProvincia.ToString()
             };
         }
 

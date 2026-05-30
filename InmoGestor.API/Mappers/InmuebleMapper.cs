@@ -20,7 +20,7 @@ namespace InmoGestor.API.Mappers
                 Descripcion = i.Descripcion ?? "",
                 Disponibilidad = i.Disponibilidad ? 1 : 0,
                 DisponibilidadNombre = i.Disponibilidad ? "Disponible" : "No disponible",
-                PropietarioNombreCompleto = i.OPropietario?.NombreCompleto ?? "",
+                PropietarioNombreCompleto = i.OPropietario?.OPersona?.NombreCompleto ?? "",
                 Localidad = loc?.Nombre,
                 Provincia = prov?.Nombre,
                 IdLocalidad = loc?.IdLocalidad.ToString(),

@@ -23,7 +23,7 @@ namespace CapaEntidades
         public decimal MoraDiaria => TasaMoraMensual / 30m;
         public decimal MoraDiariaMonto => PrecioCuota * MoraDiaria / 100m;
 
-        public Persona? OInquilino { get; set; }
+        public PersonaRolCliente? OInquilino { get; set; }
         public Inmueble? OInmueble { get; set; }
     }
 }

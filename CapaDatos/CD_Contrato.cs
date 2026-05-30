@@ -34,11 +34,14 @@ namespace CapaDatos
                         d.calle + ' ' + d.altura AS direccion,
                         p.nombre AS inquilino_nombre,
                         p.apellido AS inquilino_apellido,
-                        p.dni AS inquilino_dni
+                        p.dni AS inquilino_dni,
+                        rc.id_rol_cliente AS inquilino_rol_id,
+                        rc.nombre AS inquilino_rol_nombre
                     FROM contrato_alquiler c
                     INNER JOIN inmueble i ON c.id_inmueble = i.id_inmueble
                     INNER JOIN direccion d ON i.id_direccion = d.id_direccion
                     INNER JOIN persona p ON c.id_persona_inquilino = p.id_persona
+                    INNER JOIN rol_cliente rc ON c.id_rol_cliente_inquilino = rc.id_rol_cliente
                     WHERE 1=1";
 
                 if (estado.HasValue)
@@ -91,12 +94,22 @@ namespace CapaDatos
                                         Calle = dr["direccion"]?.ToString() ?? ""
                                     }
                                 },
-                                OInquilino = new Persona
+                                OInquilino = new PersonaRolCliente
                                 {
                                     IdPersona = Guid.Parse(dr["id_persona_inquilino"].ToString()!),
-                                    Nombre = dr["inquilino_nombre"]?.ToString() ?? "",
-                                    Apellido = dr["inquilino_apellido"]?.ToString() ?? "",
-                                    Dni = dr["inquilino_dni"]?.ToString()
+                                    IdRolCliente = Guid.Parse(dr["inquilino_rol_id"].ToString()!),
+                                    OPersona = new Persona
+                                    {
+                                        IdPersona = Guid.Parse(dr["id_persona_inquilino"].ToString()!),
+                                        Nombre = dr["inquilino_nombre"]?.ToString() ?? "",
+                                        Apellido = dr["inquilino_apellido"]?.ToString() ?? "",
+                                        Dni = dr["inquilino_dni"]?.ToString()
+                                    },
+                                    ORolCliente = new RolCliente
+                                    {
+                                        IdRolCliente = Guid.Parse(dr["inquilino_rol_id"].ToString()!),
+                                        Nombre = dr["inquilino_rol_nombre"]?.ToString() ?? ""
+                                    }
                                 }
                             });
                         }
@@ -135,11 +148,14 @@ namespace CapaDatos
                         d.calle + ' ' + d.altura AS direccion,
                         p.nombre AS inquilino_nombre,
                         p.apellido AS inquilino_apellido,
-                        p.dni AS inquilino_dni
+                        p.dni AS inquilino_dni,
+                        rc.id_rol_cliente AS inquilino_rol_id,
+                        rc.nombre AS inquilino_rol_nombre
                     FROM contrato_alquiler c
                     INNER JOIN inmueble i ON c.id_inmueble = i.id_inmueble
                     INNER JOIN direccion d ON i.id_direccion = d.id_direccion
                     INNER JOIN persona p ON c.id_persona_inquilino = p.id_persona
+                    INNER JOIN rol_cliente rc ON c.id_rol_cliente_inquilino = rc.id_rol_cliente
                     WHERE c.id_contrato_alquiler = @id";
 
                 using (var cmd = new SqlCommand(query, cn))
@@ -183,12 +199,22 @@ namespace CapaDatos
                                         Calle = dr["direccion"]?.ToString() ?? ""
                                     }
                                 },
-                                OInquilino = new Persona
+                                OInquilino = new PersonaRolCliente
                                 {
                                     IdPersona = Guid.Parse(dr["id_persona_inquilino"].ToString()!),
-                                    Nombre = dr["inquilino_nombre"]?.ToString() ?? "",
-                                    Apellido = dr["inquilino_apellido"]?.ToString() ?? "",
-                                    Dni = dr["inquilino_dni"]?.ToString()
+                                    IdRolCliente = Guid.Parse(dr["inquilino_rol_id"].ToString()!),
+                                    OPersona = new Persona
+                                    {
+                                        IdPersona = Guid.Parse(dr["id_persona_inquilino"].ToString()!),
+                                        Nombre = dr["inquilino_nombre"]?.ToString() ?? "",
+                                        Apellido = dr["inquilino_apellido"]?.ToString() ?? "",
+                                        Dni = dr["inquilino_dni"]?.ToString()
+                                    },
+                                    ORolCliente = new RolCliente
+                                    {
+                                        IdRolCliente = Guid.Parse(dr["inquilino_rol_id"].ToString()!),
+                                        Nombre = dr["inquilino_rol_nombre"]?.ToString() ?? ""
+                                    }
                                 }
                             };
                         }
@@ -270,7 +296,7 @@ namespace CapaDatos
                             var nroCuota = i;
 
                             string queryCuota = @"
-                                    INSERT INTO cuota 
+                                    INSERT INTO cuota
                                     (id_cuota, id_contrato_alquiler, nro_cuota, periodo, fecha_vencimiento,
                                      estado, valor_mora_aplicada, descuento_adicional_total,
                                      otros_adicionales_total, valor_indice_aplicado, importe_total_calculado)

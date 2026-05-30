@@ -35,15 +35,16 @@ namespace CapaDatos
                         }
 
                         string insertInmueble = @"
-                            INSERT INTO inmueble (id_inmueble, id_direccion, descripcion, estado, fecha_creacion, id_persona_propietario, disponibilidad, id_tipo_inmueble)
-                            VALUES (@id, @idDireccion, @descripcion, 'Activo', GETDATE(), @idPropietario, @disponibilidad, @idTipo)";
+                            INSERT INTO inmueble (id_inmueble, id_direccion, descripcion, estado, fecha_creacion, id_persona_propietario, id_rol_cliente_propietario, disponibilidad, id_tipo_inmueble)
+                            VALUES (@id, @idDireccion, @descripcion, 'Activo', GETDATE(), @idPropietario, @idRolPropietario, @disponibilidad, @idTipo)";
 
                         using (var cmd = new SqlCommand(insertInmueble, cn, transaction))
                         {
                             cmd.Parameters.AddWithValue("@id", Guid.NewGuid());
                             cmd.Parameters.AddWithValue("@idDireccion", idDireccion);
                             cmd.Parameters.AddWithValue("@descripcion", (object?)obj.Descripcion ?? DBNull.Value);
-                            cmd.Parameters.AddWithValue("@idPropietario", obj.IdPersonaPropietario);
+                            cmd.Parameters.AddWithValue("@idPropietario", obj.OPropietario!.IdPersona);
+                            cmd.Parameters.AddWithValue("@idRolPropietario", obj.OPropietario!.IdRolCliente);
                             cmd.Parameters.AddWithValue("@disponibilidad", obj.Disponibilidad);
                             cmd.Parameters.AddWithValue("@idTipo", (object?)(obj.IdTipoInmueble) ?? DBNull.Value);
                             cmd.ExecuteNonQuery();
@@ -95,6 +96,7 @@ namespace CapaDatos
                             UPDATE inmueble SET
                                 descripcion = @descripcion,
                                 id_persona_propietario = @idPropietario,
+                                id_rol_cliente_propietario = @idRolPropietario,
                                 disponibilidad = @disponibilidad,
                                 id_tipo_inmueble = @idTipo
                             WHERE id_inmueble = @id";
@@ -103,7 +105,8 @@ namespace CapaDatos
                         {
                             cmd.Parameters.AddWithValue("@id", obj.IdInmueble);
                             cmd.Parameters.AddWithValue("@descripcion", (object?)obj.Descripcion ?? DBNull.Value);
-                            cmd.Parameters.AddWithValue("@idPropietario", obj.IdPersonaPropietario);
+                            cmd.Parameters.AddWithValue("@idPropietario", obj.OPropietario!.IdPersona);
+                            cmd.Parameters.AddWithValue("@idRolPropietario", obj.OPropietario!.IdRolCliente);
                             cmd.Parameters.AddWithValue("@disponibilidad", obj.Disponibilidad);
                             cmd.Parameters.AddWithValue("@idTipo", (object?)(obj.IdTipoInmueble) ?? DBNull.Value);
                             cmd.ExecuteNonQuery();
@@ -149,6 +152,8 @@ namespace CapaDatos
                         i.fecha_creacion,
                         i.disponibilidad,
                         i.id_tipo_inmueble,
+                        i.id_persona_propietario,
+                        i.id_rol_cliente_propietario,
                         d.id_direccion,
                         d.calle,
                         d.altura,
@@ -157,10 +162,12 @@ namespace CapaDatos
                         l.id_provincia,
                         pr.nombre AS provincia_nombre,
                         p.nombre AS propietario_nombre,
-                        p.apellido AS propietario_apellido
+                        p.apellido AS propietario_apellido,
+                        rc.nombre AS propietario_rol_nombre
                     FROM inmueble i
                     INNER JOIN direccion d ON i.id_direccion = d.id_direccion
                     INNER JOIN persona p ON i.id_persona_propietario = p.id_persona
+                    INNER JOIN rol_cliente rc ON i.id_rol_cliente_propietario = rc.id_rol_cliente
                     LEFT JOIN localidad l ON d.id_localidad = l.id_localidad
                     LEFT JOIN provincia pr ON l.id_provincia = pr.id_provincia
                     WHERE i.estado = 'Activo'";
@@ -199,6 +206,8 @@ namespace CapaDatos
                         i.fecha_creacion,
                         i.disponibilidad,
                         i.id_tipo_inmueble,
+                        i.id_persona_propietario,
+                        i.id_rol_cliente_propietario,
                         d.id_direccion,
                         d.calle,
                         d.altura,
@@ -207,10 +216,12 @@ namespace CapaDatos
                         l.id_provincia,
                         pr.nombre AS provincia_nombre,
                         p.nombre AS propietario_nombre,
-                        p.apellido AS propietario_apellido
+                        p.apellido AS propietario_apellido,
+                        rc.nombre AS propietario_rol_nombre
                     FROM inmueble i
                     INNER JOIN direccion d ON i.id_direccion = d.id_direccion
                     INNER JOIN persona p ON i.id_persona_propietario = p.id_persona
+                    INNER JOIN rol_cliente rc ON i.id_rol_cliente_propietario = rc.id_rol_cliente
                     LEFT JOIN localidad l ON d.id_localidad = l.id_localidad
                     LEFT JOIN provincia pr ON l.id_provincia = pr.id_provincia
                     WHERE i.id_inmueble = @id AND i.estado = 'Activo'";
@@ -274,10 +285,20 @@ namespace CapaDatos
                     IdLocalidad = idLocalidad,
                     OLocalidad = localidad
                 },
-                OPropietario = new Persona
+                OPropietario = new PersonaRolCliente
                 {
-                    Nombre = dr["propietario_nombre"]?.ToString() ?? "",
-                    Apellido = dr["propietario_apellido"]?.ToString() ?? ""
+                    IdPersona = Guid.Parse(dr["id_persona_propietario"].ToString()!),
+                    IdRolCliente = Guid.Parse(dr["id_rol_cliente_propietario"].ToString()!),
+                    OPersona = new Persona
+                    {
+                        Nombre = dr["propietario_nombre"]?.ToString() ?? "",
+                        Apellido = dr["propietario_apellido"]?.ToString() ?? ""
+                    },
+                    ORolCliente = new RolCliente
+                    {
+                        IdRolCliente = Guid.Parse(dr["id_rol_cliente_propietario"].ToString()!),
+                        Nombre = dr["propietario_rol_nombre"]?.ToString() ?? ""
+                    }
                 }
             };
         }

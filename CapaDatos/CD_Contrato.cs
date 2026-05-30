@@ -94,7 +94,7 @@ namespace CapaDatos
                                         Calle = dr["direccion"]?.ToString() ?? ""
                                     }
                                 },
-                                OInquilino = new PersonaRolCliente
+                                OInquilino = new Inquilino
                                 {
                                     IdPersona = Guid.Parse(dr["id_persona_inquilino"].ToString()!),
                                     IdRolCliente = Guid.Parse(dr["inquilino_rol_id"].ToString()!),
@@ -199,7 +199,7 @@ namespace CapaDatos
                                         Calle = dr["direccion"]?.ToString() ?? ""
                                     }
                                 },
-                                OInquilino = new PersonaRolCliente
+                                OInquilino = new Inquilino
                                 {
                                     IdPersona = Guid.Parse(dr["id_persona_inquilino"].ToString()!),
                                     IdRolCliente = Guid.Parse(dr["inquilino_rol_id"].ToString()!),

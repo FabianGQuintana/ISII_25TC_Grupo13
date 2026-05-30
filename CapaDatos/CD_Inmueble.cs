@@ -253,7 +253,7 @@ namespace CapaDatos
                     IdLocalidad = idLocalidad,
                     OLocalidad = localidad
                 },
-                OPropietario = new PersonaRolCliente
+                OPropietario = new Propietario
                 {
                     IdPersona = Guid.Parse(dr["id_persona_propietario"].ToString()!),
                     IdRolCliente = Guid.Parse(dr["id_rol_cliente_propietario"].ToString()!),

@@ -7,7 +7,9 @@ namespace CapaDatos
 {
     public class CD_Inmueble
     {
-        public bool Registrar(Inmueble obj)
+        private readonly CD_Direccion _cdDireccion = new();
+
+        public bool RegistrarInmueble(Inmueble obj)
         {
             using (var cn = new SqlConnection(Conexion.Cadena))
             {
@@ -17,22 +19,7 @@ namespace CapaDatos
                     try
                     {
                         var idDireccion = Guid.NewGuid();
-
-                        string insertDireccion = @"
-                            INSERT INTO direccion (id_direccion, calle, altura, id_localidad)
-                            VALUES (@idDireccion, @calle, @altura, @idLocalidad)";
-
-                        using (var cmd = new SqlCommand(insertDireccion, cn, transaction))
-                        {
-                            cmd.Parameters.AddWithValue("@idDireccion", idDireccion);
-                            cmd.Parameters.AddWithValue("@calle", obj.ODireccion?.Calle ?? "");
-                            cmd.Parameters.AddWithValue("@altura", obj.ODireccion?.Altura ?? "");
-                            cmd.Parameters.AddWithValue("@idLocalidad",
-                                obj.ODireccion?.IdLocalidad.HasValue == true
-                                    ? (object)obj.ODireccion.IdLocalidad.Value
-                                    : DBNull.Value);
-                            cmd.ExecuteNonQuery();
-                        }
+                        _cdDireccion.AgregarDireccion(idDireccion, obj.ODireccion!, cn, transaction);
 
                         string insertInmueble = @"
                             INSERT INTO inmueble (id_inmueble, id_direccion, descripcion, estado, fecha_creacion, id_persona_propietario, id_rol_cliente_propietario, disponibilidad, id_tipo_inmueble)
@@ -62,7 +49,7 @@ namespace CapaDatos
             }
         }
 
-        public bool Editar(Inmueble obj)
+        public bool EditarInmueble(Inmueble obj)
         {
             using (var cn = new SqlConnection(Conexion.Cadena))
             {
@@ -71,26 +58,7 @@ namespace CapaDatos
                 {
                     try
                     {
-                        string updateDireccion = @"
-                            UPDATE direccion SET
-                                calle = @calle,
-                                altura = @altura,
-                                id_localidad = @idLocalidad
-                            WHERE id_direccion = (
-                                SELECT id_direccion FROM inmueble WHERE id_inmueble = @idInmueble
-                            )";
-
-                        using (var cmd = new SqlCommand(updateDireccion, cn, transaction))
-                        {
-                            cmd.Parameters.AddWithValue("@idInmueble", obj.IdInmueble);
-                            cmd.Parameters.AddWithValue("@calle", obj.ODireccion?.Calle ?? "");
-                            cmd.Parameters.AddWithValue("@altura", obj.ODireccion?.Altura ?? "");
-                            cmd.Parameters.AddWithValue("@idLocalidad",
-                                obj.ODireccion?.IdLocalidad.HasValue == true
-                                    ? (object)obj.ODireccion.IdLocalidad.Value
-                                    : DBNull.Value);
-                            cmd.ExecuteNonQuery();
-                        }
+                        _cdDireccion.EditarDireccion(obj.IdInmueble, obj.ODireccion!, cn, transaction);
 
                         string updateInmueble = @"
                             UPDATE inmueble SET
@@ -124,7 +92,7 @@ namespace CapaDatos
             }
         }
 
-        public bool Eliminar(Guid id)
+        public bool EliminarInmueble(Guid id)
         {
             using (var cn = new SqlConnection(Conexion.Cadena))
             {

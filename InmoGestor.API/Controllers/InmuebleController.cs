@@ -40,24 +40,24 @@ namespace InmoGestor.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult Registrar([FromBody] Inmueble request)
+        public IActionResult RegistrarInmueble([FromBody] Inmueble request)
         {
-            var resultado = _cnInmueble.Registrar(request);
+            var resultado = _cnInmueble.RegistrarInmueble(request);
             return Ok(new { success = resultado });
         }
 
         [HttpPut]
-        public IActionResult Editar([FromBody] Inmueble request)
+        public IActionResult EditarInmueble([FromBody] Inmueble request)
         {
-            var resultado = _cnInmueble.Editar(request);
+            var resultado = _cnInmueble.EditarInmueble(request);
             return Ok(new { success = resultado });
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Eliminar(string id)
+        public IActionResult EliminarInmueble(string id)
         {
             if (!Guid.TryParse(id, out var guidId)) return BadRequest();
-            var resultado = _cnInmueble.Eliminar(guidId);
+            var resultado = _cnInmueble.EliminarInmueble(guidId);
             return Ok(new { success = resultado });
         }
     }

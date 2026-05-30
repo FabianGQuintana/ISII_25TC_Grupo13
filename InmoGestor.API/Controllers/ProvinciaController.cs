@@ -16,7 +16,7 @@ namespace InmoGestor.API.Controllers
         [HttpGet]
         public IActionResult Listar()
         {
-            var data = _cn.Listar();
+            var data = _cn.ListarProvincias();
             return Ok(new { success = true, data });
         }
     }

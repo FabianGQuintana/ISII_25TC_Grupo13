@@ -9,6 +9,8 @@ namespace CapaNegocio
     {
         private readonly CD_Localidad _cd = new();
 
-        public List<Localidad> Listar(Guid? idProvincia = null) => _cd.Listar(idProvincia);
+        public List<Localidad> ListarLocalidades() => _cd.ListarLocalidades();
+
+        public List<Localidad> ListarPorProvincia(Guid idProvincia) => _cd.ListarPorProvincia(idProvincia);
     }
 }

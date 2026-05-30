@@ -7,7 +7,17 @@ namespace CapaDatos
 {
     public class CD_Localidad
     {
-        public List<Localidad> Listar(Guid? idProvincia = null)
+        public List<Localidad> ListarLocalidades()
+        {
+            return Listar(null);
+        }
+
+        public List<Localidad> ListarPorProvincia(Guid idProvincia)
+        {
+            return Listar(idProvincia);
+        }
+
+        private List<Localidad> Listar(Guid? idProvincia)
         {
             var lista = new List<Localidad>();
 

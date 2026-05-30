@@ -8,6 +8,6 @@ namespace CapaNegocio
     {
         private readonly CD_Provincia _cd = new();
 
-        public List<Provincia> Listar() => _cd.Listar();
+        public List<Provincia> ListarProvincias() => _cd.ListarProvincias();
     }
 }

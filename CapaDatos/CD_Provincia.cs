@@ -7,7 +7,7 @@ namespace CapaDatos
 {
     public class CD_Provincia
     {
-        public List<Provincia> Listar()
+        public List<Provincia> ListarProvincias()
         {
             var lista = new List<Provincia>();
 

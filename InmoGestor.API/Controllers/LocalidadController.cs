@@ -21,7 +21,7 @@ namespace InmoGestor.API.Controllers
             if (!string.IsNullOrEmpty(idProvincia) && Guid.TryParse(idProvincia, out var parsed))
                 guid = parsed;
 
-            var data = _cn.Listar(guid);
+            var data = guid.HasValue ? _cn.ListarPorProvincia(guid.Value) : _cn.ListarLocalidades();
             return Ok(new { success = true, data });
         }
     }

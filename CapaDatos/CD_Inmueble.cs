@@ -43,8 +43,8 @@ namespace CapaDatos
                             cmd.Parameters.AddWithValue("@id", Guid.NewGuid());
                             cmd.Parameters.AddWithValue("@idDireccion", idDireccion);
                             cmd.Parameters.AddWithValue("@descripcion", (object?)obj.Descripcion ?? DBNull.Value);
-                            cmd.Parameters.AddWithValue("@idPropietario", obj.IdPersonaPropietario);
-                            cmd.Parameters.AddWithValue("@idRolPropietario", obj.IdRolClientePropietario);
+                            cmd.Parameters.AddWithValue("@idPropietario", obj.OPropietario!.IdPersona);
+                            cmd.Parameters.AddWithValue("@idRolPropietario", obj.OPropietario!.IdRolCliente);
                             cmd.Parameters.AddWithValue("@disponibilidad", obj.Disponibilidad);
                             cmd.Parameters.AddWithValue("@idTipo", (object?)(obj.IdTipoInmueble) ?? DBNull.Value);
                             cmd.ExecuteNonQuery();
@@ -105,8 +105,8 @@ namespace CapaDatos
                         {
                             cmd.Parameters.AddWithValue("@id", obj.IdInmueble);
                             cmd.Parameters.AddWithValue("@descripcion", (object?)obj.Descripcion ?? DBNull.Value);
-                            cmd.Parameters.AddWithValue("@idPropietario", obj.IdPersonaPropietario);
-                            cmd.Parameters.AddWithValue("@idRolPropietario", obj.IdRolClientePropietario);
+                            cmd.Parameters.AddWithValue("@idPropietario", obj.OPropietario!.IdPersona);
+                            cmd.Parameters.AddWithValue("@idRolPropietario", obj.OPropietario!.IdRolCliente);
                             cmd.Parameters.AddWithValue("@disponibilidad", obj.Disponibilidad);
                             cmd.Parameters.AddWithValue("@idTipo", (object?)(obj.IdTipoInmueble) ?? DBNull.Value);
                             cmd.ExecuteNonQuery();
@@ -277,8 +277,6 @@ namespace CapaDatos
                 IdTipoInmueble = dr["id_tipo_inmueble"] != DBNull.Value
                     ? Guid.Parse(dr["id_tipo_inmueble"].ToString()!)
                     : null,
-                IdPersonaPropietario = Guid.Parse(dr["id_persona_propietario"].ToString()!),
-                IdRolClientePropietario = Guid.Parse(dr["id_rol_cliente_propietario"].ToString()!),
                 ODireccion = new Direccion
                 {
                     IdDireccion = Guid.Parse(dr["id_direccion"].ToString()!),

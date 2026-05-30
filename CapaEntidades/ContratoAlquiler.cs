@@ -6,7 +6,6 @@ namespace CapaEntidades
     {
         public Guid IdContratoAlquiler { get; set; }
         public DateTime FechaFin { get; set; }
-        public string? Condiciones { get; set; }
         public int CantidadCuotas { get; set; }
         public decimal PrecioCuota { get; set; }
         public DateTime FechaCreacion { get; set; }

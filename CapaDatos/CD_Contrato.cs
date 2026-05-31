@@ -61,30 +61,24 @@ namespace CapaDatos
                         {
                             lista.Add(new ContratoAlquiler
                             {
-                                IdContratoAlquiler = Guid.Parse(dr["id_contrato_alquiler"].ToString()!),
-                                FechaFin = DateTime.Parse(dr["fecha_fin"].ToString()!),
+                                IdContratoAlquiler = dr["id_contrato_alquiler"] is Guid idContrato ? idContrato : Guid.Empty,
+                                FechaFin = dr["fecha_fin"] is DateTime ff ? ff : default,
                                 Condiciones = dr["condiciones"]?.ToString(),
-                                CantidadCuotas = int.Parse(dr["cantidad_cuotas"].ToString()!),
-                                PrecioCuota = decimal.Parse(dr["precio_cuota"].ToString()!),
-                                FechaCreacion = DateTime.Parse(dr["fecha_creacion"].ToString()!),
-                                IdInmueble = Guid.Parse(dr["id_inmueble"].ToString()!),
-                                IdPersonaInquilino = Guid.Parse(dr["id_persona_inquilino"].ToString()!),
-                                IdRolClienteInquilino = Guid.Parse(dr["id_rol_cliente_inquilino"].ToString()!),
-                                TasaMoraMensual = dr["tasa_mora_mensual"] != DBNull.Value
-                                    ? decimal.Parse(dr["tasa_mora_mensual"].ToString()!)
-                                    : 0m,
+                                CantidadCuotas = dr["cantidad_cuotas"] is int cantCuotas ? cantCuotas : 0,
+                                PrecioCuota = dr["precio_cuota"] is decimal pc ? pc : 0m,
+                                FechaCreacion = dr["fecha_creacion"] is DateTime fc ? fc : default,
+                                IdInmueble = dr["id_inmueble"] is Guid idInm ? idInm : Guid.Empty,
+                                IdPersonaInquilino = dr["id_persona_inquilino"] is Guid idPers ? idPers : Guid.Empty,
+                                IdRolClienteInquilino = dr["id_rol_cliente_inquilino"] is Guid idRol ? idRol : Guid.Empty,
+                                TasaMoraMensual = dr["tasa_mora_mensual"] is decimal tm ? tm : 0m,
                                 Estado = dr["estado"]?.ToString() ?? "Activo",
-                                IdUsuarioCreador = Guid.Parse(dr["id_usuario_creador"].ToString()!),
+                                IdUsuarioCreador = dr["id_usuario_creador"] is Guid idUser ? idUser : Guid.Empty,
                                 FrecuenciaAjuste = dr["frecuencia_ajuste"]?.ToString(),
-                                IdTipoIndice = dr["id_tipo_indice"] != DBNull.Value 
-                                    ? Guid.Parse(dr["id_tipo_indice"].ToString()!) 
-                                    : null,
-                                ValorIndiceInicio = dr["valor_indice_inicio"] != DBNull.Value 
-                                    ? decimal.Parse(dr["valor_indice_inicio"].ToString()!) 
-                                    : null,
+                                IdTipoIndice = dr["id_tipo_indice"] is Guid idTipo ? idTipo : null,
+                                ValorIndiceInicio = dr["valor_indice_inicio"] is decimal vi ? vi : null,
                                 OInmueble = new Inmueble
                                 {
-                                    IdInmueble = Guid.Parse(dr["id_inmueble"].ToString()!),
+                                    IdInmueble = dr["id_inmueble"] is Guid idInmueble ? idInmueble : Guid.Empty,
                                     Descripcion = dr["inmueble_descripcion"]?.ToString(),
                                     ODireccion = new Direccion
                                     {
@@ -93,7 +87,7 @@ namespace CapaDatos
                                 },
                                 OInquilino = new Persona
                                 {
-                                    IdPersona = Guid.Parse(dr["id_persona_inquilino"].ToString()!),
+                                    IdPersona = dr["id_persona_inquilino"] is Guid idPersInq ? idPersInq : Guid.Empty,
                                     Nombre = dr["inquilino_nombre"]?.ToString() ?? "",
                                     Apellido = dr["inquilino_apellido"]?.ToString() ?? "",
                                     Dni = dr["inquilino_dni"]?.ToString()
@@ -153,30 +147,24 @@ namespace CapaDatos
                         {
                             return new ContratoAlquiler
                             {
-                                IdContratoAlquiler = Guid.Parse(dr["id_contrato_alquiler"].ToString()!),
-                                FechaFin = DateTime.Parse(dr["fecha_fin"].ToString()!),
+                                IdContratoAlquiler = dr["id_contrato_alquiler"] is Guid idContrato ? idContrato : Guid.Empty,
+                                FechaFin = dr["fecha_fin"] is DateTime ff ? ff : default,
                                 Condiciones = dr["condiciones"]?.ToString(),
-                                CantidadCuotas = int.Parse(dr["cantidad_cuotas"].ToString()!),
-                                PrecioCuota = decimal.Parse(dr["precio_cuota"].ToString()!),
-                                FechaCreacion = DateTime.Parse(dr["fecha_creacion"].ToString()!),
-                                IdInmueble = Guid.Parse(dr["id_inmueble"].ToString()!),
-                                IdPersonaInquilino = Guid.Parse(dr["id_persona_inquilino"].ToString()!),
-                                IdRolClienteInquilino = Guid.Parse(dr["id_rol_cliente_inquilino"].ToString()!),
-                                TasaMoraMensual = dr["tasa_mora_mensual"] != DBNull.Value
-                                    ? decimal.Parse(dr["tasa_mora_mensual"].ToString()!)
-                                    : 0m,
+                                CantidadCuotas = dr["cantidad_cuotas"] is int cantCuotas ? cantCuotas : 0,
+                                PrecioCuota = dr["precio_cuota"] is decimal pc ? pc : 0m,
+                                FechaCreacion = dr["fecha_creacion"] is DateTime fc ? fc : default,
+                                IdInmueble = dr["id_inmueble"] is Guid idInm ? idInm : Guid.Empty,
+                                IdPersonaInquilino = dr["id_persona_inquilino"] is Guid idPers ? idPers : Guid.Empty,
+                                IdRolClienteInquilino = dr["id_rol_cliente_inquilino"] is Guid idRol ? idRol : Guid.Empty,
+                                TasaMoraMensual = dr["tasa_mora_mensual"] is decimal tm ? tm : 0m,
                                 Estado = dr["estado"]?.ToString() ?? "Activo",
-                                IdUsuarioCreador = Guid.Parse(dr["id_usuario_creador"].ToString()!),
+                                IdUsuarioCreador = dr["id_usuario_creador"] is Guid idUser ? idUser : Guid.Empty,
                                 FrecuenciaAjuste = dr["frecuencia_ajuste"]?.ToString(),
-                                IdTipoIndice = dr["id_tipo_indice"] != DBNull.Value
-                                    ? Guid.Parse(dr["id_tipo_indice"].ToString()!)
-                                    : null,
-                                ValorIndiceInicio = dr["valor_indice_inicio"] != DBNull.Value
-                                    ? decimal.Parse(dr["valor_indice_inicio"].ToString()!)
-                                    : null,
+                                IdTipoIndice = dr["id_tipo_indice"] is Guid idTipo ? idTipo : null,
+                                ValorIndiceInicio = dr["valor_indice_inicio"] is decimal vi ? vi : null,
                                 OInmueble = new Inmueble
                                 {
-                                    IdInmueble = Guid.Parse(dr["id_inmueble"].ToString()!),
+                                    IdInmueble = dr["id_inmueble"] is Guid idInmueble ? idInmueble : Guid.Empty,
                                     Descripcion = dr["inmueble_descripcion"]?.ToString(),
                                     ODireccion = new Direccion
                                     {
@@ -185,7 +173,7 @@ namespace CapaDatos
                                 },
                                 OInquilino = new Persona
                                 {
-                                    IdPersona = Guid.Parse(dr["id_persona_inquilino"].ToString()!),
+                                    IdPersona = dr["id_persona_inquilino"] is Guid idPersInq ? idPersInq : Guid.Empty,
                                     Nombre = dr["inquilino_nombre"]?.ToString() ?? "",
                                     Apellido = dr["inquilino_apellido"]?.ToString() ?? "",
                                     Dni = dr["inquilino_dni"]?.ToString()
@@ -440,30 +428,24 @@ namespace CapaDatos
                         {
                             lista.Add(new ContratoAlquiler
                             {
-                                IdContratoAlquiler = Guid.Parse(dr["id_contrato_alquiler"].ToString()!),
-                                FechaFin = DateTime.Parse(dr["fecha_fin"].ToString()!),
+                                IdContratoAlquiler = dr["id_contrato_alquiler"] is Guid idContrato ? idContrato : Guid.Empty,
+                                FechaFin = dr["fecha_fin"] is DateTime ff ? ff : default,
                                 Condiciones = dr["condiciones"]?.ToString(),
-                                CantidadCuotas = int.Parse(dr["cantidad_cuotas"].ToString()!),
-                                PrecioCuota = decimal.Parse(dr["precio_cuota"].ToString()!),
-                                FechaCreacion = DateTime.Parse(dr["fecha_creacion"].ToString()!),
-                                IdInmueble = Guid.Parse(dr["id_inmueble"].ToString()!),
-                                IdPersonaInquilino = Guid.Parse(dr["id_persona_inquilino"].ToString()!),
-                                IdRolClienteInquilino = Guid.Parse(dr["id_rol_cliente_inquilino"].ToString()!),
-                                TasaMoraMensual = dr["tasa_mora_mensual"] != DBNull.Value
-                                    ? decimal.Parse(dr["tasa_mora_mensual"].ToString()!)
-                                    : 0m,
+                                CantidadCuotas = dr["cantidad_cuotas"] is int cantCuotas ? cantCuotas : 0,
+                                PrecioCuota = dr["precio_cuota"] is decimal pc ? pc : 0m,
+                                FechaCreacion = dr["fecha_creacion"] is DateTime fc ? fc : default,
+                                IdInmueble = dr["id_inmueble"] is Guid idInm ? idInm : Guid.Empty,
+                                IdPersonaInquilino = dr["id_persona_inquilino"] is Guid idPers ? idPers : Guid.Empty,
+                                IdRolClienteInquilino = dr["id_rol_cliente_inquilino"] is Guid idRol ? idRol : Guid.Empty,
+                                TasaMoraMensual = dr["tasa_mora_mensual"] is decimal tm ? tm : 0m,
                                 Estado = dr["estado"]?.ToString() ?? "Activo",
-                                IdUsuarioCreador = Guid.Parse(dr["id_usuario_creador"].ToString()!),
+                                IdUsuarioCreador = dr["id_usuario_creador"] is Guid idUser ? idUser : Guid.Empty,
                                 FrecuenciaAjuste = dr["frecuencia_ajuste"]?.ToString(),
-                                IdTipoIndice = dr["id_tipo_indice"] != DBNull.Value
-                                    ? Guid.Parse(dr["id_tipo_indice"].ToString()!)
-                                    : null,
-                                ValorIndiceInicio = dr["valor_indice_inicio"] != DBNull.Value
-                                    ? decimal.Parse(dr["valor_indice_inicio"].ToString()!)
-                                    : null,
+                                IdTipoIndice = dr["id_tipo_indice"] is Guid idTipo ? idTipo : null,
+                                ValorIndiceInicio = dr["valor_indice_inicio"] is decimal vi ? vi : null,
                                 OInmueble = new Inmueble
                                 {
-                                    IdInmueble = Guid.Parse(dr["id_inmueble"].ToString()!),
+                                    IdInmueble = dr["id_inmueble"] is Guid idInmueble ? idInmueble : Guid.Empty,
                                     Descripcion = dr["inmueble_descripcion"]?.ToString(),
                                     ODireccion = new Direccion
                                     {
@@ -472,7 +454,7 @@ namespace CapaDatos
                                 },
                                 OInquilino = new Persona
                                 {
-                                    IdPersona = Guid.Parse(dr["id_persona_inquilino"].ToString()!),
+                                    IdPersona = dr["id_persona_inquilino"] is Guid idPersInq ? idPersInq : Guid.Empty,
                                     Nombre = dr["inquilino_nombre"]?.ToString() ?? "",
                                     Apellido = dr["inquilino_apellido"]?.ToString() ?? "",
                                     Dni = dr["inquilino_dni"]?.ToString()

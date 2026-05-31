@@ -46,35 +46,17 @@ namespace CapaDatos
                         {
                             lista.Add(new Cuota
                             {
-                                IdCuota = Guid.Parse(dr["id_cuota"].ToString()!),
-                                IdContratoAlquiler = Guid.Parse(dr["id_contrato_alquiler"].ToString()!),
-                                NroCuota = Convert.ToInt32(dr["nro_cuota"]),
-                                Periodo = dr["periodo"].ToString()!,
-                                FechaVencimiento = Convert.ToDateTime(dr["fecha_vencimiento"]),
-
-                               
-
-                                Estado = dr["estado"].ToString()!,
-
-                                ValorMoraAplicada = dr["valor_mora_aplicada"] != DBNull.Value
-                                    ? Convert.ToDecimal(dr["valor_mora_aplicada"])
-                                    : 0m,
-
-                                DescuentoAdicionalTotal = dr["descuento_adicional_total"] != DBNull.Value
-                                    ? Convert.ToDecimal(dr["descuento_adicional_total"])
-                                    : 0m,
-
-                                OtrosAdicionalesTotal = dr["otros_adicionales_total"] != DBNull.Value
-                                    ? Convert.ToDecimal(dr["otros_adicionales_total"])
-                                    : 0m,
-
-                                ValorIndiceAplicado = dr["valor_indice_aplicado"] != DBNull.Value
-                                    ? Convert.ToDecimal(dr["valor_indice_aplicado"])
-                                    : 1m,
-
-                                ImporteTotalCalculado = dr["importe_total_calculado"] != DBNull.Value
-                                    ? Convert.ToDecimal(dr["importe_total_calculado"])
-                                    : 0m
+                                IdCuota = dr["id_cuota"] is Guid idC ? idC : Guid.Empty,
+                                IdContratoAlquiler = dr["id_contrato_alquiler"] is Guid idCont ? idCont : Guid.Empty,
+                                NroCuota = dr["nro_cuota"] is int nc ? nc : 0,
+                                Periodo = dr["periodo"]?.ToString() ?? "",
+                                FechaVencimiento = dr["fecha_vencimiento"] is DateTime fv ? fv : default,
+                                Estado = dr["estado"]?.ToString() ?? "",
+                                ValorMoraAplicada = dr["valor_mora_aplicada"] is decimal vm ? vm : 0m,
+                                DescuentoAdicionalTotal = dr["descuento_adicional_total"] is decimal da ? da : 0m,
+                                OtrosAdicionalesTotal = dr["otros_adicionales_total"] is decimal oa ? oa : 0m,
+                                ValorIndiceAplicado = dr["valor_indice_aplicado"] is decimal vi ? vi : 1m,
+                                ImporteTotalCalculado = dr["importe_total_calculado"] is decimal itc ? itc : 0m
                             });
                         }
                     }
@@ -117,15 +99,13 @@ namespace CapaDatos
                         {
                             cuota = new Cuota
                             {
-                                IdCuota = Guid.Parse(dr["id_cuota"].ToString()!),
-                                IdContratoAlquiler = Guid.Parse(dr["id_contrato_alquiler"].ToString()!),
-                                NroCuota = Convert.ToInt32(dr["nro_cuota"]),
-                                Periodo = dr["periodo"].ToString()!,
-                                FechaVencimiento = Convert.ToDateTime(dr["fecha_vencimiento"]),
-                                Estado = dr["estado"].ToString()!,
-                                DescuentoAdicionalTotal = dr["descuento_adicional_total"] != DBNull.Value
-                                    ? Convert.ToDecimal(dr["descuento_adicional_total"])
-                                    : 0m
+                                IdCuota = dr["id_cuota"] is Guid idCuota ? idCuota : Guid.Empty,
+                                IdContratoAlquiler = dr["id_contrato_alquiler"] is Guid idContrato ? idContrato : Guid.Empty,
+                                NroCuota = dr["nro_cuota"] is int nc ? nc : 0,
+                                Periodo = dr["periodo"]?.ToString() ?? "",
+                                FechaVencimiento = dr["fecha_vencimiento"] is DateTime fv ? fv : default,
+                                Estado = dr["estado"]?.ToString() ?? "",
+                                DescuentoAdicionalTotal = dr["descuento_adicional_total"] is decimal da ? da : 0m
                             };
                         }
                     }
@@ -150,6 +130,21 @@ namespace CapaDatos
                     cmd.Parameters.AddWithValue("@idContrato", idContrato);
                     cn.Open();
                     return cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public bool ActualizarDescuento(Guid idCuota, decimal descuento)
+        {
+            using (var cn = new SqlConnection(Conexion.Cadena))
+            {
+                string query = "UPDATE cuota SET descuento_adicional_total = @descuento WHERE id_cuota = @id";
+                using (var cmd = new SqlCommand(query, cn))
+                {
+                    cmd.Parameters.AddWithValue("@id", idCuota);
+                    cmd.Parameters.AddWithValue("@descuento", descuento);
+                    cn.Open();
+                    return cmd.ExecuteNonQuery() > 0;
                 }
             }
         }
@@ -188,27 +183,17 @@ namespace CapaDatos
                         {
                             cuota = new Cuota
                             {
-                                IdCuota = Guid.Parse(dr["id_cuota"].ToString()!),
-                                IdContratoAlquiler = Guid.Parse(dr["id_contrato_alquiler"].ToString()!),
-                                NroCuota = Convert.ToInt32(dr["nro_cuota"]),
-                                Periodo = dr["periodo"].ToString()!,
-                                FechaVencimiento = Convert.ToDateTime(dr["fecha_vencimiento"]),
-                                Estado = dr["estado"].ToString()!,
-                                ValorMoraAplicada = dr["valor_mora_aplicada"] != DBNull.Value
-                                    ? Convert.ToDecimal(dr["valor_mora_aplicada"])
-                                    : 0m,
-                                DescuentoAdicionalTotal = dr["descuento_adicional_total"] != DBNull.Value
-                                    ? Convert.ToDecimal(dr["descuento_adicional_total"])
-                                    : 0m,
-                                OtrosAdicionalesTotal = dr["otros_adicionales_total"] != DBNull.Value
-                                    ? Convert.ToDecimal(dr["otros_adicionales_total"])
-                                    : 0m,
-                                ValorIndiceAplicado = dr["valor_indice_aplicado"] != DBNull.Value
-                                    ? Convert.ToDecimal(dr["valor_indice_aplicado"])
-                                    : 1m,
-                                ImporteTotalCalculado = dr["importe_total_calculado"] != DBNull.Value
-                                    ? Convert.ToDecimal(dr["importe_total_calculado"])
-                                    : 0m
+                                IdCuota = dr["id_cuota"] is Guid idCta ? idCta : Guid.Empty,
+                                IdContratoAlquiler = dr["id_contrato_alquiler"] is Guid idCont ? idCont : Guid.Empty,
+                                NroCuota = dr["nro_cuota"] is int nc ? nc : 0,
+                                Periodo = dr["periodo"]?.ToString() ?? "",
+                                FechaVencimiento = dr["fecha_vencimiento"] is DateTime fv ? fv : default,
+                                Estado = dr["estado"]?.ToString() ?? "",
+                                ValorMoraAplicada = dr["valor_mora_aplicada"] is decimal vm ? vm : 0m,
+                                DescuentoAdicionalTotal = dr["descuento_adicional_total"] is decimal da ? da : 0m,
+                                OtrosAdicionalesTotal = dr["otros_adicionales_total"] is decimal oa ? oa : 0m,
+                                ValorIndiceAplicado = dr["valor_indice_aplicado"] is decimal vi ? vi : 1m,
+                                ImporteTotalCalculado = dr["importe_total_calculado"] is decimal itc ? itc : 0m
                             };
                         }
                     }

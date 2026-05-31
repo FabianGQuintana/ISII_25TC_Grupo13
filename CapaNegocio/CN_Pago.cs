@@ -2,6 +2,7 @@ using CapaDatos;
 using CapaEntidades;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CapaNegocio
 {
@@ -10,7 +11,32 @@ namespace CapaNegocio
         private readonly CD_Pago _cdPago = new();
         private readonly CN_Cuota _cnCuota = new();
 
-        public (bool success, string message) RegistrarPago(
+        public (bool Success, string Message) ProcesarAnulacionPago(Guid idPago, string motivo, Guid idUsuario)
+        {
+            var pago = _cdPago.ObtenerPorId(idPago);
+            if (pago == null)
+                return (false, "Pago no encontrado");
+
+            if (pago.Estado == "Anulado")
+                return (false, "El pago ya se encuentra anulado");
+
+            var pagoAnulado = new PagoAnulado
+            {
+                IdPagoAnulado = Guid.NewGuid(),
+                IdPago = idPago,
+                FechaAnulacion = DateTime.Now,
+                IdUsuarioAnulacion = idUsuario,
+                MontoTotalAnulado = pago.MontoTotal,
+                Motivo = motivo
+            };
+
+            var resultado = _cdPago.CrearPagoAnulado(pagoAnulado);
+            return resultado
+                ? (true, "Pago anulado exitosamente")
+                : (false, "Error al anular el pago");
+        }
+
+        public async Task<(bool success, string message)> RegistrarPago(
              Guid idCuota,
              Guid idMetodoPago,
              Guid idUsuario,
@@ -24,7 +50,7 @@ namespace CapaNegocio
             }
 
             var cuotaCalculada =
-                _cnCuota.ObtenerCuotaCalculada(cuota.IdContratoAlquiler);
+                await _cnCuota.ObtenerCuotaCalculada(cuota.IdContratoAlquiler);
 
             if (cuotaCalculada == null)
             {
@@ -68,7 +94,6 @@ namespace CapaNegocio
 
         public List<Pago> Listar(int? estado)
         {
-            // Convertir el filtro opcional a string para la capa de datos
             return _cdPago.Listar(estado.HasValue ? estado.Value.ToString() : null);
         }
 
@@ -77,9 +102,9 @@ namespace CapaNegocio
             return _cdPago.ListarPorContrato(contratoId);
         }
 
-        public (CuotaCalculadaDto? detalle, List<MetodoPago> metodosPago) MostrarDetallePago(Guid idContrato)
+        public async Task<(CuotaCalculadaDto? detalle, List<MetodoPago> metodosPago)> MostrarDetallePago(Guid idContrato)
         {
-            var detalle = _cnCuota.ObtenerCuotaCalculada(idContrato);
+            var detalle = await _cnCuota.ObtenerCuotaCalculada(idContrato);
             var metodos = _cdPago.ListarMetodosPagos();
             return (detalle, metodos);
         }
@@ -100,7 +125,7 @@ namespace CapaNegocio
         }
         public Pago? ObtenerPorId(Guid id)
         {
-            
+
             return _cdPago.ObtenerPorId(id);
         }
 

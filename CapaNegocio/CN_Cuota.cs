@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using CapaDatos;
 using CapaEntidades;
 
@@ -25,7 +26,7 @@ namespace CapaNegocio
             return "Cuotas actualizadas correctamente";
         }
 
-        public CuotaCalculadaDto? ObtenerCuotaCalculada(Guid idContrato)
+        public async Task<CuotaCalculadaDto?> ObtenerCuotaCalculada(Guid idContrato)
         {
             var cuota = _cdCuota.ObtenerUltimaPendientePorContrato(idContrato);
 
@@ -47,7 +48,15 @@ namespace CapaNegocio
                 ? contrato.MoraDiariaMonto * diasAtraso
                 : 0;
 
-            var indice = _cnIndice.ObtenerIndice(cuota.IdCuota).Result;
+            decimal indice = 1;
+            try
+            {
+                indice = await _cnIndice.ObtenerIndice(cuota.IdCuota);
+            }
+            catch
+            {
+                indice = 1;
+            }
 
             var precioBase = contrato.PrecioCuota;
 
@@ -61,7 +70,7 @@ namespace CapaNegocio
                 importeActualizado
                 + mora
                 + adicionales
-                - cuota.DescuentoAdicionalTotal;
+                - Math.Max(0, cuota.DescuentoAdicionalTotal);
 
             return new CuotaCalculadaDto
             {

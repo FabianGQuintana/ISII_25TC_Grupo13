@@ -10,7 +10,7 @@ namespace CapaDatos
 {
     public class CD_CuotaAdicional
     {
-        public bool Insertar(CuotaAdicional adicional)
+        public bool InsertarCuotaAdicional(CuotaAdicional adicional)
         {
             using (var cn = new SqlConnection(Conexion.Cadena))
             {

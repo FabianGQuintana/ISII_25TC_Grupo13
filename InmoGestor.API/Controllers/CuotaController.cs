@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using CapaNegocio;
+using CapaDatos;
 using InmoGestor.API.DTOs;
 
 namespace InmoGestor.API.Controllers
@@ -22,7 +23,7 @@ namespace InmoGestor.API.Controllers
         }
 
         [HttpGet("por-contrato/{contratoId}")]
-        public IActionResult ObtenerPorContrato(string contratoId)
+        public async Task<IActionResult> ObtenerPorContrato(string contratoId)
         {
             if (!Guid.TryParse(contratoId, out var id))
             {
@@ -33,9 +34,9 @@ namespace InmoGestor.API.Controllers
                 });
             }
 
-            var cuota = _cnCuota.ObtenerCuotaPorContrato(id);
+            var calculada = await _cnCuota.ObtenerCuotaCalculada(id);
 
-            if (cuota == null)
+            if (calculada == null)
             {
                 return NotFound(new
                 {
@@ -46,18 +47,24 @@ namespace InmoGestor.API.Controllers
 
             var response = new CuotaPendienteDto
             {
-                IdCuota = cuota.IdCuota.ToString(),
-                NroCuota = cuota.NroCuota,
-                Periodo = cuota.Periodo,
-                FechaVencimiento = cuota.FechaVencimiento,
-                Estado = cuota.Estado
+                IdCuota = calculada.IdCuota,
+                NroCuota = calculada.NroCuota,
+                Periodo = calculada.Periodo,
+                PrecioCuota = calculada.PrecioCuota,
+                FechaVencimiento = calculada.FechaVencimiento,
+                ValorIndiceAplicado = calculada.ValorIndiceAplicado,
+                ImporteActualizado = calculada.ImporteActualizado,
+                DiasAtraso = calculada.DiasAtraso,
+                MoraCalculada = calculada.MoraCalculada,
+                TotalFinal = calculada.TotalFinal,
+                Estado = calculada.Estado
             };
 
             return Ok(new { success = true, data = response });
         }
 
         [HttpGet("calcular/{idContrato}")]
-        public IActionResult Calcular(string idContrato)
+        public async Task<IActionResult> Calcular(string idContrato)
         {
             if (!Guid.TryParse(idContrato, out var id))
             {
@@ -68,7 +75,7 @@ namespace InmoGestor.API.Controllers
                 });
             }
 
-            var cuota = _cnCuota.ObtenerCuotaCalculada(id);
+            var cuota = await _cnCuota.ObtenerCuotaCalculada(id);
 
             if (cuota == null)
             {
@@ -85,5 +92,34 @@ namespace InmoGestor.API.Controllers
                 data = cuota
             });
         }
+
+        [HttpPatch("{id}/descuento")]
+        public IActionResult ActualizarDescuento(string id, [FromBody] ActualizarDescuentoRequest request)
+        {
+            if (!Guid.TryParse(id, out var guidId))
+            {
+                return BadRequest(new { success = false, mensaje = "ID de cuota inválido" });
+            }
+
+            var cdCuota = new CD_Cuota();
+            var cuota = cdCuota.ObtenerPorId(guidId);
+            if (cuota == null)
+            {
+                return NotFound(new { success = false, mensaje = "Cuota no encontrada" });
+            }
+
+            var success = cdCuota.ActualizarDescuento(guidId, request.Descuento);
+            if (!success)
+            {
+                return BadRequest(new { success = false, mensaje = "No se pudo actualizar el descuento" });
+            }
+
+            return Ok(new { success = true, mensaje = "Descuento actualizado correctamente" });
+        }
+    }
+
+    public class ActualizarDescuentoRequest
+    {
+        public decimal Descuento { get; set; }
     }
 }

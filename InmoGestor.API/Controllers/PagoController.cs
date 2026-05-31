@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Security.Claims;
 using InmoGestor.API.DTOs;
+using InmoGestor.API.Mappers;
 
 namespace InmoGestor.API.Controllers
 {
@@ -24,12 +25,12 @@ namespace InmoGestor.API.Controllers
         }
 
         [HttpGet("calcular/{idContrato}")]
-        public IActionResult CalcularCuota(string idContrato)
+        public async Task<IActionResult> CalcularCuota(string idContrato)
         {
             if (!Guid.TryParse(idContrato, out var guidIdContrato))
                 return BadRequest(new { success = false, message = "ID de contrato inválido" });
 
-            var (detalle, metodos) = _cnPago.MostrarDetallePago(guidIdContrato);
+            var (detalle, metodos) = await _cnPago.MostrarDetallePago(guidIdContrato);
 
             if (detalle == null)
                 return NotFound(new { success = false, message = "No se encontró la cuota pendiente" });
@@ -64,20 +65,28 @@ namespace InmoGestor.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult RegistrarPago([FromBody] RegistrarPagoRequest pago)
+        public async Task<IActionResult> RegistrarPago([FromBody] RegistrarPagoRequest pago)
         {
-            var userId =
-                Guid.Parse(
-                    User.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                    ?? Guid.Empty.ToString());
+            if (pago == null)
+                return BadRequest(new { success = false, message = "El cuerpo de la solicitud no puede estar vacío" });
+
+            if (!Guid.TryParse(pago.IdCuota, out var idCuota))
+                return BadRequest(new { success = false, message = "ID de cuota inválido" });
+
+            if (!Guid.TryParse(pago.IdMetodoPago, out var idMetodoPago))
+                return BadRequest(new { success = false, message = "ID de método de pago inválido" });
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+                return Unauthorized(new { success = false, message = "Usuario no autenticado" });
 
             bool esSuperior =
                 User.IsInRole("Superior")
                 || User.IsInRole("SUPERIOR");
 
-            var resultado = _cnPago.RegistrarPago(
-                Guid.Parse(pago.IdCuota),
-                Guid.Parse(pago.IdMetodoPago),
+            var resultado = await _cnPago.RegistrarPago(
+                idCuota,
+                idMetodoPago,
                 userId,
                 esSuperior);
 
@@ -114,7 +123,7 @@ namespace InmoGestor.API.Controllers
         public IActionResult Listar([FromQuery] int? estado)
         {
             var pagos = _cnPago.Listar(estado);
-            var response = pagos.Select(MapToDto).ToList();
+            var response = PagoMapper.ToResponseList(pagos);
             return Ok(new { success = true, data = response });
         }
 
@@ -128,7 +137,7 @@ namespace InmoGestor.API.Controllers
             if (pago == null)
                 return NotFound(new { success = false, message = "Pago no encontrado" });
 
-            return Ok(new { success = true, data = MapToDto(pago) });
+            return Ok(new { success = true, data = PagoMapper.ToResponse(pago) });
         }
 
         [HttpGet("contrato/{contratoId}")]
@@ -138,30 +147,8 @@ namespace InmoGestor.API.Controllers
                 return BadRequest(new { success = false, message = "ID de contrato inválido" });
 
             var pagos = _cnPago.ListarPorContrato(guidContratoId);
-            var response = pagos.Select(MapToDto).ToList();
+            var response = PagoMapper.ToResponseList(pagos);
             return Ok(new { success = true, data = response });
-        }
-
-        private PagoResponseDto MapToDto(Pago p)
-        {
-            return new PagoResponseDto
-            {
-                Id = p.IdPago.ToString(),
-                ContratoId = p.IdContrato.ToString(),
-                CuotaId = p.IdCuota.ToString(),
-                Inquilino = p.Inquilino,
-                Inmueble = p.Inmueble,
-                NroCuota = p.NroCuota,
-                Periodo = p.Periodo,
-                FechaVencimiento = p.FechaVencimiento,
-                FechaPago = p.FechaPago == DateTime.MinValue ? null : p.FechaPago,
-                Monto = p.MontoTotal,
-                Mora = p.MoraCobrada,
-                DiasAtraso = p.FechaVencimiento.HasValue ? Math.Max(0, (DateTime.Now - p.FechaVencimiento.Value).Days) : 0,
-                TotalPagado = p.MontoTotal,
-                Estado = p.Estado,
-                EstadoTexto = p.Estado
-            };
         }
 
         [HttpPatch("{id}/confirmar")]
@@ -194,6 +181,24 @@ namespace InmoGestor.API.Controllers
                 return BadRequest(new { success = false, message = "No se pudo rechazar el pago" });
 
             return Ok(new { success = true, message = "Pago rechazado exitosamente" });
+        }
+
+        [HttpPost("{id}/anular")]
+        [Authorize(Roles = "Superior,SUPERIOR")]
+        public IActionResult AnularPago(string id, [FromBody] AnularPagoRequestDto dto)
+        {
+            if (!Guid.TryParse(id, out var guidId))
+                return BadRequest(new ResultadoDto { Success = false, Message = "ID inválido" });
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+                return Unauthorized(new ResultadoDto { Success = false, Message = "Usuario no autenticado" });
+
+            var (success, message) = _cnPago.ProcesarAnulacionPago(guidId, dto?.Motivo ?? "", userId);
+
+            return success
+                ? Ok(new ResultadoDto { Success = success, Message = message })
+                : BadRequest(new ResultadoDto { Success = success, Message = message });
         }
 
         [HttpPatch("{id}/anular")]

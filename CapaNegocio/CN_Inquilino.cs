@@ -9,9 +9,6 @@ namespace CapaNegocio
     {
         private readonly CD_Inquilino _cdInquilino = new();
 
-        public List<Persona> Listar() => ListarInquilinos();
-
-
         public List<Persona> ListarInquilinos()
         {
             return _cdInquilino.ListarInquilinos();
@@ -24,11 +21,17 @@ namespace CapaNegocio
 
         public Persona? ObtenerPorDni(string dni)
         {
-            return _cdInquilino.ObtenerPorDni(dni);
+            if (string.IsNullOrWhiteSpace(dni))
+                return null;
+
+            return _cdInquilino.ObtenerPorDni(dni.Trim());
         }
 
         public Persona? ObtenerPorId(Guid id)
         {
+            if (id == Guid.Empty)
+                return null;
+
             return _cdInquilino.ObtenerPorId(id);
         }
     }

@@ -1,10 +1,6 @@
-﻿using CapaDatos;
+using CapaDatos;
 using CapaEntidades;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CapaNegocio
 {
@@ -14,6 +10,18 @@ namespace CapaNegocio
 
         public bool Insertar(CuotaAdicional adicional)
         {
+            if (adicional == null)
+                return false;
+
+            if (adicional.IdCuota == Guid.Empty)
+                return false;
+
+            if (adicional.IdTipoAdicionales == Guid.Empty)
+                return false;
+
+            if (adicional.MontoAplicado <= 0)
+                return false;
+
             return _cd.Insertar(adicional);
         }
     }

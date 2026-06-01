@@ -16,19 +16,26 @@ namespace CapaNegocio
 
         public List<ContratoAlquiler> ListarActivosPorInquilino(Guid idInquilino)
         {
-            return _cdContrato.Listar(estado: 1) // estado Activo = 1
+            if (idInquilino == Guid.Empty)
+                return new List<ContratoAlquiler>();
+
+            return _cdContrato.Listar(estado: 1)
                 .FindAll(c => c.IdPersonaInquilino == idInquilino);
         }
 
         public ContratoAlquiler? ObtenerPorId(Guid id)
         {
+            if (id == Guid.Empty)
+                return null;
+
             return _cdContrato.ObtenerPorId(id);
         }
 
-
-
         public (bool success, string message, Guid? contratoId) CrearContrato(ContratoAlquiler contrato)
         {
+            if (contrato == null)
+                return (false, "El contrato es requerido", null);
+
             if (contrato.IdInmueble == Guid.Empty)
                 return (false, "El inmueble es requerido", null);
 
@@ -57,15 +64,16 @@ namespace CapaNegocio
         public (bool success, string message) Rescindir(Guid idContrato)
         {
             if (idContrato == Guid.Empty)
-            {
                 return (false, "El ID del contrato es requerido");
-            }
 
             return _cdContrato.Rescindir(idContrato);
         }
 
         public (bool success, string message) ValidarInmuebleDisponible(Guid idInmueble, Guid? idContratoExcluir = null)
         {
+            if (idInmueble == Guid.Empty)
+                return (false, "El inmueble es requerido");
+
             return _cdContrato.ValidarInmuebleDisponible(idInmueble, idContratoExcluir);
         }
     }

@@ -11,6 +11,20 @@ namespace CapaNegocio
 
         public List<Propietario> ListarPropietarios() => _cd.ListarPropietarios();
 
-        public Propietario? ObtenerPorId(Guid id) => _cd.ObtenerPorId(id);
+        public Propietario? ObtenerPorDni(string dni)
+        {
+            if (string.IsNullOrWhiteSpace(dni))
+                return null;
+
+            return _cd.ObtenerPorDni(dni.Trim());
+        }
+
+        public Propietario? ObtenerPorId(Guid id)
+        {
+            if (id == Guid.Empty)
+                return null;
+
+            return _cd.ObtenerPorId(id);
+        }
     }
 }

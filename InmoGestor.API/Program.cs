@@ -41,6 +41,7 @@ builder.Services.AddScoped<CN_Usuario>();
 builder.Services.AddScoped<CN_Contrato>();
 builder.Services.AddScoped<CN_Inquilino>();
 builder.Services.AddScoped<CN_Propietario>();
+builder.Services.AddScoped<CN_RolCliente>();
 builder.Services.AddScoped<CN_Inmueble>();
 builder.Services.AddScoped<CN_Pago>();
 builder.Services.AddScoped<CN_Persona>();

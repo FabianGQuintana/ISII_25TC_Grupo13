@@ -73,6 +73,41 @@ namespace CapaDatos
         }
 
         /// </summary>
+        public HistoricoIndice? ObtenerPorFecha(Guid idTipoIndice, DateTime fecha)
+        {
+            HistoricoIndice? objeto = null;
+            using (var cn = new SqlConnection(Conexion.Cadena))
+            {
+                string query = @"
+                    SELECT TOP 1 id_historico_indice, id_tipo_indice, valor, fecha_validez
+                    FROM historico_indice
+                    WHERE id_tipo_indice = @id
+                      AND CAST(fecha_validez AS DATE) <= CAST(@fecha AS DATE)
+                    ORDER BY fecha_validez DESC";
+
+                using (var cmd = new SqlCommand(query, cn))
+                {
+                    cmd.Parameters.AddWithValue("@id", idTipoIndice);
+                    cmd.Parameters.AddWithValue("@fecha", fecha);
+                    cn.Open();
+                    using (var dr = cmd.ExecuteReader())
+                    {
+                        if (dr.Read())
+                        {
+                            objeto = new HistoricoIndice
+                            {
+                                IdHistoricoIndice = Guid.Parse(dr["id_historico_indice"].ToString()!),
+                                IdTipoIndice = Guid.Parse(dr["id_tipo_indice"].ToString()!),
+                                Valor = Convert.ToDecimal(dr["valor"]),
+                                FechaValidez = Convert.ToDateTime(dr["fecha_validez"])
+                            };
+                        }
+                    }
+                }
+            }
+            return objeto;
+        }
+
         public bool InsertarHistorico(HistoricoIndice obj)
         {
             using (var cn = new SqlConnection(Conexion.Cadena))

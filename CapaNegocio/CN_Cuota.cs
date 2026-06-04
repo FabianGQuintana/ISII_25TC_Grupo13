@@ -9,8 +9,23 @@ namespace CapaNegocio
     {
         private readonly CD_Cuota _cdCuota = new();
         private readonly CD_CuotaAdicional _cdCuotaAdicional = new();
-
+        private readonly CD_Indice _cdIndice = new();
         private readonly CN_Indice _cnIndice = new();
+
+        private static int FrecuenciaAMeses(string? frecuencia)
+        {
+            if (string.IsNullOrWhiteSpace(frecuencia))
+                return 0;
+
+            return frecuencia.Trim().ToLowerInvariant() switch
+            {
+                "trimestral" => 3,
+                "cuatrimestral" => 4,
+                "semestral" => 6,
+                "anual" => 12,
+                _ => 0
+            };
+        }
 
         public Cuota? ObtenerCuotaPorContrato(Guid contratoId)
         {
@@ -45,18 +60,43 @@ namespace CapaNegocio
                 ? contrato.MoraDiariaMonto * diasAtraso
                 : 0;
 
-            decimal indice = 1;
-            try
+            var precioBase = contrato.PrecioCuota;
+
+            // --- Ajuste por índice escalonado ---
+            var mesesFrecuencia = FrecuenciaAMeses(contrato.FrecuenciaAjuste);
+            decimal factor = 1m;
+            decimal valorIndiceAplicado = 1m;
+
+            if (mesesFrecuencia > 0
+                && contrato.IdTipoIndice.HasValue
+                && contrato.ValorIndiceInicio.HasValue
+                && contrato.ValorIndiceInicio.Value > 0)
             {
-                indice = await _cnIndice.ObtenerIndice(cuota.IdCuota);
-            }
-            catch
-            {
-                indice = 1;
+                var ajustes = cuota.NroCuota > 0
+                    ? (cuota.NroCuota - 1) / mesesFrecuencia
+                    : 0;
+
+                if (ajustes > 0)
+                {
+                    var hitoFecha = contrato.FechaCreacion.AddMonths(ajustes * mesesFrecuencia);
+
+                    try
+                    {
+                        var indiceHito = await _cnIndice.ObtenerIndicePorFecha(
+                            contrato.IdTipoIndice.Value, hitoFecha);
+
+                        factor = indiceHito / contrato.ValorIndiceInicio.Value;
+                        valorIndiceAplicado = factor;
+                    }
+                    catch
+                    {
+                        factor = 1m;
+                        valorIndiceAplicado = 1m;
+                    }
+                }
             }
 
-            var precioBase = contrato.PrecioCuota;
-            var importeActualizado = precioBase * indice;
+            var importeActualizado = precioBase * factor;
             var adicionales = _cdCuotaAdicional.ObtenerTotalAdicionales(cuota.IdCuota);
             var totalFinal = importeActualizado
                            + mora
@@ -70,7 +110,7 @@ namespace CapaNegocio
                 Periodo = cuota.Periodo,
                 FechaVencimiento = cuota.FechaVencimiento,
                 PrecioCuota = precioBase,
-                ValorIndiceAplicado = indice,
+                ValorIndiceAplicado = valorIndiceAplicado,
                 ImporteActualizado = importeActualizado,
                 TotalAdicionales = adicionales,
                 TotalDescuentos = cuota.DescuentoAdicionalTotal,

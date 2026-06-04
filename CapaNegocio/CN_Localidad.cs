@@ -11,6 +11,12 @@ namespace CapaNegocio
 
         public List<Localidad> ListarLocalidades() => _cd.ListarLocalidades();
 
-        public List<Localidad> ListarPorProvincia(Guid idProvincia) => _cd.ListarPorProvincia(idProvincia);
+        public List<Localidad> ListarPorProvincia(Guid idProvincia)
+        {
+            if (idProvincia == Guid.Empty)
+                return new List<Localidad>();
+
+            return _cd.ListarPorProvincia(idProvincia);
+        }
     }
 }

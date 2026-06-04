@@ -213,6 +213,26 @@ namespace CapaDatos
             return null;
         }
 
+        public Guid? ObtenerIdRolInquilino(Guid idPersona)
+        {
+            using (var cn = new SqlConnection(Conexion.Cadena))
+            {
+                string query = @"
+                    SELECT TOP 1 prc.id_rol_cliente
+                    FROM persona_rol_cliente prc
+                    INNER JOIN rol_cliente rc ON prc.id_rol_cliente = rc.id_rol_cliente
+                    WHERE prc.id_persona = @idPersona AND rc.nombre = 'Inquilino'";
+
+                using (var cmd = new SqlCommand(query, cn))
+                {
+                    cmd.Parameters.AddWithValue("@idPersona", idPersona);
+                    cn.Open();
+                    var result = cmd.ExecuteScalar();
+                    return result != null ? (Guid)result : (Guid?)null;
+                }
+            }
+        }
+
         public (bool success, string message, Guid? contratoId) Insertar(ContratoAlquiler contrato)
         {
             using (var cn = new SqlConnection(Conexion.Cadena))

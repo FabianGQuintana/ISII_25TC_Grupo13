@@ -16,6 +16,9 @@ namespace CapaNegocio
 
         public Inmueble? ObtenerPorId(Guid id)
         {
+            if (id == Guid.Empty)
+                return null;
+
             return _cdInmueble.ObtenerPorId(id);
         }
 

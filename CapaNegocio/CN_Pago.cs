@@ -51,6 +51,14 @@ namespace CapaNegocio
             var cuotaCalculada =
                 await _cnCuota.ObtenerCuotaCalculada(cuota.IdContratoAlquiler);
 
+            if (idMetodoPago == Guid.Empty)
+                return (false, "El método de pago es requerido");
+
+            if (idUsuario == Guid.Empty)
+                return (false, "El usuario es requerido");
+
+            var cuotaCalculada = _cnCuota.ObtenerCuotaCalculada(idCuota);
+
             if (cuotaCalculada == null)
             {
                 return (false, "No se encontró la cuota", Guid.Empty);
@@ -81,6 +89,9 @@ namespace CapaNegocio
 
         public List<Pago> ListarPorContrato(Guid contratoId)
         {
+            if (contratoId == Guid.Empty)
+                return new List<Pago>();
+
             return _cdPago.ListarPorContrato(contratoId);
         }
 
@@ -98,13 +109,23 @@ namespace CapaNegocio
 
         public bool Rechazar(Guid idPago, string? motivo)
         {
+            if (idPago == Guid.Empty)
+                return false;
+
             return _cdPago.Rechazar(idPago, motivo);
         }
 
         public bool Anular(Pago pago, Guid idUsuario, string? motivo)
         {
+            if (pago == null || pago.IdPago == Guid.Empty)
+                return false;
+
+            if (idUsuario == Guid.Empty)
+                return false;
+
             return _cdPago.Anular(pago, idUsuario, motivo);
         }
+
         public Pago? ObtenerPorId(Guid id)
         {
 
@@ -113,6 +134,9 @@ namespace CapaNegocio
 
         public bool AprobarPago(Guid idPago, Guid idCuota)
         {
+            if (idPago == Guid.Empty || idCuota == Guid.Empty)
+                return false;
+
             return _cdPago.AprobarPago(idPago, idCuota);
         }
     }

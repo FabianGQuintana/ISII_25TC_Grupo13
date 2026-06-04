@@ -9,6 +9,11 @@ namespace CapaNegocio
     {
         private readonly CD_Contrato _cdContrato = new();
 
+        public const int MaxCantidadCuotas = 120;
+
+        private static readonly string[] FrecuenciasAjusteValidas =
+            { "Cuatrimestral", "Semestral", "Anual" };
+
         public List<ContratoAlquiler> Listar(int? estado = null)
         {
             return _cdContrato.Listar(estado);
@@ -45,8 +50,22 @@ namespace CapaNegocio
             if (contrato.CantidadCuotas <= 0)
                 return (false, "La cantidad de cuotas debe ser mayor a 0", null);
 
+            if (contrato.CantidadCuotas > MaxCantidadCuotas)
+                return (false, $"La cantidad de cuotas no puede superar {MaxCantidadCuotas}", null);
+
             if (contrato.PrecioCuota <= 0)
                 return (false, "El precio de la cuota debe ser mayor a 0", null);
+
+            if (contrato.TasaMoraMensual < 0)
+                return (false, "La tasa de mora no puede ser negativa", null);
+
+            if (!string.IsNullOrWhiteSpace(contrato.FrecuenciaAjuste)
+                && Array.IndexOf(FrecuenciasAjusteValidas, contrato.FrecuenciaAjuste) < 0)
+                return (false, "La frecuencia de ajuste no es válida", null);
+
+            if (contrato.IdTipoIndice.HasValue && contrato.IdTipoIndice.Value != Guid.Empty
+                && !contrato.ValorIndiceInicio.HasValue)
+                return (false, "Debe ingresar el valor del índice seleccionado", null);
 
             if (contrato.FechaFin == default)
                 return (false, "La fecha de fin es requerida", null);
@@ -57,6 +76,15 @@ namespace CapaNegocio
             var (disponible, mensajeDisponible) = _cdContrato.ValidarInmuebleDisponible(contrato.IdInmueble);
             if (!disponible)
                 return (false, mensajeDisponible, null);
+
+            if (contrato.IdRolClienteInquilino == Guid.Empty)
+            {
+                var idRol = _cdContrato.ObtenerIdRolInquilino(contrato.IdPersonaInquilino);
+                if (idRol == null)
+                    return (false, "El inquilino seleccionado no tiene un rol 'Inquilino' válido asignado en el sistema.", null);
+
+                contrato.IdRolClienteInquilino = idRol.Value;
+            }
 
             return _cdContrato.Insertar(contrato);
         }

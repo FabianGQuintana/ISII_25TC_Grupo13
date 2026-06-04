@@ -52,12 +52,10 @@ namespace CapaNegocio
                 await _cnCuota.ObtenerCuotaCalculada(cuota.IdContratoAlquiler);
 
             if (idMetodoPago == Guid.Empty)
-                return (false, "El método de pago es requerido");
+                return (false, "El método de pago es requerido", Guid.Empty);
 
             if (idUsuario == Guid.Empty)
-                return (false, "El usuario es requerido");
-
-            var cuotaCalculada = _cnCuota.ObtenerCuotaCalculada(idCuota);
+                return (false, "El usuario es requerido", Guid.Empty);
 
             if (cuotaCalculada == null)
             {

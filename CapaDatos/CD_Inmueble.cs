@@ -106,6 +106,28 @@ namespace CapaDatos
             }
         }
 
+        public bool LiberarPorContrato(Guid idContrato)
+        {
+            using (var cn = new SqlConnection(Conexion.Cadena))
+            {
+                string query = @"
+                    UPDATE inmueble 
+                    SET disponibilidad = 1 
+                    WHERE id_inmueble = (
+                        SELECT TOP 1 id_inmueble 
+                        FROM contrato_alquiler 
+                        WHERE id_contrato_alquiler = @idContrato
+                    )";
+
+                using (var cmd = new SqlCommand(query, cn))
+                {
+                    cmd.Parameters.AddWithValue("@idContrato", idContrato);
+                    cn.Open();
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+            }
+        }
+
         public List<Inmueble> ListarInmuebles(bool soloDisponibles = false)
         {
             var lista = new List<Inmueble>();
@@ -211,13 +233,8 @@ namespace CapaDatos
 
         private static Inmueble MapFromReader(SqlDataReader dr)
         {
-            var idLocalidad = dr["id_localidad"] != DBNull.Value
-                ? Guid.Parse(dr["id_localidad"].ToString()!)
-                : (Guid?)null;
-
-            var idProvincia = dr["id_provincia"] != DBNull.Value
-                ? Guid.Parse(dr["id_provincia"].ToString()!)
-                : (Guid?)null;
+            Guid? idLocalidad = dr["id_localidad"] is Guid idLoc ? idLoc : null;
+            Guid? idProvincia = dr["id_provincia"] is Guid idProv ? idProv : null;
 
             Localidad? localidad = null;
             if (idLocalidad.HasValue)
@@ -237,17 +254,15 @@ namespace CapaDatos
 
             return new Inmueble
             {
-                IdInmueble = Guid.Parse(dr["id_inmueble"].ToString()!),
+                IdInmueble = dr["id_inmueble"] is Guid idInm ? idInm : Guid.Empty,
                 Descripcion = dr["descripcion"]?.ToString(),
                 Estado = dr["estado"]?.ToString() ?? "Activo",
-                FechaCreacion = DateTime.Parse(dr["fecha_creacion"].ToString()!),
-                Disponibilidad = dr["disponibilidad"] != DBNull.Value && Convert.ToBoolean(dr["disponibilidad"]),
-                IdTipoInmueble = dr["id_tipo_inmueble"] != DBNull.Value
-                    ? Guid.Parse(dr["id_tipo_inmueble"].ToString()!)
-                    : null,
+                FechaCreacion = dr["fecha_creacion"] is DateTime fc ? fc : default,
+                Disponibilidad = dr["disponibilidad"] is bool disp && disp,
+                IdTipoInmueble = dr["id_tipo_inmueble"] is Guid idTipo ? idTipo : null,
                 ODireccion = new Direccion
                 {
-                    IdDireccion = Guid.Parse(dr["id_direccion"].ToString()!),
+                    IdDireccion = dr["id_direccion"] is Guid idDir ? idDir : Guid.Empty,
                     Calle = dr["calle"]?.ToString() ?? "",
                     Altura = dr["altura"]?.ToString() ?? "",
                     IdLocalidad = idLocalidad,

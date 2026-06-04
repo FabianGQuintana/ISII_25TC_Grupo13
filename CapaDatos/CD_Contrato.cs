@@ -64,30 +64,24 @@ namespace CapaDatos
                         {
                             lista.Add(new ContratoAlquiler
                             {
-                                IdContratoAlquiler = Guid.Parse(dr["id_contrato_alquiler"].ToString()!),
-                                FechaFin = DateTime.Parse(dr["fecha_fin"].ToString()!),
+                                IdContratoAlquiler = dr["id_contrato_alquiler"] is Guid idContrato ? idContrato : Guid.Empty,
+                                FechaFin = dr["fecha_fin"] is DateTime ff ? ff : default,
                                 Condiciones = dr["condiciones"]?.ToString(),
-                                CantidadCuotas = int.Parse(dr["cantidad_cuotas"].ToString()!),
-                                PrecioCuota = decimal.Parse(dr["precio_cuota"].ToString()!),
-                                FechaCreacion = DateTime.Parse(dr["fecha_creacion"].ToString()!),
-                                IdInmueble = Guid.Parse(dr["id_inmueble"].ToString()!),
-                                IdPersonaInquilino = Guid.Parse(dr["id_persona_inquilino"].ToString()!),
-                                IdRolClienteInquilino = Guid.Parse(dr["id_rol_cliente_inquilino"].ToString()!),
-                                TasaMoraMensual = dr["tasa_mora_mensual"] != DBNull.Value
-                                    ? decimal.Parse(dr["tasa_mora_mensual"].ToString()!)
-                                    : 0m,
+                                CantidadCuotas = dr["cantidad_cuotas"] is int cantCuotas ? cantCuotas : 0,
+                                PrecioCuota = dr["precio_cuota"] is decimal pc ? pc : 0m,
+                                FechaCreacion = dr["fecha_creacion"] is DateTime fc ? fc : default,
+                                IdInmueble = dr["id_inmueble"] is Guid idInm ? idInm : Guid.Empty,
+                                IdPersonaInquilino = dr["id_persona_inquilino"] is Guid idPers ? idPers : Guid.Empty,
+                                IdRolClienteInquilino = dr["id_rol_cliente_inquilino"] is Guid idRol ? idRol : Guid.Empty,
+                                TasaMoraMensual = dr["tasa_mora_mensual"] is decimal tm ? tm : 0m,
                                 Estado = dr["estado"]?.ToString() ?? "Activo",
-                                IdUsuarioCreador = Guid.Parse(dr["id_usuario_creador"].ToString()!),
+                                IdUsuarioCreador = dr["id_usuario_creador"] is Guid idUser ? idUser : Guid.Empty,
                                 FrecuenciaAjuste = dr["frecuencia_ajuste"]?.ToString(),
-                                IdTipoIndice = dr["id_tipo_indice"] != DBNull.Value 
-                                    ? Guid.Parse(dr["id_tipo_indice"].ToString()!) 
-                                    : null,
-                                ValorIndiceInicio = dr["valor_indice_inicio"] != DBNull.Value 
-                                    ? decimal.Parse(dr["valor_indice_inicio"].ToString()!) 
-                                    : null,
+                                IdTipoIndice = dr["id_tipo_indice"] is Guid idTipo ? idTipo : null,
+                                ValorIndiceInicio = dr["valor_indice_inicio"] is decimal vi ? vi : null,
                                 OInmueble = new Inmueble
                                 {
-                                    IdInmueble = Guid.Parse(dr["id_inmueble"].ToString()!),
+                                    IdInmueble = dr["id_inmueble"] is Guid idInmueble ? idInmueble : Guid.Empty,
                                     Descripcion = dr["inmueble_descripcion"]?.ToString(),
                                     ODireccion = new Direccion
                                     {
@@ -169,30 +163,24 @@ namespace CapaDatos
                         {
                             return new ContratoAlquiler
                             {
-                                IdContratoAlquiler = Guid.Parse(dr["id_contrato_alquiler"].ToString()!),
-                                FechaFin = DateTime.Parse(dr["fecha_fin"].ToString()!),
+                                IdContratoAlquiler = dr["id_contrato_alquiler"] is Guid idContrato ? idContrato : Guid.Empty,
+                                FechaFin = dr["fecha_fin"] is DateTime ff ? ff : default,
                                 Condiciones = dr["condiciones"]?.ToString(),
-                                CantidadCuotas = int.Parse(dr["cantidad_cuotas"].ToString()!),
-                                PrecioCuota = decimal.Parse(dr["precio_cuota"].ToString()!),
-                                FechaCreacion = DateTime.Parse(dr["fecha_creacion"].ToString()!),
-                                IdInmueble = Guid.Parse(dr["id_inmueble"].ToString()!),
-                                IdPersonaInquilino = Guid.Parse(dr["id_persona_inquilino"].ToString()!),
-                                IdRolClienteInquilino = Guid.Parse(dr["id_rol_cliente_inquilino"].ToString()!),
-                                TasaMoraMensual = dr["tasa_mora_mensual"] != DBNull.Value
-                                    ? decimal.Parse(dr["tasa_mora_mensual"].ToString()!)
-                                    : 0m,
+                                CantidadCuotas = dr["cantidad_cuotas"] is int cantCuotas ? cantCuotas : 0,
+                                PrecioCuota = dr["precio_cuota"] is decimal pc ? pc : 0m,
+                                FechaCreacion = dr["fecha_creacion"] is DateTime fc ? fc : default,
+                                IdInmueble = dr["id_inmueble"] is Guid idInm ? idInm : Guid.Empty,
+                                IdPersonaInquilino = dr["id_persona_inquilino"] is Guid idPers ? idPers : Guid.Empty,
+                                IdRolClienteInquilino = dr["id_rol_cliente_inquilino"] is Guid idRol ? idRol : Guid.Empty,
+                                TasaMoraMensual = dr["tasa_mora_mensual"] is decimal tm ? tm : 0m,
                                 Estado = dr["estado"]?.ToString() ?? "Activo",
-                                IdUsuarioCreador = Guid.Parse(dr["id_usuario_creador"].ToString()!),
+                                IdUsuarioCreador = dr["id_usuario_creador"] is Guid idUser ? idUser : Guid.Empty,
                                 FrecuenciaAjuste = dr["frecuencia_ajuste"]?.ToString(),
-                                IdTipoIndice = dr["id_tipo_indice"] != DBNull.Value
-                                    ? Guid.Parse(dr["id_tipo_indice"].ToString()!)
-                                    : null,
-                                ValorIndiceInicio = dr["valor_indice_inicio"] != DBNull.Value
-                                    ? decimal.Parse(dr["valor_indice_inicio"].ToString()!)
-                                    : null,
+                                IdTipoIndice = dr["id_tipo_indice"] is Guid idTipo ? idTipo : null,
+                                ValorIndiceInicio = dr["valor_indice_inicio"] is decimal vi ? vi : null,
                                 OInmueble = new Inmueble
                                 {
-                                    IdInmueble = Guid.Parse(dr["id_inmueble"].ToString()!),
+                                    IdInmueble = dr["id_inmueble"] is Guid idInmueble ? idInmueble : Guid.Empty,
                                     Descripcion = dr["inmueble_descripcion"]?.ToString(),
                                     ODireccion = new Direccion
                                     {
@@ -394,6 +382,129 @@ namespace CapaDatos
                     }
                 }
             }
+        }
+
+        public (bool success, string message) RescindirEstado(Guid idContrato)
+        {
+            using (var cn = new SqlConnection(Conexion.Cadena))
+            {
+                string query = @"
+                    UPDATE contrato_alquiler 
+                    SET estado = 'Rescindido' 
+                    WHERE id_contrato_alquiler = @id AND estado = 'Activo'";
+
+                using (var cmd = new SqlCommand(query, cn))
+                {
+                    cmd.Parameters.AddWithValue("@id", idContrato);
+                    cn.Open();
+                    var filas = cmd.ExecuteNonQuery();
+                    if (filas == 0)
+                        return (false, "Contrato no encontrado o ya rescindido");
+                }
+            }
+
+            return (true, "");
+        }
+
+        public List<ContratoAlquiler> ListarActivosPorInquilino(Guid idInquilino)
+        {
+            var lista = new List<ContratoAlquiler>();
+
+            using (var cn = new SqlConnection(Conexion.Cadena))
+            {
+                string query = @"
+                SELECT 
+                    c.id_contrato_alquiler,
+                    c.fecha_fin,
+                    c.condiciones,
+                    c.cantidad_cuotas,
+                    c.precio_cuota,
+                    c.fecha_creacion,
+                    c.id_inmueble,
+                    c.id_persona_inquilino,
+                    c.id_rol_cliente_inquilino,
+                    c.tasa_mora_mensual,
+                    c.estado,
+                    c.id_usuario_creador,
+                    c.frecuencia_ajuste,
+                    c.id_tipo_indice,
+                    c.valor_indice_inicio,
+                    i.descripcion AS inmueble_descripcion,
+                    d.calle + ' ' + d.altura AS direccion,
+                    p.nombre AS inquilino_nombre,
+                    p.apellido AS inquilino_apellido,
+                    p.dni AS inquilino_dni,
+                    rc.id_rol_cliente AS inquilino_rol_id,
+                    rc.nombre AS inquilino_rol_nombre
+                FROM contrato_alquiler c
+                INNER JOIN inmueble i ON c.id_inmueble = i.id_inmueble
+                INNER JOIN direccion d ON i.id_direccion = d.id_direccion
+                INNER JOIN persona p ON c.id_persona_inquilino = p.id_persona
+                INNER JOIN rol_cliente rc ON c.id_rol_cliente_inquilino = rc.id_rol_cliente
+                WHERE c.estado = 'Activo'
+                AND c.id_persona_inquilino = @idInquilino
+                ORDER BY c.fecha_creacion DESC";
+
+                using (var cmd = new SqlCommand(query, cn))
+                {
+                    cmd.Parameters.AddWithValue("@idInquilino", idInquilino);
+
+                    cn.Open();
+
+                    using (var dr = cmd.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            lista.Add(new ContratoAlquiler
+                            {
+                                IdContratoAlquiler = dr["id_contrato_alquiler"] is Guid idContrato ? idContrato : Guid.Empty,
+                                FechaFin = dr["fecha_fin"] is DateTime ff ? ff : default,
+                                Condiciones = dr["condiciones"]?.ToString(),
+                                CantidadCuotas = dr["cantidad_cuotas"] is int cantCuotas ? cantCuotas : 0,
+                                PrecioCuota = dr["precio_cuota"] is decimal pc ? pc : 0m,
+                                FechaCreacion = dr["fecha_creacion"] is DateTime fc ? fc : default,
+                                IdInmueble = dr["id_inmueble"] is Guid idInm ? idInm : Guid.Empty,
+                                IdPersonaInquilino = dr["id_persona_inquilino"] is Guid idPers ? idPers : Guid.Empty,
+                                IdRolClienteInquilino = dr["id_rol_cliente_inquilino"] is Guid idRol ? idRol : Guid.Empty,
+                                TasaMoraMensual = dr["tasa_mora_mensual"] is decimal tm ? tm : 0m,
+                                Estado = dr["estado"]?.ToString() ?? "Activo",
+                                IdUsuarioCreador = dr["id_usuario_creador"] is Guid idUser ? idUser : Guid.Empty,
+                                FrecuenciaAjuste = dr["frecuencia_ajuste"]?.ToString(),
+                                IdTipoIndice = dr["id_tipo_indice"] is Guid idTipo ? idTipo : null,
+                                ValorIndiceInicio = dr["valor_indice_inicio"] is decimal vi ? vi : null,
+                                OInmueble = new Inmueble
+                                {
+                                    IdInmueble = dr["id_inmueble"] is Guid idInmueble ? idInmueble : Guid.Empty,
+                                    Descripcion = dr["inmueble_descripcion"]?.ToString(),
+                                    ODireccion = new Direccion
+                                    {
+                                        Calle = dr["direccion"]?.ToString() ?? ""
+                                    }
+                                },
+                                OInquilino = new Inquilino
+                                {
+                                    IdPersona = dr["id_persona_inquilino"] is Guid idPersI ? idPersI : Guid.Empty,
+                                    IdRolCliente = dr["inquilino_rol_id"] is Guid idRolI ? idRolI : Guid.Empty,
+                                    OPersona = new Persona
+                                    {
+                                        IdPersona = dr["id_persona_inquilino"] is Guid idPersP ? idPersP : Guid.Empty,
+                                        Nombre = dr["inquilino_nombre"]?.ToString() ?? "",
+                                        Apellido = dr["inquilino_apellido"]?.ToString() ?? "",
+                                        Dni = dr["inquilino_dni"]?.ToString()
+                                    },
+                                    ORolCliente = new RolCliente
+                                    {
+                                        IdRolCliente = dr["inquilino_rol_id"] is Guid idRolRC ? idRolRC : Guid.Empty,
+                                        Nombre = dr["inquilino_rol_nombre"]?.ToString() ?? ""
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+
+            return lista;
         }
 
         public (bool success, string message) ValidarInmuebleDisponible(Guid idInmueble, Guid? idContratoExcluir = null)

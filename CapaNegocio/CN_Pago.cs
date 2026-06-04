@@ -2,6 +2,7 @@ using CapaDatos;
 using CapaEntidades;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CapaNegocio
 {
@@ -10,58 +11,71 @@ namespace CapaNegocio
         private readonly CD_Pago _cdPago = new();
         private readonly CN_Cuota _cnCuota = new();
 
-        public (bool success, string message) RegistrarPago(
+        public (bool Success, string Message) ProcesarAnulacionPago(Guid idPago, string motivo, Guid idUsuario)
+        {
+            var pago = _cdPago.ObtenerPorId(idPago);
+            if (pago == null)
+                return (false, "Pago no encontrado");
+
+            if (pago.Estado == "Anulado")
+                return (false, "El pago ya se encuentra anulado");
+
+            var pagoAnulado = new PagoAnulado
+            {
+                IdPagoAnulado = Guid.NewGuid(),
+                IdPago = idPago,
+                FechaAnulacion = DateTime.Now,
+                IdUsuarioAnulacion = idUsuario,
+                MontoTotalAnulado = pago.MontoTotal,
+                Motivo = motivo
+            };
+
+            var resultado = _cdPago.CrearPagoAnulado(pagoAnulado);
+            return resultado
+                ? (true, "Pago anulado exitosamente")
+                : (false, "Error al anular el pago");
+        }
+
+        public async Task<(bool success, string message, Guid pagoId)> RegistrarPago(
              Guid idCuota,
              Guid idMetodoPago,
-             Guid idUsuario,
-             bool esSuperior)
+             Guid idUsuario)
         {
+            var cuota = new CD_Cuota().ObtenerPorId(idCuota);
+
+            if (cuota == null)
+            {
+                return (false, "No se encontró la cuota", Guid.Empty);
+            }
+
             var cuotaCalculada =
-                _cnCuota.ObtenerCuotaCalculada(idCuota);
+                await _cnCuota.ObtenerCuotaCalculada(cuota.IdContratoAlquiler);
 
             if (cuotaCalculada == null)
             {
-                return (false, "No se encontró la cuota");
+                return (false, "No se encontró la cuota", Guid.Empty);
             }
 
             var pago = new Pago
             {
                 IdPago = Guid.NewGuid(),
-
                 IdCuota = idCuota,
-
                 IdMetodoPago = idMetodoPago,
-
                 IdUsuarioCreador = idUsuario,
-
                 Periodo = cuotaCalculada.Periodo,
-
                 MoraCobrada = cuotaCalculada.MoraCalculada,
-
                 MontoTotal = cuotaCalculada.TotalFinal,
-
-                Estado = esSuperior
-                    ? "Aprobado"
-                    : "Pendiente"
+                Estado = "Aprobado"
             };
 
             _cdPago.Insertar(pago);
+            new CD_Cuota().MarcarComoPagada(idCuota);
 
-            if (esSuperior)
-            {
-                return _cdPago.AprobarPago(
-                    pago.IdPago,
-                    pago.IdCuota)
-                    ? (true, "Pago aprobado y registrado")
-                    : (false, "Error al procesar");
-            }
-
-            return (true, "Pago registrado, esperando aprobación.");
+            return (true, "Pago registrado correctamente", pago.IdPago);
         }
 
         public List<Pago> Listar(int? estado)
         {
-            // Convertir el filtro opcional a string para la capa de datos
             return _cdPago.Listar(estado.HasValue ? estado.Value.ToString() : null);
         }
 
@@ -70,9 +84,16 @@ namespace CapaNegocio
             return _cdPago.ListarPorContrato(contratoId);
         }
 
-        public List<ContratoAlquiler> ListarActivosPorInquilino(Guid idInquilino)
+        public async Task<(CuotaCalculadaDto? detalle, List<MetodoPago> metodosPago)> MostrarDetallePago(Guid idContrato)
         {
-            return _cdPago.ListarActivosPorInquilino(idInquilino);
+            var detalle = await _cnCuota.ObtenerCuotaCalculada(idContrato);
+            var metodos = _cdPago.ListarMetodosPagos();
+            return (detalle, metodos);
+        }
+
+        public List<MetodoPago> ListarMetodosPagos()
+        {
+            return _cdPago.ListarMetodosPagos();
         }
 
         public bool Rechazar(Guid idPago, string? motivo)
@@ -86,7 +107,7 @@ namespace CapaNegocio
         }
         public Pago? ObtenerPorId(Guid id)
         {
-            
+
             return _cdPago.ObtenerPorId(id);
         }
 

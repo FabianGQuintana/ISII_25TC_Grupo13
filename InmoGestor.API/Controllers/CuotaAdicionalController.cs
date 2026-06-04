@@ -1,6 +1,7 @@
 ﻿using CapaEntidades;
 using CapaNegocio;
 using InmoGestor.API.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -9,14 +10,15 @@ namespace InmoGestor.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CuotaAdicionalController : ControllerBase
     {
         private readonly CN_CuotaAdicional _cn = new();
 
         [HttpPost]
-        public IActionResult Crear([FromBody] CrearCuotaAdicionalRequest request)
+        public IActionResult InsertarCuotaAdicional([FromBody] CrearCuotaAdicionalRequest cuotaAdicional)
         {
-            if (!Guid.TryParse(request.IdCuota, out var idCuota))
+            if (!Guid.TryParse(cuotaAdicional.IdCuota, out var idCuota))
             {
                 return BadRequest(new
                 {
@@ -25,7 +27,7 @@ namespace InmoGestor.API.Controllers
                 });
             }
 
-            if (!Guid.TryParse(request.IdTipoAdicionales, out var idTipo))
+            if (!Guid.TryParse(cuotaAdicional.IdTipoAdicionales, out var idTipo))
             {
                 return BadRequest(new
                 {
@@ -42,12 +44,12 @@ namespace InmoGestor.API.Controllers
 
                 IdTipoAdicionales = idTipo,
 
-                MontoAplicado = request.MontoAplicado ?? 0,
+                MontoAplicado = cuotaAdicional.MontoAplicado ?? 0,
 
-                DescripcionManual = request.DescripcionManual
+                DescripcionManual = cuotaAdicional.DescripcionManual
             };
 
-            var success = _cn.Insertar(adicional);
+            var success = _cn.InsertarCuotaAdicional(adicional);
 
             if (!success)
             {

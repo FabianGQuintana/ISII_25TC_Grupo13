@@ -12,9 +12,9 @@ namespace CapaNegocio
     {
         private readonly CD_CuotaAdicional _cd = new();
 
-        public bool Insertar(CuotaAdicional adicional)
+        public bool InsertarCuotaAdicional(CuotaAdicional adicional)
         {
-            return _cd.Insertar(adicional);
+            return _cd.InsertarCuotaAdicional(adicional);
         }
     }
 }

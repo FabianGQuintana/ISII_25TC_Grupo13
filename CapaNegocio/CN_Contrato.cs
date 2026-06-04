@@ -8,6 +8,8 @@ namespace CapaNegocio
     public class CN_Contrato
     {
         private readonly CD_Contrato _cdContrato = new();
+        private readonly CN_Cuota _cnCuota = new();
+        private readonly CN_Inmueble _cnInmueble = new();
 
         public List<ContratoAlquiler> Listar(int? estado = null)
         {
@@ -16,8 +18,9 @@ namespace CapaNegocio
 
         public List<ContratoAlquiler> ListarActivosPorInquilino(Guid idInquilino)
         {
-            return _cdContrato.Listar(estado: 1) // estado Activo = 1
-                .FindAll(c => c.IdPersonaInquilino == idInquilino);
+            if (idInquilino == Guid.Empty)
+                throw new ArgumentException("El ID del inquilino es requerido");
+            return _cdContrato.ListarActivosPorInquilino(idInquilino);
         }
 
         public ContratoAlquiler? ObtenerPorId(Guid id)
@@ -57,11 +60,23 @@ namespace CapaNegocio
         public (bool success, string message) Rescindir(Guid idContrato)
         {
             if (idContrato == Guid.Empty)
-            {
                 return (false, "El ID del contrato es requerido");
-            }
 
-            return _cdContrato.Rescindir(idContrato);
+            var contrato = _cdContrato.ObtenerPorId(idContrato);
+            if (contrato == null)
+                return (false, "Contrato no encontrado");
+
+            if (contrato.Estado != "Activo")
+                return (false, "El contrato no está activo");
+
+            var (success, message) = _cdContrato.RescindirEstado(idContrato);
+            if (!success)
+                return (false, message);
+
+            _cnCuota.CambiarEstadoCuotas(idContrato);
+            _cnInmueble.LiberarInmueble(idContrato);
+
+            return (true, "Contrato rescindido exitosamente");
         }
 
         public (bool success, string message) ValidarInmuebleDisponible(Guid idInmueble, Guid? idContratoExcluir = null)

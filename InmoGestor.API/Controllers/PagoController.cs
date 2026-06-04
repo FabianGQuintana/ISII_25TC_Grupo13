@@ -4,10 +4,11 @@ using CapaNegocio;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Security.Claims;
-using InmoGestor.API.Mappers;
-using InmoGestor.API.DTOs;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Security.Claims;
+using InmoGestor.API.DTOs;
+using InmoGestor.API.Mappers;
 
 namespace InmoGestor.API.Controllers
 {
@@ -23,29 +24,73 @@ namespace InmoGestor.API.Controllers
             _cnPago = cnPago;
         }
 
-        [HttpPost]
-        public IActionResult RegistrarPago([FromBody] RegistrarPagoRequest pago)
+        [HttpGet("calcular/{idContrato}")]
+        public async Task<IActionResult> CalcularCuota(string idContrato)
         {
-            var userId =
-                Guid.Parse(
-                    User.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                    ?? Guid.Empty.ToString());
+            if (!Guid.TryParse(idContrato, out var guidIdContrato))
+                return BadRequest(new { success = false, message = "ID de contrato inválido" });
 
-            bool esSuperior =
-                User.IsInRole("Superior")
-                || User.IsInRole("SUPERIOR");
+            var (detalle, metodos) = await _cnPago.MostrarDetallePago(guidIdContrato);
 
-            var resultado = _cnPago.RegistrarPago(
-                Guid.Parse(pago.IdCuota),
-                Guid.Parse(pago.IdMetodoPago),
-                userId,
-                esSuperior);
+            if (detalle == null)
+                return NotFound(new { success = false, message = "No se encontró la cuota pendiente" });
+
+            var response = new DetallePagoResponse
+            {
+                Cuota = new DTOs.CuotaCalculadaDto
+                {
+                    IdCuota = detalle.IdCuota,
+                    NroCuota = detalle.NroCuota,
+                    Periodo = detalle.Periodo,
+                    FechaVencimiento = detalle.FechaVencimiento,
+                    PrecioCuota = detalle.PrecioCuota,
+                    ValorIndiceAplicado = detalle.ValorIndiceAplicado,
+                    ImporteActualizado = detalle.ImporteActualizado,
+                    TotalAdicionales = detalle.TotalAdicionales,
+                    TotalDescuentos = detalle.TotalDescuentos,
+                    DiasAtraso = detalle.DiasAtraso,
+                    MoraCalculada = detalle.MoraCalculada,
+                    TotalFinal = detalle.TotalFinal,
+                    Estado = detalle.Estado
+                },
+                MetodosPago = metodos.Select(m => new MetodoPagoDto
+                {
+                    Id = m.IdMetodoPago.ToString(),
+                    Nombre = m.Nombre,
+                    Descripcion = m.Descripcion
+                }).ToList()
+            };
+
+            return Ok(new { success = true, data = response });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RegistrarPago([FromBody] RegistrarPagoRequest pago)
+        {
+            if (pago == null)
+                return BadRequest(new { success = false, message = "El cuerpo de la solicitud no puede estar vacío" });
+
+            if (!Guid.TryParse(pago.IdCuota, out var idCuota))
+                return BadRequest(new { success = false, message = "ID de cuota inválido" });
+
+            if (!Guid.TryParse(pago.IdMetodoPago, out var idMetodoPago))
+                return BadRequest(new { success = false, message = "ID de método de pago inválido" });
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+                return Unauthorized(new { success = false, message = "Usuario no autenticado" });
+
+            var resultado = await _cnPago.RegistrarPago(
+                idCuota,
+                idMetodoPago,
+                userId);
 
             return resultado.success
                 ? Ok(new
                 {
                     success = true,
-                    message = resultado.message
+                    message = resultado.message,
+                    data = new { pagoId = resultado.pagoId.ToString() }
                 })
                 : BadRequest(new
                 {
@@ -70,19 +115,11 @@ namespace InmoGestor.API.Controllers
             return Ok(new { success = result, mensaje = result ? "Pago aprobado correctamente" : "Error al aprobar" });
         }
 
-        [HttpGet("activos-por-inquilino")]
-        public IActionResult ListarActivosPorInquilino([FromQuery] Guid idInquilino)
-        {
-            var contratos = _cnPago.ListarActivosPorInquilino(idInquilino);
-            var response = ContratoMapper.ToResponseList(contratos);
-            return Ok(new { success = true, data = response });
-        }
-
         [HttpGet]
         public IActionResult Listar([FromQuery] int? estado)
         {
             var pagos = _cnPago.Listar(estado);
-            var response = pagos.Select(MapToDto).ToList();
+            var response = PagoMapper.ToResponseList(pagos);
             return Ok(new { success = true, data = response });
         }
 
@@ -96,7 +133,7 @@ namespace InmoGestor.API.Controllers
             if (pago == null)
                 return NotFound(new { success = false, message = "Pago no encontrado" });
 
-            return Ok(new { success = true, data = MapToDto(pago) });
+            return Ok(new { success = true, data = PagoMapper.ToResponse(pago) });
         }
 
         [HttpGet("contrato/{contratoId}")]
@@ -106,30 +143,8 @@ namespace InmoGestor.API.Controllers
                 return BadRequest(new { success = false, message = "ID de contrato inválido" });
 
             var pagos = _cnPago.ListarPorContrato(guidContratoId);
-            var response = pagos.Select(MapToDto).ToList();
+            var response = PagoMapper.ToResponseList(pagos);
             return Ok(new { success = true, data = response });
-        }
-
-        private PagoResponseDto MapToDto(Pago p)
-        {
-            return new PagoResponseDto
-            {
-                Id = p.IdPago.ToString(),
-                ContratoId = p.IdContrato.ToString(),
-                CuotaId = p.IdCuota.ToString(),
-                Inquilino = p.Inquilino,
-                Inmueble = p.Inmueble,
-                NroCuota = p.NroCuota,
-                Periodo = p.Periodo,
-                FechaVencimiento = p.FechaVencimiento,
-                FechaPago = p.FechaPago == DateTime.MinValue ? null : p.FechaPago,
-                Monto = p.MontoTotal,
-                Mora = p.MoraCobrada,
-                DiasAtraso = p.FechaVencimiento.HasValue ? Math.Max(0, (DateTime.Now - p.FechaVencimiento.Value).Days) : 0,
-                TotalPagado = p.MontoTotal,
-                Estado = p.Estado,
-                EstadoTexto = p.Estado
-            };
         }
 
         [HttpPatch("{id}/confirmar")]
@@ -162,6 +177,24 @@ namespace InmoGestor.API.Controllers
                 return BadRequest(new { success = false, message = "No se pudo rechazar el pago" });
 
             return Ok(new { success = true, message = "Pago rechazado exitosamente" });
+        }
+
+        [HttpPost("{id}/anular")]
+        [Authorize(Roles = "Superior,SUPERIOR")]
+        public IActionResult AnularPago(string id, [FromBody] AnularPagoRequestDto dto)
+        {
+            if (!Guid.TryParse(id, out var guidId))
+                return BadRequest(new ResultadoDto { Success = false, Message = "ID inválido" });
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+                return Unauthorized(new ResultadoDto { Success = false, Message = "Usuario no autenticado" });
+
+            var (success, message) = _cnPago.ProcesarAnulacionPago(guidId, dto?.Motivo ?? "", userId);
+
+            return success
+                ? Ok(new ResultadoDto { Success = success, Message = message })
+                : BadRequest(new ResultadoDto { Success = success, Message = message });
         }
 
         [HttpPatch("{id}/anular")]

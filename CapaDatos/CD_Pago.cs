@@ -6,30 +6,45 @@ using Microsoft.Data.SqlClient;
 
 public class CD_Pago
 {
+    private static int EstadoToInt(string estado) => estado switch
+    {
+        "Pendiente" or "1" => 1,
+        "Aprobado" or "2" => 2,
+        "Rechazado" or "3" => 3,
+        "Anulado" or "4" => 4,
+        _ => 1
+    };
+
     public void Insertar(Pago pago)
     {
-        using (var cn = new SqlConnection(Conexion.Cadena))
+        try
         {
-            string query = @"
+            using (var cn = new SqlConnection(Conexion.Cadena))
+            {
+                string query = @"
             INSERT INTO pago (id_pago, id_cuota, id_metodo_pago, id_usuario_creador, monto_total, estado, fecha_pago, periodo, mora_cobrada)
             VALUES (@id, @idCuota, @idMetodo, @idUser, @monto, @estado, GETDATE(), @periodo, @mora)";
 
-            using (var cmd = new SqlCommand(query, cn))
-            {
-                cmd.Parameters.AddWithValue("@id", pago.IdPago);
-                cmd.Parameters.AddWithValue("@idCuota", pago.IdCuota);
-                cmd.Parameters.AddWithValue("@idMetodo", pago.IdMetodoPago);
-                cmd.Parameters.AddWithValue("@idUser", pago.IdUsuarioCreador);
-                cmd.Parameters.AddWithValue("@monto", pago.MontoTotal);
-                // CORRECCIÓN: Se envía el string directamente
-                cmd.Parameters.AddWithValue("@estado", pago.Estado ?? "Pendiente");
+                using (var cmd = new SqlCommand(query, cn))
+                {
+                    cmd.Parameters.AddWithValue("@id", pago.IdPago);
+                    cmd.Parameters.AddWithValue("@idCuota", pago.IdCuota);
+                    cmd.Parameters.AddWithValue("@idMetodo", pago.IdMetodoPago);
+                    cmd.Parameters.AddWithValue("@idUser", pago.IdUsuarioCreador);
+                    cmd.Parameters.AddWithValue("@monto", pago.MontoTotal);
+                    cmd.Parameters.AddWithValue("@estado", EstadoToInt(pago.Estado ?? "Pendiente"));
 
-                cmd.Parameters.AddWithValue("@periodo", (object)pago.Periodo ?? DBNull.Value);
-                cmd.Parameters.AddWithValue("@mora", pago.MoraCobrada);
+                    cmd.Parameters.AddWithValue("@periodo", (object)pago.Periodo ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@mora", pago.MoraCobrada);
 
-                cn.Open();
-                cmd.ExecuteNonQuery();
+                    cn.Open();
+                    cmd.ExecuteNonQuery();
+                }
             }
+        }
+        catch (SqlException ex)
+        {
+            throw new Exception($"Error al insertar el pago: {ex.Message}", ex);
         }
     }
 
@@ -43,7 +58,7 @@ public class CD_Pago
                 try
                 {
                     // CORRECCIÓN: Query usa valor literal string o parámetro string
-                    string q1 = "UPDATE pago SET estado = 'Aprobado' WHERE id_pago = @id";
+                    string q1 = "UPDATE pago SET estado = 2 WHERE id_pago = @id";
                     string q2 = "INSERT INTO recibo (id_recibo, id_pago, fecha_emision, nro_comprobante) VALUES (NEWID(), @id, GETDATE(), 'REC-' + CAST(NEXT VALUE FOR SecuenciaRecibo AS VARCHAR))";
                     string q3 = "UPDATE cuota SET estado = 'Pagada' WHERE id_cuota = @idCuota";
 
@@ -64,13 +79,15 @@ public class CD_Pago
         }
     }
 
-    public List<Pago> Listar(string? estado) // CORRECCIÓN: Parámetro string
+    public List<Pago> Listar(string? estado)
     {
         var lista = new List<Pago>();
         using (var cn = new SqlConnection(Conexion.Cadena))
         {
             string query = @"
-                SELECT p.id_pago, p.id_cuota, p.id_metodo_pago, p.id_usuario_creador, p.monto_total, p.periodo, p.estado, p.fecha_pago, p.mora_cobrada,
+                SELECT p.id_pago, p.id_cuota, p.id_metodo_pago, p.id_usuario_creador, p.monto_total, p.periodo,
+                       CASE WHEN pa.id_pago IS NOT NULL THEN 'Anulado' ELSE 'Activo' END AS estado,
+                       p.fecha_pago, p.mora_cobrada,
                        c.nro_cuota, c.fecha_vencimiento, c.id_contrato_alquiler,
                        per.nombre + ' ' + per.apellido AS inquilino,
                        ISNULL(d.calle, '') + ' ' + ISNULL(d.altura, '') AS inmueble
@@ -79,10 +96,11 @@ public class CD_Pago
                 INNER JOIN contrato_alquiler ca ON c.id_contrato_alquiler = ca.id_contrato_alquiler
                 INNER JOIN persona per ON ca.id_persona_inquilino = per.id_persona
                 INNER JOIN inmueble i ON ca.id_inmueble = i.id_inmueble
-                LEFT JOIN direccion d ON i.id_direccion = d.id_direccion";
+                LEFT JOIN direccion d ON i.id_direccion = d.id_direccion
+                LEFT JOIN pago_anulado pa ON p.id_pago = pa.id_pago";
 
             if (!string.IsNullOrEmpty(estado))
-                query += " WHERE p.estado = @estado";
+                query += " WHERE CASE WHEN pa.id_pago IS NOT NULL THEN 'Anulado' ELSE 'Activo' END = @estado";
 
             using (var cmd = new SqlCommand(query, cn))
             {
@@ -140,7 +158,9 @@ public class CD_Pago
         using (var cn = new SqlConnection(Conexion.Cadena))
         {
             string query = @"
-                SELECT p.id_pago, p.id_cuota, p.id_metodo_pago, p.id_usuario_creador, p.monto_total, p.periodo, p.estado, p.fecha_pago, p.mora_cobrada,
+                SELECT p.id_pago, p.id_cuota, p.id_metodo_pago, p.id_usuario_creador, p.monto_total, p.periodo,
+                       CASE WHEN pa.id_pago IS NOT NULL THEN 'Anulado' ELSE 'Activo' END AS estado,
+                       p.fecha_pago, p.mora_cobrada,
                        c.nro_cuota, c.fecha_vencimiento, c.id_contrato_alquiler,
                        per.nombre + ' ' + per.apellido AS inquilino,
                        ISNULL(d.calle, '') + ' ' + ISNULL(d.altura, '') AS inmueble
@@ -150,6 +170,7 @@ public class CD_Pago
                 INNER JOIN persona per ON ca.id_persona_inquilino = per.id_persona
                 INNER JOIN inmueble i ON ca.id_inmueble = i.id_inmueble
                 LEFT JOIN direccion d ON i.id_direccion = d.id_direccion
+                LEFT JOIN pago_anulado pa ON p.id_pago = pa.id_pago
                 WHERE p.id_pago = @id";
 
             using (var cmd = new SqlCommand(query, cn))
@@ -175,7 +196,9 @@ public class CD_Pago
         using (var cn = new SqlConnection(Conexion.Cadena))
         {
             string query = @"
-                SELECT p.id_pago, p.id_cuota, p.id_metodo_pago, p.id_usuario_creador, p.monto_total, p.periodo, p.estado, p.fecha_pago, p.mora_cobrada,
+                SELECT p.id_pago, p.id_cuota, p.id_metodo_pago, p.id_usuario_creador, p.monto_total, p.periodo,
+                       CASE WHEN pa.id_pago IS NOT NULL THEN 'Anulado' ELSE 'Activo' END AS estado,
+                       p.fecha_pago, p.mora_cobrada,
                        c.nro_cuota, c.fecha_vencimiento, c.id_contrato_alquiler,
                        per.nombre + ' ' + per.apellido AS inquilino,
                        ISNULL(d.calle, '') + ' ' + ISNULL(d.altura, '') AS inmueble
@@ -185,6 +208,7 @@ public class CD_Pago
                 INNER JOIN persona per ON ca.id_persona_inquilino = per.id_persona
                 INNER JOIN inmueble i ON ca.id_inmueble = i.id_inmueble
                 LEFT JOIN direccion d ON i.id_direccion = d.id_direccion
+                LEFT JOIN pago_anulado pa ON p.id_pago = pa.id_pago
                 WHERE c.id_contrato_alquiler = @contratoId";
 
             using (var cmd = new SqlCommand(query, cn))
@@ -203,104 +227,27 @@ public class CD_Pago
         return lista;
     }
 
-    public List<ContratoAlquiler> ListarActivosPorInquilino(Guid idInquilino)
+    public List<MetodoPago> ListarMetodosPagos()
     {
-        var lista = new List<ContratoAlquiler>();
+        var lista = new List<MetodoPago>();
 
         using (var cn = new SqlConnection(Conexion.Cadena))
         {
-            string query = @"
-            SELECT 
-                c.id_contrato_alquiler,
-                c.fecha_fin,
-                c.condiciones,
-                c.cantidad_cuotas,
-                c.precio_cuota,
-                c.fecha_creacion,
-                c.id_inmueble,
-                c.id_persona_inquilino,
-                c.id_rol_cliente_inquilino,
-                c.tasa_mora_mensual,
-                c.estado,
-                c.id_usuario_creador,
-                c.frecuencia_ajuste,
-                c.id_tipo_indice,
-                c.valor_indice_inicio,
-                i.descripcion AS inmueble_descripcion,
-                d.calle + ' ' + d.altura AS direccion,
-                p.nombre AS inquilino_nombre,
-                p.apellido AS inquilino_apellido,
-                p.dni AS inquilino_dni,
-                rc.id_rol_cliente AS inquilino_rol_id,
-                rc.nombre AS inquilino_rol_nombre
-            FROM contrato_alquiler c
-            INNER JOIN inmueble i ON c.id_inmueble = i.id_inmueble
-            INNER JOIN direccion d ON i.id_direccion = d.id_direccion
-            INNER JOIN persona p ON c.id_persona_inquilino = p.id_persona
-            INNER JOIN rol_cliente rc ON c.id_rol_cliente_inquilino = rc.id_rol_cliente
-            WHERE c.estado = 'Activo'
-            AND c.id_persona_inquilino = @idInquilino
-            ORDER BY c.fecha_creacion DESC";
+            string query = "SELECT id_metodo_pago, tipo_pago, descripcion FROM metodo_pago";
 
             using (var cmd = new SqlCommand(query, cn))
             {
-                cmd.Parameters.AddWithValue("@idInquilino", idInquilino);
-
                 cn.Open();
 
                 using (var dr = cmd.ExecuteReader())
                 {
                     while (dr.Read())
                     {
-                        lista.Add(new ContratoAlquiler
+                        lista.Add(new MetodoPago
                         {
-                            IdContratoAlquiler = Guid.Parse(dr["id_contrato_alquiler"].ToString()!),
-                            FechaFin = DateTime.Parse(dr["fecha_fin"].ToString()!),
-                            Condiciones = dr["condiciones"]?.ToString(),
-                            CantidadCuotas = int.Parse(dr["cantidad_cuotas"].ToString()!),
-                            PrecioCuota = decimal.Parse(dr["precio_cuota"].ToString()!),
-                            FechaCreacion = DateTime.Parse(dr["fecha_creacion"].ToString()!),
-                            IdInmueble = Guid.Parse(dr["id_inmueble"].ToString()!),
-                            IdPersonaInquilino = Guid.Parse(dr["id_persona_inquilino"].ToString()!),
-                            IdRolClienteInquilino = Guid.Parse(dr["id_rol_cliente_inquilino"].ToString()!),
-                            TasaMoraMensual = dr["tasa_mora_mensual"] != DBNull.Value
-                                ? decimal.Parse(dr["tasa_mora_mensual"].ToString()!)
-                                : 0m,
-                            Estado = dr["estado"]?.ToString() ?? "Activo",
-                            IdUsuarioCreador = Guid.Parse(dr["id_usuario_creador"].ToString()!),
-                            FrecuenciaAjuste = dr["frecuencia_ajuste"]?.ToString(),
-                            IdTipoIndice = dr["id_tipo_indice"] != DBNull.Value
-                                ? Guid.Parse(dr["id_tipo_indice"].ToString()!)
-                                : null,
-                            ValorIndiceInicio = dr["valor_indice_inicio"] != DBNull.Value
-                                ? decimal.Parse(dr["valor_indice_inicio"].ToString()!)
-                                : null,
-                            OInmueble = new Inmueble
-                            {
-                                IdInmueble = Guid.Parse(dr["id_inmueble"].ToString()!),
-                                Descripcion = dr["inmueble_descripcion"]?.ToString(),
-                                ODireccion = new Direccion
-                                {
-                                    Calle = dr["direccion"]?.ToString() ?? ""
-                                }
-                            },
-                            OInquilino = new Inquilino
-                            {
-                                IdPersona = Guid.Parse(dr["id_persona_inquilino"].ToString()!),
-                                IdRolCliente = Guid.Parse(dr["inquilino_rol_id"].ToString()!),
-                                OPersona = new Persona
-                                {
-                                    IdPersona = Guid.Parse(dr["id_persona_inquilino"].ToString()!),
-                                    Nombre = dr["inquilino_nombre"]?.ToString() ?? "",
-                                    Apellido = dr["inquilino_apellido"]?.ToString() ?? "",
-                                    Dni = dr["inquilino_dni"]?.ToString()
-                                },
-                                ORolCliente = new RolCliente
-                                {
-                                    IdRolCliente = Guid.Parse(dr["inquilino_rol_id"].ToString()!),
-                                    Nombre = dr["inquilino_rol_nombre"]?.ToString() ?? ""
-                                }
-                            }
+                            IdMetodoPago = (Guid)dr["id_metodo_pago"],
+                            Nombre = dr["tipo_pago"]?.ToString() ?? "",
+                            Descripcion = dr["descripcion"]?.ToString()
                         });
                     }
                 }
@@ -314,7 +261,7 @@ public class CD_Pago
     {
         using (var cn = new SqlConnection(Conexion.Cadena))
         {
-            string query = "UPDATE pago SET estado = 'Rechazado' WHERE id_pago = @id";
+            string query = "UPDATE pago SET estado = 3 WHERE id_pago = @id";
             using (var cmd = new SqlCommand(query, cn))
             {
                 cmd.Parameters.AddWithValue("@id", idPago);
@@ -333,7 +280,7 @@ public class CD_Pago
             {
                 try
                 {
-                    string q1 = "UPDATE pago SET estado = 'Anulado' WHERE id_pago = @idPago";
+                    string q1 = "UPDATE pago SET estado = 4 WHERE id_pago = @idPago";
                     using (var cmd1 = new SqlCommand(q1, cn, transaction))
                     {
                         cmd1.Parameters.AddWithValue("@idPago", pago.IdPago);
@@ -356,6 +303,47 @@ public class CD_Pago
                     {
                         cmd3.Parameters.AddWithValue("@idCuota", pago.IdCuota);
                         cmd3.ExecuteNonQuery();
+                    }
+
+                    transaction.Commit();
+                    return true;
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    return false;
+                }
+            }
+        }
+    }
+
+    public bool CrearPagoAnulado(PagoAnulado entidad)
+    {
+        using (var cn = new SqlConnection(Conexion.Cadena))
+        {
+            cn.Open();
+            using (var transaction = cn.BeginTransaction())
+            {
+                try
+                {
+                    string q1 = @"INSERT INTO pago_anulado (id_pago_anulado, id_pago, fecha_anulacion, id_usuario_anulacion, monto_total_anulado, motivo) 
+                                  VALUES (@idPagoAnulado, @idPago, @fechaAnulacion, @idUsuario, @montoTotal, @motivo)";
+                    using (var cmd1 = new SqlCommand(q1, cn, transaction))
+                    {
+                        cmd1.Parameters.AddWithValue("@idPagoAnulado", entidad.IdPagoAnulado);
+                        cmd1.Parameters.AddWithValue("@idPago", entidad.IdPago);
+                        cmd1.Parameters.AddWithValue("@fechaAnulacion", entidad.FechaAnulacion);
+                        cmd1.Parameters.AddWithValue("@idUsuario", entidad.IdUsuarioAnulacion);
+                        cmd1.Parameters.AddWithValue("@montoTotal", entidad.MontoTotalAnulado);
+                        cmd1.Parameters.AddWithValue("@motivo", (object?)entidad.Motivo ?? DBNull.Value);
+                        cmd1.ExecuteNonQuery();
+                    }
+
+                    string q2 = "UPDATE cuota SET estado = 'Pendiente' WHERE id_cuota = (SELECT id_cuota FROM pago WHERE id_pago = @idPago)";
+                    using (var cmd2 = new SqlCommand(q2, cn, transaction))
+                    {
+                        cmd2.Parameters.AddWithValue("@idPago", entidad.IdPago);
+                        cmd2.ExecuteNonQuery();
                     }
 
                     transaction.Commit();

@@ -242,7 +242,9 @@ namespace CapaDatos
                 {
                     try
                     {
-                        var idContrato = Guid.NewGuid();
+                        var idContrato = contrato.IdContratoAlquiler != Guid.Empty
+                            ? contrato.IdContratoAlquiler
+                            : Guid.NewGuid();
 
                         if (contrato.IdRolClienteInquilino == Guid.Empty)
                         {
@@ -296,14 +298,7 @@ namespace CapaDatos
                             cmdContrato.ExecuteNonQuery();
                         }
 
-                        var fechaVencimiento = contrato.FechaCreacion;
-                        for (int i = 1; i <= contrato.CantidadCuotas; i++)
-                        {
-                            fechaVencimiento = fechaVencimiento.AddMonths(1);
-                            var periodo = fechaVencimiento.ToString("yyyyMM");
-                            var nroCuota = i;
-
-                            string queryCuota = @"
+                        string queryCuota = @"
                                     INSERT INTO cuota
                                     (id_cuota, id_contrato_alquiler, nro_cuota, periodo, fecha_vencimiento,
                                      estado, valor_mora_aplicada, descuento_adicional_total,
@@ -311,16 +306,38 @@ namespace CapaDatos
                                     VALUES (@id, @idContrato, @nroCuota, @periodo, @fechaVencimiento,
                                             'Pendiente', 0, 0, 0, 0, @importeTotal)";
 
-                            using (var cmdCuota = new SqlCommand(queryCuota, cn, transaction))
+                        if (contrato.Cuotas.Count > 0)
+                        {
+                            foreach (var cuota in contrato.Cuotas)
                             {
-                                cmdCuota.Parameters.AddWithValue("@id", Guid.NewGuid());
-                                cmdCuota.Parameters.AddWithValue("@idContrato", idContrato);
-                                cmdCuota.Parameters.AddWithValue("@nroCuota", nroCuota);
-                                cmdCuota.Parameters.AddWithValue("@periodo", periodo);
-                                cmdCuota.Parameters.AddWithValue("@fechaVencimiento", fechaVencimiento);
-                                cmdCuota.Parameters.AddWithValue("@importeTotal", contrato.PrecioCuota);
-
-                                cmdCuota.ExecuteNonQuery();
+                                using (var cmdCuota = new SqlCommand(queryCuota, cn, transaction))
+                                {
+                                    cmdCuota.Parameters.AddWithValue("@id", cuota.IdCuota);
+                                    cmdCuota.Parameters.AddWithValue("@idContrato", idContrato);
+                                    cmdCuota.Parameters.AddWithValue("@nroCuota", cuota.NroCuota);
+                                    cmdCuota.Parameters.AddWithValue("@periodo", cuota.Periodo);
+                                    cmdCuota.Parameters.AddWithValue("@fechaVencimiento", cuota.FechaVencimiento);
+                                    cmdCuota.Parameters.AddWithValue("@importeTotal", cuota.ImporteTotalCalculado);
+                                    cmdCuota.ExecuteNonQuery();
+                                }
+                            }
+                        }
+                        else
+                        {
+                            var fechaVencimiento = contrato.FechaCreacion;
+                            for (int i = 1; i <= contrato.CantidadCuotas; i++)
+                            {
+                                fechaVencimiento = fechaVencimiento.AddMonths(1);
+                                using (var cmdCuota = new SqlCommand(queryCuota, cn, transaction))
+                                {
+                                    cmdCuota.Parameters.AddWithValue("@id", Guid.NewGuid());
+                                    cmdCuota.Parameters.AddWithValue("@idContrato", idContrato);
+                                    cmdCuota.Parameters.AddWithValue("@nroCuota", i);
+                                    cmdCuota.Parameters.AddWithValue("@periodo", fechaVencimiento.ToString("yyyyMM"));
+                                    cmdCuota.Parameters.AddWithValue("@fechaVencimiento", fechaVencimiento);
+                                    cmdCuota.Parameters.AddWithValue("@importeTotal", contrato.PrecioCuota);
+                                    cmdCuota.ExecuteNonQuery();
+                                }
                             }
                         }
 

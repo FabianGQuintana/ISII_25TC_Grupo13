@@ -86,7 +86,11 @@ namespace CapaNegocio
                 contrato.IdRolClienteInquilino = idRol.Value;
             }
 
-            return _cdContrato.Insertar(contrato);
+            var builder = new ContratoAlquilerBuilder();
+            var director = new GeneradorContrato();
+            var contratoFinal = director.Construir(builder, contrato);
+
+            return _cdContrato.Insertar(contratoFinal);
         }
 
         public (bool success, string message) Rescindir(Guid idContrato)

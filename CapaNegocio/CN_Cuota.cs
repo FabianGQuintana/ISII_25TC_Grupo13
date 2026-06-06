@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CapaDatos;
 using CapaEntidades;
@@ -25,6 +26,27 @@ namespace CapaNegocio
                 "anual" => 12,
                 _ => 0
             };
+        }
+
+        public List<Cuota> GenerarParaContrato(ContratoAlquiler contrato)
+        {
+            var cuotas = new List<Cuota>();
+            var fecha = contrato.FechaCreacion;
+            for (int i = 1; i <= contrato.CantidadCuotas; i++)
+            {
+                fecha = fecha.AddMonths(1);
+                cuotas.Add(new Cuota
+                {
+                    IdCuota = Guid.NewGuid(),
+                    IdContratoAlquiler = contrato.IdContratoAlquiler,
+                    NroCuota = i,
+                    Periodo = fecha.ToString("yyyyMM"),
+                    FechaVencimiento = fecha,
+                    Estado = "Pendiente",
+                    ImporteTotalCalculado = contrato.PrecioCuota
+                });
+            }
+            return cuotas;
         }
 
         public Cuota? ObtenerCuotaPorContrato(Guid contratoId)
@@ -62,7 +84,7 @@ namespace CapaNegocio
 
             var precioBase = contrato.PrecioCuota;
 
-            // --- Ajuste por índice escalonado ---
+            // --- Ajuste por �ndice escalonado ---
             var mesesFrecuencia = FrecuenciaAMeses(contrato.FrecuenciaAjuste);
             decimal factor = 1m;
             decimal valorIndiceAplicado = 1m;

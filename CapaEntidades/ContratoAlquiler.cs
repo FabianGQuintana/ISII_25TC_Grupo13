@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace CapaEntidades
 {
@@ -22,6 +23,8 @@ namespace CapaEntidades
 
         public decimal MoraDiaria => TasaMoraMensual / 30m;
         public decimal MoraDiariaMonto => PrecioCuota * MoraDiaria / 100m;
+
+        public List<Cuota> Cuotas { get; set; } = new();
 
         public Inquilino? OInquilino { get; set; }
         public Inmueble? OInmueble { get; set; }

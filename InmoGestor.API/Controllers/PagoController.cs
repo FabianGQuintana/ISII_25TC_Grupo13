@@ -47,6 +47,12 @@ namespace InmoGestor.API.Controllers
                     ValorIndiceAplicado = detalle.ValorIndiceAplicado,
                     ImporteActualizado = detalle.ImporteActualizado,
                     TotalAdicionales = detalle.TotalAdicionales,
+                    DetalleAdicionales = detalle.Adicionales.Select(a => new CuotaAdicionalDetalleDto
+                    {
+                        TipoAdicional = a.OTipoAdicional?.Descripcion ?? "",
+                        Monto = a.MontoAplicado,
+                        Descripcion = a.DescripcionManual ?? ""
+                    }).ToList(),
                     TotalDescuentos = detalle.TotalDescuentos,
                     DiasAtraso = detalle.DiasAtraso,
                     MoraCalculada = detalle.MoraCalculada,

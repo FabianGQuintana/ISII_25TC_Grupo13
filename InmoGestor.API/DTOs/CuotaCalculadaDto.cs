@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace InmoGestor.API.DTOs
 {
@@ -19,6 +20,8 @@ namespace InmoGestor.API.DTOs
         public decimal ImporteActualizado { get; set; }
 
         public decimal TotalAdicionales { get; set; }
+
+        public List<CuotaAdicionalDetalleDto> DetalleAdicionales { get; set; } = new();
 
         public decimal TotalDescuentos { get; set; }
 

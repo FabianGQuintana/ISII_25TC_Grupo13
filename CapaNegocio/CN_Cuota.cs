@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CapaDatos;
 using CapaEntidades;
@@ -102,24 +103,20 @@ namespace CapaNegocio
                 {
                     var hitoFecha = contrato.FechaCreacion.AddMonths(ajustes * mesesFrecuencia);
 
-                    try
-                    {
-                        var indiceHito = await _cnIndice.ObtenerIndicePorFecha(
-                            contrato.IdTipoIndice.Value, hitoFecha);
+                    var indiceHito = await _cnIndice.ObtenerIndicePorFecha(
+                        contrato.IdTipoIndice.Value, hitoFecha);
 
-                        factor = indiceHito / contrato.ValorIndiceInicio.Value;
-                        valorIndiceAplicado = factor;
-                    }
-                    catch
+                    if (indiceHito.HasValue)
                     {
-                        factor = 1m;
-                        valorIndiceAplicado = 1m;
+                        factor = indiceHito.Value / contrato.ValorIndiceInicio.Value;
+                        valorIndiceAplicado = factor;
                     }
                 }
             }
 
             var importeActualizado = precioBase * factor;
-            var adicionales = _cdCuotaAdicional.ObtenerTotalAdicionales(cuota.IdCuota);
+            var listaAdicionales = _cdCuotaAdicional.ObtenerDetalleAdicionalesPorCuota(cuota.IdCuota);
+            var adicionales = listaAdicionales.Sum(x => x.MontoAplicado);
             var totalFinal = importeActualizado
                            + mora
                            + adicionales
@@ -135,6 +132,7 @@ namespace CapaNegocio
                 ValorIndiceAplicado = valorIndiceAplicado,
                 ImporteActualizado = importeActualizado,
                 TotalAdicionales = adicionales,
+                Adicionales = listaAdicionales,
                 TotalDescuentos = cuota.DescuentoAdicionalTotal,
                 DiasAtraso = diasAtraso,
                 MoraCalculada = mora,

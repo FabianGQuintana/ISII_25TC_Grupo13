@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using CapaEntidades;
 
 namespace CapaNegocio
 {
@@ -12,6 +14,7 @@ namespace CapaNegocio
         public decimal ValorIndiceAplicado { get; set; }
         public decimal ImporteActualizado { get; set; }
         public decimal TotalAdicionales { get; set; }
+        public List<CuotaAdicional> Adicionales { get; set; } = new();
         public decimal TotalDescuentos { get; set; }
         public int DiasAtraso { get; set; }
         public decimal MoraCalculada { get; set; }

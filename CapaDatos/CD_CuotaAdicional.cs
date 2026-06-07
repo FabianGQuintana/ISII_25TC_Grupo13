@@ -77,5 +77,60 @@ namespace CapaDatos
 
             return total;
         }
+
+        public List<CuotaAdicional> ObtenerDetalleAdicionalesPorCuota(Guid idCuota)
+        {
+            var lista = new List<CuotaAdicional>();
+
+            using (var cn = new SqlConnection(Conexion.Cadena))
+            {
+                string query = @"
+                    SELECT 
+                        ca.id_cuota_adicional,
+                        ca.id_cuota,
+                        ca.id_tipo_adicionales,
+                        ca.monto_aplicado,
+                        ca.descripcion_manual,
+                        ca.fecha_creacion,
+                        ta.descripcion AS tipo_adicional_descripcion,
+                        ta.monto_base
+                    FROM cuota_adicional ca
+                    INNER JOIN tipo_adicionales ta 
+                        ON ca.id_tipo_adicionales = ta.id_tipo_adicionales
+                    WHERE ca.id_cuota = @idCuota
+                    ORDER BY ca.fecha_creacion ASC";
+
+                using (var cmd = new SqlCommand(query, cn))
+                {
+                    cmd.Parameters.AddWithValue("@idCuota", idCuota);
+
+                    cn.Open();
+
+                    using (var dr = cmd.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            lista.Add(new CuotaAdicional
+                            {
+                                IdCuotaAdicional = dr["id_cuota_adicional"] is Guid id ? id : Guid.Empty,
+                                IdCuota = dr["id_cuota"] is Guid idC ? idC : Guid.Empty,
+                                IdTipoAdicionales = dr["id_tipo_adicionales"] is Guid idT ? idT : Guid.Empty,
+                                MontoAplicado = dr["monto_aplicado"] is decimal m ? m : 0m,
+                                DescripcionManual = dr["descripcion_manual"]?.ToString(),
+                                FechaCreacion = dr["fecha_creacion"] is DateTime f ? f : default,
+                                OTipoAdicional = new TipoAdicional
+                                {
+                                    IdTipoAdicionales = dr["id_tipo_adicionales"] is Guid idTA ? idTA : Guid.Empty,
+                                    Descripcion = dr["tipo_adicional_descripcion"]?.ToString() ?? "",
+                                    MontoBase = dr["monto_base"] is decimal mb ? mb : 0m
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+
+            return lista;
+        }
     }
 }

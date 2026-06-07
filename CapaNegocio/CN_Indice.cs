@@ -46,14 +46,25 @@ namespace CapaNegocio
             return nuevo;
         }
 
-        public async Task<decimal> ObtenerIndicePorFecha(Guid idTipoIndice, DateTime fecha)
+        public async Task<decimal?> ObtenerIndicePorFecha(Guid idTipoIndice, DateTime fecha)
         {
             var historico = _capaDato.ObtenerPorFecha(idTipoIndice, fecha);
             if (historico != null)
                 return historico.Valor;
 
-            var actual = await ObtenerOActualizar(idTipoIndice);
-            return actual.Valor;
+            var masCercano = _capaDato.ObtenerMasCercano(idTipoIndice, fecha);
+            if (masCercano != null)
+                return masCercano.Valor;
+
+            try
+            {
+                var actual = await ObtenerOActualizar(idTipoIndice);
+                return actual.Valor;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public async Task<decimal> ObtenerIndice(Guid idCuota)

@@ -1,4 +1,5 @@
-﻿namespace InmoGestor.API.DTOs
+﻿#nullable enable
+namespace InmoGestor.API.DTOs
 {
     public class CrearCuotaAdicionalRequest
     {

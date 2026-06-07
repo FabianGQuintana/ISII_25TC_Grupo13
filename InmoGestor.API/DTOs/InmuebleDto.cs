@@ -1,3 +1,4 @@
+#nullable enable
 namespace InmoGestor.API.DTOs
 {
     public class InmuebleResponse

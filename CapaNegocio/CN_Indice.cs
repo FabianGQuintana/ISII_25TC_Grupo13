@@ -31,7 +31,7 @@ namespace CapaNegocio
 
             var valorExterno = await FetchValorExterno(tipo.Nombre);
 
-            var nuevo = new HistoricoIndice
+            var valorIndiceNuevo = new HistoricoIndice
             {
                 IdHistoricoIndice = Guid.NewGuid(),
                 IdTipoIndice = idTipoIndice,
@@ -39,8 +39,8 @@ namespace CapaNegocio
                 FechaValidez = DateTime.Now
             };
 
-            _capaDato.InsertarHistorico(nuevo);
-            return nuevo;
+            _capaDato.InsertarHistorico(valorIndiceNuevo);
+            return valorIndiceNuevo;
         }
 
         public async Task<decimal?> ObtenerIndicePorFecha(Guid idTipoIndice, DateTime fecha)

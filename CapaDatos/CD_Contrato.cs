@@ -5,7 +5,7 @@ using CapaEntidades;
 
 namespace CapaDatos
 {
-    public class CD_Contrato
+    public class CD_Contrato : ICD_Contrato
     {
         public List<ContratoAlquiler> Listar(int? estado = null)
         {

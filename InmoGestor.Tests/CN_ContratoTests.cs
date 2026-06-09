@@ -1,69 +1,117 @@
-using Xunit;
-using CapaNegocio;
-using CapaEntidades;
 using CapaDatos;
-using Microsoft.Data.SqlClient;
+using CapaEntidades;
+using CapaNegocio;
+using Moq;
+using Xunit;
 
 namespace InmoGestor.Tests
 {
-    public class CN_ContratoTests : IDisposable
+    public class CN_ContratoTests
     {
-        private readonly CN_Contrato _cnContrato = new();
-        private readonly List<(Guid contratoId, Guid inmuebleId)> _contratosCreados = new();
+        private static readonly Guid IdInmueble = Guid.NewGuid();
+        private static readonly Guid IdInquilino = Guid.NewGuid();
+        private static readonly Guid IdUsuario = Guid.NewGuid();
+        private static readonly Guid IdRolInquilino = Guid.NewGuid();
 
-        // IDs reales de la DB de desarrollo
-        private static readonly Guid InmuebleDisponible1 = Guid.Parse("C22AF265-68AF-4C7A-947B-245281220A69");
-        private static readonly Guid InmuebleDisponible2 = Guid.Parse("09BED20E-DB49-4865-A242-3C8A19832AF8");
-        private static readonly Guid InquilinoValido = Guid.Parse("254FEC1A-A8FF-44DB-B850-1986DABCCCCC");
-        private static readonly Guid UsuarioCreador = Guid.Parse("D1514450-2493-4477-A691-6A5138D84100");
+        private readonly Mock<ICD_Contrato> _mockCdContrato;
+        private readonly CN_Contrato _cnContrato;
 
-        private ContratoAlquiler ContratoValido(Guid idInmueble) => new ContratoAlquiler
+        public CN_ContratoTests()
         {
-            IdInmueble = idInmueble,
-            IdPersonaInquilino = InquilinoValido,
+            _mockCdContrato = new Mock<ICD_Contrato>();
+            _cnContrato = new CN_Contrato(_mockCdContrato.Object, new CN_Cuota(), new CN_Inmueble());
+        }
+
+        private ContratoAlquiler ContratoValido() => new ContratoAlquiler
+        {
+            IdInmueble = IdInmueble,
+            IdPersonaInquilino = IdInquilino,
             CantidadCuotas = 12,
             PrecioCuota = 150000,
             FechaCreacion = DateTime.Now,
             FechaFin = DateTime.Now.AddMonths(12),
             TasaMoraMensual = 5,
-            IdUsuarioCreador = UsuarioCreador
+            IdUsuarioCreador = IdUsuario
         };
+
+        private void SetupInmuebleDisponible() =>
+            _mockCdContrato.Setup(x => x.ValidarInmuebleDisponible(IdInmueble, null))
+                           .Returns((true, ""));
+
+        private void SetupRolInquilino() =>
+            _mockCdContrato.Setup(x => x.ObtenerIdRolInquilino(IdInquilino))
+                           .Returns(IdRolInquilino);
+
+        private void SetupCrearContrato(Guid idContrato) =>
+            _mockCdContrato.Setup(x => x.CrearContrato(It.IsAny<ContratoAlquiler>()))
+                           .Returns((true, "Contrato creado exitosamente", (Guid?)idContrato));
 
         [Fact]
         public void CrearContrato_TodosLosCamposValidos_RetornaExito()
         {
-            var contrato = ContratoValido(InmuebleDisponible1);
+            var idEsperado = Guid.NewGuid();
+            SetupInmuebleDisponible();
+            SetupRolInquilino();
+            SetupCrearContrato(idEsperado);
 
-            var (success, message, contratoId) = _cnContrato.CrearContrato(contrato);
-
-            if (success && contratoId.HasValue)
-                _contratosCreados.Add((contratoId.Value, InmuebleDisponible1));
+            var (success, message, contratoId) = _cnContrato.CrearContrato(ContratoValido());
 
             Assert.True(success);
             Assert.Equal("Contrato creado exitosamente", message);
-            Assert.NotNull(contratoId);
+            Assert.Equal(idEsperado, contratoId);
         }
 
         [Fact]
         public void CrearContrato_TasaMoraCero_RetornaExito()
         {
-            var contrato = ContratoValido(InmuebleDisponible2);
+            var idEsperado = Guid.NewGuid();
+            SetupInmuebleDisponible();
+            SetupRolInquilino();
+            SetupCrearContrato(idEsperado);
+            var contrato = ContratoValido();
             contrato.TasaMoraMensual = 0;
 
             var (success, message, contratoId) = _cnContrato.CrearContrato(contrato);
 
-            if (success && contratoId.HasValue)
-                _contratosCreados.Add((contratoId.Value, InmuebleDisponible2));
-
             Assert.True(success);
             Assert.Equal("Contrato creado exitosamente", message);
-            Assert.NotNull(contratoId);
+            Assert.Equal(idEsperado, contratoId);
+        }
+
+        [Fact]
+        public void CrearContrato_InmuebleNoDisponible_RetornaError()
+        {
+            _mockCdContrato.Setup(x => x.ValidarInmuebleDisponible(IdInmueble, null))
+                           .Returns((false, "El inmueble ya tiene un contrato activo"));
+            SetupRolInquilino();
+
+            var (success, message, contratoId) = _cnContrato.CrearContrato(ContratoValido());
+
+            Assert.False(success);
+            Assert.Equal("El inmueble ya tiene un contrato activo", message);
+            Assert.Null(contratoId);
+            _mockCdContrato.Verify(x => x.CrearContrato(It.IsAny<ContratoAlquiler>()), Times.Never);
+        }
+
+        [Fact]
+        public void CrearContrato_InquilinoSinRolAsignado_RetornaError()
+        {
+            SetupInmuebleDisponible();
+            _mockCdContrato.Setup(x => x.ObtenerIdRolInquilino(IdInquilino))
+                           .Returns((Guid?)null);
+
+            var (success, message, contratoId) = _cnContrato.CrearContrato(ContratoValido());
+
+            Assert.False(success);
+            Assert.Equal("El inquilino seleccionado no tiene un rol 'Inquilino' válido asignado en el sistema.", message);
+            Assert.Null(contratoId);
+            _mockCdContrato.Verify(x => x.CrearContrato(It.IsAny<ContratoAlquiler>()), Times.Never);
         }
 
         [Fact]
         public void CrearContrato_InmuebleVacio_RetornaError()
         {
-            var contrato = ContratoValido(InmuebleDisponible1);
+            var contrato = ContratoValido();
             contrato.IdInmueble = Guid.Empty;
 
             var (success, message, contratoId) = _cnContrato.CrearContrato(contrato);
@@ -76,7 +124,7 @@ namespace InmoGestor.Tests
         [Fact]
         public void CrearContrato_InquilinoVacio_RetornaError()
         {
-            var contrato = ContratoValido(InmuebleDisponible1);
+            var contrato = ContratoValido();
             contrato.IdPersonaInquilino = Guid.Empty;
 
             var (success, message, contratoId) = _cnContrato.CrearContrato(contrato);
@@ -89,7 +137,7 @@ namespace InmoGestor.Tests
         [Fact]
         public void CrearContrato_CantidadCuotasCero_RetornaError()
         {
-            var contrato = ContratoValido(InmuebleDisponible1);
+            var contrato = ContratoValido();
             contrato.CantidadCuotas = 0;
 
             var (success, message, contratoId) = _cnContrato.CrearContrato(contrato);
@@ -102,7 +150,7 @@ namespace InmoGestor.Tests
         [Fact]
         public void CrearContrato_CantidadCuotasNegativa_RetornaError()
         {
-            var contrato = ContratoValido(InmuebleDisponible1);
+            var contrato = ContratoValido();
             contrato.CantidadCuotas = -1;
 
             var (success, message, contratoId) = _cnContrato.CrearContrato(contrato);
@@ -113,9 +161,22 @@ namespace InmoGestor.Tests
         }
 
         [Fact]
+        public void CrearContrato_CantidadCuotasSuperaMaximo_RetornaError()
+        {
+            var contrato = ContratoValido();
+            contrato.CantidadCuotas = CN_Contrato.MaxCantidadCuotas + 1;
+
+            var (success, message, contratoId) = _cnContrato.CrearContrato(contrato);
+
+            Assert.False(success);
+            Assert.Equal($"La cantidad de cuotas no puede superar {CN_Contrato.MaxCantidadCuotas}", message);
+            Assert.Null(contratoId);
+        }
+
+        [Fact]
         public void CrearContrato_PrecioCuotaCero_RetornaError()
         {
-            var contrato = ContratoValido(InmuebleDisponible1);
+            var contrato = ContratoValido();
             contrato.PrecioCuota = 0;
 
             var (success, message, contratoId) = _cnContrato.CrearContrato(contrato);
@@ -128,7 +189,7 @@ namespace InmoGestor.Tests
         [Fact]
         public void CrearContrato_PrecioCuotaNegativo_RetornaError()
         {
-            var contrato = ContratoValido(InmuebleDisponible1);
+            var contrato = ContratoValido();
             contrato.PrecioCuota = -500;
 
             var (success, message, contratoId) = _cnContrato.CrearContrato(contrato);
@@ -139,9 +200,49 @@ namespace InmoGestor.Tests
         }
 
         [Fact]
+        public void CrearContrato_TasaMoraNegativa_RetornaError()
+        {
+            var contrato = ContratoValido();
+            contrato.TasaMoraMensual = -1;
+
+            var (success, message, contratoId) = _cnContrato.CrearContrato(contrato);
+
+            Assert.False(success);
+            Assert.Equal("La tasa de mora no puede ser negativa", message);
+            Assert.Null(contratoId);
+        }
+
+        [Fact]
+        public void CrearContrato_FrecuenciaAjusteInvalida_RetornaError()
+        {
+            var contrato = ContratoValido();
+            contrato.FrecuenciaAjuste = "Diaria";
+
+            var (success, message, contratoId) = _cnContrato.CrearContrato(contrato);
+
+            Assert.False(success);
+            Assert.Equal("La frecuencia de ajuste no es válida", message);
+            Assert.Null(contratoId);
+        }
+
+        [Fact]
+        public void CrearContrato_IndiceSeleccionadoSinValor_RetornaError()
+        {
+            var contrato = ContratoValido();
+            contrato.IdTipoIndice = Guid.NewGuid();
+            contrato.ValorIndiceInicio = null;
+
+            var (success, message, contratoId) = _cnContrato.CrearContrato(contrato);
+
+            Assert.False(success);
+            Assert.Equal("Debe ingresar el valor del índice seleccionado", message);
+            Assert.Null(contratoId);
+        }
+
+        [Fact]
         public void CrearContrato_FechaFinVacia_RetornaError()
         {
-            var contrato = ContratoValido(InmuebleDisponible1);
+            var contrato = ContratoValido();
             contrato.FechaFin = default;
 
             var (success, message, contratoId) = _cnContrato.CrearContrato(contrato);
@@ -151,30 +252,18 @@ namespace InmoGestor.Tests
             Assert.Null(contratoId);
         }
 
-        public void Dispose()
+        [Fact]
+        public void CrearContrato_FechaFinAnteriorAInicio_RetornaError()
         {
-            if (_contratosCreados.Count == 0) return;
+            var contrato = ContratoValido();
+            contrato.FechaCreacion = DateTime.Now;
+            contrato.FechaFin = DateTime.Now.AddDays(-1);
 
-            using var cn = new SqlConnection(Conexion.Cadena);
-            cn.Open();
-            foreach (var (contratoId, inmuebleId) in _contratosCreados)
-            {
-                using (var cmd = new SqlCommand("DELETE FROM cuota WHERE id_contrato_alquiler = @id", cn))
-                {
-                    cmd.Parameters.AddWithValue("@id", contratoId);
-                    cmd.ExecuteNonQuery();
-                }
-                using (var cmd = new SqlCommand("DELETE FROM contrato_alquiler WHERE id_contrato_alquiler = @id", cn))
-                {
-                    cmd.Parameters.AddWithValue("@id", contratoId);
-                    cmd.ExecuteNonQuery();
-                }
-                using (var cmd = new SqlCommand("UPDATE inmueble SET disponibilidad = 1 WHERE id_inmueble = @id", cn))
-                {
-                    cmd.Parameters.AddWithValue("@id", inmuebleId);
-                    cmd.ExecuteNonQuery();
-                }
-            }
+            var (success, message, contratoId) = _cnContrato.CrearContrato(contrato);
+
+            Assert.False(success);
+            Assert.Equal("La fecha de fin debe ser posterior a la fecha de inicio", message);
+            Assert.Null(contratoId);
         }
     }
 }

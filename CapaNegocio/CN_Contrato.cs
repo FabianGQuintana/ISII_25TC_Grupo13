@@ -7,9 +7,21 @@ namespace CapaNegocio
 {
     public class CN_Contrato
     {
-        private readonly CD_Contrato _cdContrato = new();
-        private readonly CN_Cuota _cnCuota = new();
-        private readonly CN_Inmueble _cnInmueble = new();
+        private readonly ICD_Contrato _cdContrato;
+        private readonly CN_Cuota _cnCuota;
+        private readonly CN_Inmueble _cnInmueble;
+
+        public CN_Contrato()
+            : this(new CD_Contrato(), new CN_Cuota(), new CN_Inmueble())
+        {
+        }
+
+        public CN_Contrato(ICD_Contrato cdContrato, CN_Cuota cnCuota, CN_Inmueble cnInmueble)
+        {
+            _cdContrato = cdContrato;
+            _cnCuota = cnCuota;
+            _cnInmueble = cnInmueble;
+        }
 
         public const int MaxCantidadCuotas = 120;
 

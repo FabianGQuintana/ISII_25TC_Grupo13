@@ -87,9 +87,9 @@ namespace InmoGestor.API.Controllers
             if (!validSuccess)
                 return BadRequest(new { success = false, mensaje = validMessage });
 
-            var nuevoContrato = ContratoMapper.ToEntity(contrato, inquilino, userId);
+            var Contrato = ContratoMapper.ToEntity(contrato, inquilino, userId);
 
-            var (success, message, contratoId) = _cnContrato.CrearContrato(nuevoContrato);
+            var (success, message, contratoId) = _cnContrato.CrearContrato(Contrato);
 
             if (!success)
                 return BadRequest(new { success = false, mensaje = message });

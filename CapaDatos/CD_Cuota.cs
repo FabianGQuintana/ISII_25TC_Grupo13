@@ -5,7 +5,7 @@ using Microsoft.Data.SqlClient;
 
 namespace CapaDatos
 {
-    public class CD_Cuota
+    public class CD_Cuota : ICD_Cuota
     {
         public List<Cuota> ListarPendientesPorContrato(Guid idContrato)
         {

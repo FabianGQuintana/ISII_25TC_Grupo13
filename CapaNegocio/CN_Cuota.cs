@@ -7,7 +7,7 @@ using CapaEntidades;
 
 namespace CapaNegocio
 {
-    public class CN_Cuota
+    public class CN_Cuota : ICN_Cuota
     {
         private readonly CD_Cuota _cdCuota = new();
         private readonly CD_CuotaAdicional _cdCuotaAdicional = new();

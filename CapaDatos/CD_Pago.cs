@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 
-public class CD_Pago
+public class CD_Pago : ICD_Pago
 {
     private static int EstadoToInt(string estado) => estado switch
     {

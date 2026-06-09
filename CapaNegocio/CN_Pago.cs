@@ -8,8 +8,21 @@ namespace CapaNegocio
 {
     public class CN_Pago
     {
-        private readonly CD_Pago _cdPago = new();
-        private readonly CN_Cuota _cnCuota = new();
+        private readonly ICD_Pago _cdPago;
+        private readonly ICD_Cuota _cdCuota;
+        private readonly ICN_Cuota _cnCuota;
+
+        public CN_Pago()
+            : this(new CD_Pago(), new CD_Cuota(), new CN_Cuota())
+        {
+        }
+
+        public CN_Pago(ICD_Pago cdPago, ICD_Cuota cdCuota, ICN_Cuota cnCuota)
+        {
+            _cdPago = cdPago;
+            _cdCuota = cdCuota;
+            _cnCuota = cnCuota;
+        }
 
         public (bool Success, string Message) ProcesarAnulacionPago(Guid idPago, string motivo, Guid idUsuario)
         {
@@ -41,11 +54,16 @@ namespace CapaNegocio
              Guid idMetodoPago,
              Guid idUsuario)
         {
-            var cuota = new CD_Cuota().ObtenerPorId(idCuota);
+            var cuota = _cdCuota.ObtenerPorId(idCuota);
 
             if (cuota == null)
             {
                 return (false, "No se encontró la cuota", Guid.Empty);
+            }
+
+            if (cuota.Estado != "Pendiente" && cuota.Estado != "Vencida")
+            {
+                return (false, "La cuota no está pendiente o vencida", Guid.Empty);
             }
 
             var cuotaCalculada =
@@ -62,6 +80,11 @@ namespace CapaNegocio
                 return (false, "No se encontró la cuota", Guid.Empty);
             }
 
+            if (cuotaCalculada.TotalFinal <= 0)
+            {
+                return (false, "El descuento no puede ser mayor al total de la cuota", Guid.Empty);
+            }
+
             var pago = new Pago
             {
                 IdPago = Guid.NewGuid(),
@@ -75,7 +98,7 @@ namespace CapaNegocio
             };
 
             _cdPago.Insertar(pago);
-            new CD_Cuota().MarcarComoPagada(idCuota);
+            _cdCuota.MarcarComoPagada(idCuota);
 
             return (true, "Pago registrado correctamente", pago.IdPago);
         }

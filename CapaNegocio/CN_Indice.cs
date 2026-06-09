@@ -25,15 +25,12 @@ namespace CapaNegocio
             var tipo = ResolverTipo(idTipoIndice)
                 ?? throw new Exception("Tipo de índice no encontrado.");
 
-            // 1. ¿Ya consultamos HOY? (Caché diaria para no saturar Argly)
-            var hoy = _capaDato.ObtenerActual(idTipoIndice);
-            if (hoy != null)
-                return hoy;
+            var valorDeHoy = _capaDato.ObtenerActual(idTipoIndice);
+            if (valorDeHoy != null)
+                return valorDeHoy;
 
-            // 2. Caché miss de hoy: Traemos el valor de la API externa
             var valorExterno = await FetchValorExterno(tipo.Nombre);
 
-            // 3. Guardar el registro de hoy
             var nuevo = new HistoricoIndice
             {
                 IdHistoricoIndice = Guid.NewGuid(),

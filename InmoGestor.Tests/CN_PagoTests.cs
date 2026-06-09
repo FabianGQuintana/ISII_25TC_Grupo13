@@ -17,7 +17,7 @@ namespace InmoGestor.Tests
         private readonly Mock<ICD_Pago> _mockCdPago;
         private readonly Mock<ICD_Cuota> _mockCdCuota;
         private readonly Mock<ICN_Cuota> _mockCnCuota;
-        private readonly CN_Pago _cnPago;
+        private readonly CN_Pago _cnPago; // <- El SUT que usaré (System Under Test)
 
         public CN_PagoTests()
         {

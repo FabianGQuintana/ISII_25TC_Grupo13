@@ -233,7 +233,7 @@ namespace CapaDatos
             }
         }
 
-        public (bool success, string message, Guid? contratoId) Insertar(ContratoAlquiler contrato)
+        public (bool success, string message, Guid? contratoId) CrearContrato(ContratoAlquiler contrato)
         {
             using (var cn = new SqlConnection(Conexion.Cadena))
             {

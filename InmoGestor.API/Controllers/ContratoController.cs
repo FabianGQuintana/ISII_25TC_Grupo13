@@ -71,11 +71,11 @@ namespace InmoGestor.API.Controllers
                 return BadRequest(new { success = false, mensaje = "El inmueble es requerido" });
 
             if (string.IsNullOrWhiteSpace(contrato.DniInquilino))
-                return BadRequest(new { success = false, mensaje = "El DNI del inquilino es requerido" });
+                return BadRequest(new { success = false, mensaje = "El inquilino es requerido" });
 
             var inquilino = _cnInquilino.ObtenerPorDni(contrato.DniInquilino!);
             if (inquilino == null)
-                return BadRequest(new { success = false, mensaje = "No se encontró un inquilino con ese DNI" });
+                return BadRequest(new { success = false, mensaje = "No se encontró inquilino" });
 
             if (contrato.CantidadCuotas <= 0)
                 return BadRequest(new { success = false, mensaje = "La cantidad de cuotas debe ser mayor a 0" });

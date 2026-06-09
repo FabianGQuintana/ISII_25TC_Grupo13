@@ -90,7 +90,7 @@ namespace CapaNegocio
             var director = new GeneradorContrato();
             var contratoFinal = director.Construir(builder, contrato);
 
-            return _cdContrato.Insertar(contratoFinal);
+            return _cdContrato.CrearContrato(contratoFinal);
         }
 
         public (bool success, string message) Rescindir(Guid idContrato)

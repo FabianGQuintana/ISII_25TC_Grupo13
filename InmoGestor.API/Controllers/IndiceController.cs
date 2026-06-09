@@ -34,10 +34,10 @@ namespace InmoGestor.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult Guardar([FromBody] HistoricoIndice obj)
+        public IActionResult Guardar([FromBody] HistoricoIndice indice)
         {
-            _cnIndice.GuardarHistorico(obj);
-            return Ok(new { success = true, data = obj, mensaje = "Índice cacheado exitosamente." });
+            _cnIndice.GuardarHistorico(indice);
+            return Ok(new { success = true, data = indice, mensaje = "Índice cacheado exitosamente." });
         }
     }
 }

@@ -3,7 +3,7 @@ using CapaEntidades;
 
 namespace CapaNegocio
 {
-    public class ContratoAlquilerBuilder : IContratoBuilder
+    public class ContratoAlquilerBuilder : IContratoBuilder //Builder concreto que implementa los métodos de la interfaz builder
     {
         private readonly ContratoAlquiler _contrato = new();
         private readonly CN_Cuota _cnCuota = new();

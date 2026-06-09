@@ -3,7 +3,7 @@ using CapaEntidades;
 
 namespace CapaNegocio
 {
-    public class GeneradorContrato
+    public class GeneradorContrato //Orquestador de la construcción de un contrato-Director
     {
         public ContratoAlquiler Construir(IContratoBuilder builder, ContratoAlquiler datos)
         {

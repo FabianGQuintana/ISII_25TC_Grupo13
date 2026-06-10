@@ -5,13 +5,19 @@ using CapaEntidades;
 
 namespace CapaNegocio
 {
-    public class CN_Propietario
+    public class CN_Propietario : CN_PersonaRolCliente<Propietario>
     {
         private readonly CD_Propietario _cd = new();
 
-        public List<Propietario> ListarPropietarios() => _cd.ListarPropietarios();
+        public override Propietario? ObtenerPorId(Guid id)
+        {
+            if (id == Guid.Empty)
+                return null;
 
-        public Propietario? ObtenerPorDni(string dni)
+            return _cd.ObtenerPorId(id);
+        }
+
+        public override Propietario? ObtenerPorDni(string dni)
         {
             if (string.IsNullOrWhiteSpace(dni))
                 return null;
@@ -19,12 +25,7 @@ namespace CapaNegocio
             return _cd.ObtenerPorDni(dni.Trim());
         }
 
-        public Propietario? ObtenerPorId(Guid id)
-        {
-            if (id == Guid.Empty)
-                return null;
-
-            return _cd.ObtenerPorId(id);
-        }
+        public List<Propietario> ListarPropietarios()
+            => _cd.ListarPropietarios();
     }
 }

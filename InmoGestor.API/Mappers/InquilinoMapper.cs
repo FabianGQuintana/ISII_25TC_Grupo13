@@ -19,7 +19,10 @@ namespace InmoGestor.API.Mappers
             };
         }
 
-        public static List<InquilinoResponse> ToResponseList(List<Persona> inquilinos)
+        public static InquilinoResponse ToResponse(Inquilino i)
+            => ToResponse(i.OPersona!);
+
+        public static List<InquilinoResponse> ToResponseList(List<Inquilino> inquilinos)
             => inquilinos.Select(ToResponse).ToList();
     }
 }

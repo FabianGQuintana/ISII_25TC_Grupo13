@@ -7,9 +7,9 @@ namespace CapaDatos
 {
     public class CD_Inquilino
     {
-        public List<Persona> ListarInquilinos()
+        public List<Inquilino> ListarInquilinos()
         {
-            var lista = new List<Persona>();
+            var lista = new List<Inquilino>();
 
             using (var cn = new SqlConnection(Conexion.Cadena))
             {
@@ -22,7 +22,9 @@ namespace CapaDatos
                         p.email,
                         p.telefono,
                         p.estado,
-                        p.fecha_nacimiento
+                        p.fecha_nacimiento,
+                        prc.id_rol_cliente,
+                        prc.estado AS rol_estado
                     FROM persona p
                     INNER JOIN persona_rol_cliente prc ON p.id_persona = prc.id_persona
                     INNER JOIN rol_cliente rc ON prc.id_rol_cliente = rc.id_rol_cliente
@@ -36,21 +38,7 @@ namespace CapaDatos
                     using (var dr = cmd.ExecuteReader())
                     {
                         while (dr.Read())
-                        {
-                            lista.Add(new Persona
-                            {
-                                IdPersona = Guid.Parse(dr["id_persona"].ToString()!),
-                                Dni = dr["dni"]?.ToString(),
-                                Nombre = dr["nombre"]?.ToString() ?? "",
-                                Apellido = dr["apellido"]?.ToString() ?? "",
-                                Email = dr["email"]?.ToString() ?? "",
-                                Telefono = dr["telefono"]?.ToString(),
-                                Estado = dr["estado"]?.ToString() ?? "Activo",
-                                FechaNacimiento = dr["fecha_nacimiento"] != DBNull.Value
-                                    ? DateTime.Parse(dr["fecha_nacimiento"].ToString()!)
-                                    : null
-                            });
-                        }
+                            lista.Add(MapInquilino(dr));
                     }
                 }
             }
@@ -58,9 +46,9 @@ namespace CapaDatos
             return lista;
         }
 
-        public List<Persona> ListarConContratosActivos()
+        public List<Inquilino> ListarConContratosActivos()
         {
-            var lista = new List<Persona>();
+            var lista = new List<Inquilino>();
 
             using (var cn = new SqlConnection(Conexion.Cadena))
             {
@@ -73,7 +61,9 @@ namespace CapaDatos
                         p.email,
                         p.telefono,
                         p.estado,
-                        p.fecha_nacimiento
+                        p.fecha_nacimiento,
+                        prc.id_rol_cliente,
+                        prc.estado AS rol_estado
                     FROM persona p
                     INNER JOIN persona_rol_cliente prc ON p.id_persona = prc.id_persona
                     INNER JOIN rol_cliente rc ON prc.id_rol_cliente = rc.id_rol_cliente
@@ -88,26 +78,35 @@ namespace CapaDatos
                     using (var dr = cmd.ExecuteReader())
                     {
                         while (dr.Read())
-                        {
-                            lista.Add(new Persona
-                            {
-                                IdPersona = Guid.Parse(dr["id_persona"].ToString()!),
-                                Dni = dr["dni"]?.ToString(),
-                                Nombre = dr["nombre"]?.ToString() ?? "",
-                                Apellido = dr["apellido"]?.ToString() ?? "",
-                                Email = dr["email"]?.ToString() ?? "",
-                                Telefono = dr["telefono"]?.ToString(),
-                                Estado = dr["estado"]?.ToString() ?? "Activo",
-                                FechaNacimiento = dr["fecha_nacimiento"] != DBNull.Value
-                                    ? DateTime.Parse(dr["fecha_nacimiento"].ToString()!)
-                                    : null
-                            });
-                        }
+                            lista.Add(MapInquilino(dr));
                     }
                 }
             }
 
             return lista;
+        }
+
+        private static Inquilino MapInquilino(SqlDataReader dr)
+        {
+            return new Inquilino
+            {
+                IdPersona = Guid.Parse(dr["id_persona"].ToString()!),
+                IdRolCliente = Guid.Parse(dr["id_rol_cliente"].ToString()!),
+                Estado = Convert.ToBoolean(dr["rol_estado"]),
+                OPersona = new Persona
+                {
+                    IdPersona = Guid.Parse(dr["id_persona"].ToString()!),
+                    Dni = dr["dni"]?.ToString(),
+                    Nombre = dr["nombre"]?.ToString() ?? "",
+                    Apellido = dr["apellido"]?.ToString() ?? "",
+                    Email = dr["email"]?.ToString() ?? "",
+                    Telefono = dr["telefono"]?.ToString(),
+                    Estado = dr["estado"]?.ToString() ?? "Activo",
+                    FechaNacimiento = dr["fecha_nacimiento"] != DBNull.Value
+                        ? DateTime.Parse(dr["fecha_nacimiento"].ToString()!)
+                        : null
+                }
+            };
         }
 
         public Persona? ObtenerPorDni(string dni)

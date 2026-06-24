@@ -27,7 +27,7 @@ namespace InmoGestor.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> ObtenerActual(Guid id)
+        public async Task<IActionResult> ObtenerOActualizar(Guid id)
         {
             var indice = await _cnIndice.ObtenerOActualizar(id);
             return Ok(new { success = true, data = indice });

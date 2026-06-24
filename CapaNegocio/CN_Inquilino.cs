@@ -5,21 +5,19 @@ using CapaEntidades;
 
 namespace CapaNegocio
 {
-    public class CN_Inquilino
+    public class CN_Inquilino : CN_PersonaRolCliente<Persona>
     {
         private readonly CD_Inquilino _cdInquilino = new();
 
-        public List<Persona> ListarInquilinos()
+        public override Persona? ObtenerPorId(Guid id)
         {
-            return _cdInquilino.ListarInquilinos();
+            if (id == Guid.Empty)
+                return null;
+
+            return _cdInquilino.ObtenerPorId(id);
         }
 
-        public List<Persona> ListarConContratosActivos()
-        {
-            return _cdInquilino.ListarConContratosActivos();
-        }
-
-        public Persona? ObtenerPorDni(string dni)
+        public override Persona? ObtenerPorDni(string dni)
         {
             if (string.IsNullOrWhiteSpace(dni))
                 return null;
@@ -27,12 +25,10 @@ namespace CapaNegocio
             return _cdInquilino.ObtenerPorDni(dni.Trim());
         }
 
-        public Persona? ObtenerPorId(Guid id)
-        {
-            if (id == Guid.Empty)
-                return null;
+        public List<Inquilino> ListarInquilinos()
+            => _cdInquilino.ListarInquilinos();
 
-            return _cdInquilino.ObtenerPorId(id);
-        }
+        public List<Inquilino> ListarConContratosActivos()
+            => _cdInquilino.ListarConContratosActivos();
     }
 }

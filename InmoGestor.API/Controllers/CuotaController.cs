@@ -93,10 +93,10 @@ namespace InmoGestor.API.Controllers
             });
         }
 
-        [HttpPatch("{id}/descuento")]
-        public IActionResult ActualizarDescuento(string id, [FromBody] ActualizarDescuentoRequest request)
+        [HttpPatch("{idCuota}/descuento")]
+        public IActionResult ActualizarDescuento(string idCuota, [FromBody] ActualizarDescuentoRequest request)
         {
-            if (!Guid.TryParse(id, out var guidId))
+            if (!Guid.TryParse(idCuota, out var guidId))
             {
                 return BadRequest(new { success = false, mensaje = "ID de cuota inválido" });
             }
